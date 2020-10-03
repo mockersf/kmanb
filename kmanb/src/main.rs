@@ -5,6 +5,7 @@ pub mod ui;
 
 mod about;
 mod assets;
+mod game;
 mod menu;
 mod splash;
 use assets::AssetHandles;
@@ -14,8 +15,6 @@ struct Settings {
     width: u32,
     height: u32,
     fullscreen: bool,
-    grid_x: u32,
-    grid_y: u32,
 }
 
 impl Default for Settings {
@@ -24,8 +23,6 @@ impl Default for Settings {
             width: 2560,
             height: 1600,
             fullscreen: false,
-            grid_x: 30,
-            grid_y: 18,
         }
     }
 }
@@ -36,7 +33,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let _subscriber = tracing_subscriber::fmt()
         .with_max_level(tracing::Level::INFO)
         .with_env_filter(
-            "info,bevy_log_diagnostic=debug,corylus=debug,gfx_backend_metal=warn,wgpu_core=warn",
+            "info,bevy_log_diagnostic=debug,corylus=debug,gfx_backend_metal=warn,wgpu_core=warn,bevy_render=warn",
         )
         .init();
 
@@ -75,6 +72,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_plugin(crate::splash::Plugin)
         .add_plugin(crate::menu::Plugin)
         .add_plugin(crate::about::Plugin)
+        .add_plugin(crate::game::Plugin)
         .run();
 
     Ok(())

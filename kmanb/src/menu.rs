@@ -339,7 +339,7 @@ fn button_system(
             Interaction::Clicked => match button_id.0 {
                 MenuButton::Quit => game_state.current_screen = crate::Screen::Exit,
                 MenuButton::About => game_state.current_screen = crate::Screen::About,
-                _ => (),
+                MenuButton::NewGame => game_state.current_screen = crate::Screen::Game,
             },
             Interaction::Hovered => (),
             Interaction::None => (),

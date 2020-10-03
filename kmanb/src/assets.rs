@@ -1,12 +1,18 @@
 use bevy::prelude::*;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct AssetHandles {
     panel_handle: Option<Handle<bevy_ninepatch::NinePatch<()>>>,
     button_handle: Option<Handle<crate::ui::button::Button>>,
     character_handle: Option<Handle<TextureAtlas>>,
     font_main_handle: Option<Handle<Font>>,
     font_sub_handle: Option<Handle<Font>>,
+    board: Option<GameBoardHandles>,
+}
+
+#[derive(Clone)]
+pub struct GameBoardHandles {
+    pub ground_handle: Handle<ColorMaterial>,
 }
 
 impl AssetHandles {
@@ -99,5 +105,24 @@ impl AssetHandles {
             self.font_sub_handle = Some(font);
         }
         self.font_sub_handle.unwrap()
+    }
+
+    pub fn get_board_handles(
+        &mut self,
+        asset_server: &Res<AssetServer>,
+        mut materials: ResMut<Assets<ColorMaterial>>,
+    ) -> GameBoardHandles {
+        if self.board.is_none() {
+            let ground = include_bytes!("../assets/game/rpgTile024.png");
+            let ground_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(ground.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+
+            self.board = Some(GameBoardHandles { ground_handle })
+        }
+        self.board.as_ref().unwrap().clone()
     }
 }
