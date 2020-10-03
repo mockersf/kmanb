@@ -19,18 +19,11 @@ impl Default for Screen {
         }
     }
 }
-#[derive(Default)]
-struct ScreenHandles {
-    panel_handle: Option<Handle<bevy_ninepatch::NinePatch<()>>>,
-    button_handle: Option<Handle<crate::ui::button::Button>>,
-    character_handle: Option<Handle<TextureAtlas>>,
-}
 
 pub struct Plugin;
 impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_resource(Screen::default())
-            .add_resource(ScreenHandles::default())
             .init_resource::<Assets<bevy_ninepatch::NinePatch<()>>>()
             .init_resource::<Assets<crate::ui::button::Button>>()
             .add_system(setup.system())
@@ -62,7 +55,7 @@ fn setup(
     mut commands: Commands,
     game_state: Res<crate::GameState>,
     mut screen: ResMut<Screen>,
-    mut screen_handles: ResMut<ScreenHandles>,
+    mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
     mut textures: ResMut<Assets<Texture>>,
     mut nine_patches: ResMut<Assets<bevy_ninepatch::NinePatch<()>>>,
@@ -73,54 +66,26 @@ fn setup(
     if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
 
-        if screen_handles.panel_handle.is_none() {
-            let panel = include_bytes!("../assets/ui/blue_panel.png");
-            let panel_texture_handle = asset_server
-                .load_sync_from(&mut textures, &mut panel.as_ref())
-                .unwrap();
-            let np = bevy_ninepatch::NinePatchBuilder::by_margins(10., 10., 10., 10., ()).apply(
-                panel_texture_handle,
-                &mut textures,
-                &mut materials,
-            );
-            screen_handles.panel_handle = Some(nine_patches.add(np));
-        };
-        let np_panel = nine_patches
-            .get(&screen_handles.panel_handle.unwrap())
-            .unwrap();
+        let panel_handle = asset_handles.get_panel_handle(
+            &asset_server,
+            &mut textures,
+            &mut nine_patches,
+            &mut materials,
+        );
+        let np_panel = nine_patches.get(&panel_handle).unwrap();
 
-        if screen_handles.button_handle.is_none() {
-            let button = include_bytes!("../assets/ui/grey_button02.png");
+        let button_handle = asset_handles.get_button_handle(
+            &asset_server,
+            &mut textures,
+            &mut materials,
+            &mut buttons,
+        );
+        let button = buttons.get(&button_handle).unwrap();
 
-            let button_texture_handle = asset_server
-                .load_sync_from(&mut textures, &mut button.as_ref())
-                .unwrap();
-            let button = crate::ui::button::Button::setup(
-                &mut materials,
-                &mut textures,
-                button_texture_handle,
-            );
-            screen_handles.button_handle = Some(buttons.add(button));
-        };
-        let button = buttons.get(&screen_handles.button_handle.unwrap()).unwrap();
+        let character_handle =
+            asset_handles.get_character_handle(&asset_server, &mut textures, &mut texture_atlases);
 
-        if screen_handles.character_handle.is_none() {
-            let character = include_bytes!("../assets/game/character_femaleAdventurer_sheetHD.png");
-            let character_texture_handle = asset_server
-                .load_sync_from(&mut textures, &mut character.as_ref())
-                .unwrap();
-
-            let texture = textures.get(&character_texture_handle).unwrap();
-            let texture_atlas =
-                TextureAtlas::from_grid(character_texture_handle, texture.size, 9, 5);
-            let texture_atlas_handle = texture_atlases.add(texture_atlas);
-            screen_handles.character_handle = Some(texture_atlas_handle);
-        };
-        let character_handle = screen_handles.character_handle.unwrap();
-
-        let font: Handle<Font> = asset_server
-            .load("assets/fonts/kenvector_future.ttf")
-            .expect("was able to load font");
+        let font: Handle<Font> = asset_handles.get_font_main_handle(&asset_server);
 
         let color_none = materials.add(Color::NONE.into());
 

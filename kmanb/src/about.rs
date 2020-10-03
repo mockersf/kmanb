@@ -30,17 +30,14 @@ fn setup(
     mut screen: ResMut<Screen>,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    mut asset_handles: ResMut<crate::AssetHandles>,
 ) {
     if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
 
-        let font: Handle<Font> = asset_server
-            .load("assets/fonts/kenvector_future.ttf")
-            .expect("was able to load font");
+        let font: Handle<Font> = asset_handles.get_font_main_handle(&asset_server);
 
-        let font_sub: Handle<Font> = asset_server
-            .load("assets/fonts/mandrill.ttf")
-            .expect("was able to load font");
+        let font_sub: Handle<Font> = asset_handles.get_font_sub_handle(&asset_server);
 
         commands
             .spawn(NodeComponents {

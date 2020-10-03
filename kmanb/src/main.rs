@@ -4,8 +4,10 @@ use serde::{Deserialize, Serialize};
 pub mod ui;
 
 mod about;
+mod assets;
 mod menu;
 mod splash;
+use assets::AssetHandles;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Settings {
@@ -68,6 +70,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_stage_after(bevy::app::stage::UPDATE, custom_stage::TEAR_DOWN)
         // ui
         .add_plugin(crate::ui::button::Plugin)
+        .add_resource(AssetHandles::default())
         // screens
         .add_plugin(crate::splash::Plugin)
         .add_plugin(crate::menu::Plugin)
@@ -102,20 +105,7 @@ impl Default for GameState {
     }
 }
 
-fn general_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let _font: Handle<Font> = asset_server
-        .load("assets/fonts/mandrill.ttf")
-        .expect("was able to load font");
-    let _font: Handle<Font> = asset_server
-        .load("assets/fonts/kenvector_future.ttf")
-        .expect("was able to load font");
-    let _font: Handle<Font> = asset_server
-        .load("assets/fonts/kenvector_future_thin.ttf")
-        .expect("was able to load font");
-    let _font: Handle<Font> = asset_server
-        .load("assets/fonts/FiraSans-Bold.ttf")
-        .expect("was able to load font");
-
+fn general_setup(mut commands: Commands) {
     commands.spawn(Camera2dComponents::default());
     commands.spawn(UiCameraComponents::default());
 }
