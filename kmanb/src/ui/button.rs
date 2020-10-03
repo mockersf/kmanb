@@ -13,8 +13,11 @@ impl Button {
         textures: &mut ResMut<Assets<Texture>>,
         texture_handle: Handle<Texture>,
     ) -> Button {
-        let nine_patch = bevy_ninepatch::NinePatchBuilder::by_margins(7., 7., 7., 7., ())
-            .apply(texture_handle, textures, materials);
+        let nine_patch = bevy_ninepatch::NinePatchBuilder::by_margins(7., 7., 7., 7., ()).apply(
+            texture_handle,
+            textures,
+            materials,
+        );
         Button {
             background: materials.add(Color::NONE.into()),
             nine_patch,
