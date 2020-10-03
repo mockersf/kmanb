@@ -18,6 +18,7 @@ pub struct Plugin;
 impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_resource(Screen::default())
+            .add_system(mouse_input_system.system())
             .add_system(setup.system())
             .add_system(keyboard_input_system.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
@@ -239,6 +240,19 @@ fn keyboard_input_system(
     keyboard_input: Res<Input<KeyCode>>,
 ) {
     if game_state.current_screen == CURRENT_SCREEN && keyboard_input.just_released(KeyCode::Escape)
+    {
+        game_state.current_screen = crate::Screen::Menu;
+    }
+}
+
+fn mouse_input_system(
+    mut game_state: ResMut<crate::GameState>,
+    screen: Res<Screen>,
+    mouse_button_input: Res<Input<MouseButton>>,
+) {
+    if game_state.current_screen == CURRENT_SCREEN
+        && screen.loaded
+        && mouse_button_input.just_pressed(MouseButton::Left)
     {
         game_state.current_screen = crate::Screen::Menu;
     }
