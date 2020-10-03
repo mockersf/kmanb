@@ -13,6 +13,17 @@ pub struct AssetHandles {
 #[derive(Clone)]
 pub struct GameBoardHandles {
     pub ground_handle: Handle<ColorMaterial>,
+    pub ground_top_handle: Handle<ColorMaterial>,
+    pub border_top_handle: Handle<ColorMaterial>,
+    pub ground_bottom_handle: Handle<ColorMaterial>,
+    pub border_bottom_handle: Handle<ColorMaterial>,
+    pub ground_left_handle: Handle<ColorMaterial>,
+    pub ground_right_handle: Handle<ColorMaterial>,
+    pub corner_top_left_handle: Handle<ColorMaterial>,
+    pub corner_top_right_handle: Handle<ColorMaterial>,
+    pub corner_bottom_left_handle: Handle<ColorMaterial>,
+    pub corner_bottom_right_handle: Handle<ColorMaterial>,
+    pub water_handle: Handle<ColorMaterial>,
 }
 
 impl AssetHandles {
@@ -121,7 +132,102 @@ impl AssetHandles {
                     .into(),
             );
 
-            self.board = Some(GameBoardHandles { ground_handle })
+            let ground_top = include_bytes!("../assets/game/rpgTile006.png");
+            let ground_top_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(ground_top.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+            let border_top = include_bytes!("../assets/game/rpgTile045.png");
+            let border_top_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(border_top.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+
+            let ground_bottom = include_bytes!("../assets/game/rpgTile042.png");
+            let ground_bottom_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(ground_bottom.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+            let border_bottom = include_bytes!("../assets/game/rpgTile011.png");
+            let border_bottom_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(border_bottom.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+
+            let ground_left = include_bytes!("../assets/game/rpgTile023.png");
+            let ground_left_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(ground_left.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+            let ground_right = include_bytes!("../assets/game/rpgTile025.png");
+            let ground_right_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(ground_right.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+
+            let corner_top_left = include_bytes!("../assets/game/rpgTile005.png");
+            let corner_top_left_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(corner_top_left.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+            let corner_top_right = include_bytes!("../assets/game/rpgTile007.png");
+            let corner_top_right_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(corner_top_right.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+            let corner_bottom_left = include_bytes!("../assets/game/rpgTile041.png");
+            let corner_bottom_left_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(corner_bottom_left.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+            let corner_bottom_right = include_bytes!("../assets/game/rpgTile043.png");
+            let corner_bottom_right_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(corner_bottom_right.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+
+            let water = include_bytes!("../assets/game/rpgTile029.png");
+            let water_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(water.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+
+            self.board = Some(GameBoardHandles {
+                ground_handle,
+                ground_bottom_handle,
+                border_bottom_handle,
+                ground_top_handle,
+                border_top_handle,
+                ground_left_handle,
+                ground_right_handle,
+                corner_bottom_left_handle,
+                corner_bottom_right_handle,
+                corner_top_left_handle,
+                corner_top_right_handle,
+                water_handle,
+            })
         }
         self.board.as_ref().unwrap().clone()
     }

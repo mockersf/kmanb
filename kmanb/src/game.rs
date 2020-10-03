@@ -58,17 +58,44 @@ fn setup(
         let board_handles = asset_handles.get_board_handles(&asset_server, materials);
 
         if game.board.is_none() {
-            let material = board_handles.ground_handle;
+            for x in 0..BOARD_X {
+                commands
+                    .spawn(SpriteComponents {
+                        material: board_handles.border_bottom_handle,
+                        transform: Transform::from_translation(Vec3::new(
+                            x_to(x as i32, ratio),
+                            y_to(-1, ratio),
+                            Z_BACKGROUND,
+                        ))
+                        .with_scale(ratio),
+                        ..Default::default()
+                    })
+                    .with(ScreenTag);
+            }
             let mut board = vec![];
             for y in 0..BOARD_Y {
                 let mut line = vec![];
                 for x in 0..BOARD_X {
                     commands
                         .spawn(SpriteComponents {
-                            material,
+                            material: match (x, y) {
+                                (0, 0) => board_handles.corner_bottom_left_handle,
+                                (x, 0) if x == BOARD_X - 1 => {
+                                    board_handles.corner_bottom_right_handle
+                                }
+                                (0, y) if y == BOARD_Y - 1 => board_handles.corner_top_left_handle,
+                                (x, y) if x == BOARD_X - 1 && y == BOARD_Y - 1 => {
+                                    board_handles.corner_top_right_handle
+                                }
+                                (0, _) => board_handles.ground_left_handle,
+                                (x, _) if x == BOARD_X - 1 => board_handles.ground_right_handle,
+                                (_, 0) => board_handles.ground_bottom_handle,
+                                (_, y) if y == BOARD_Y - 1 => board_handles.ground_top_handle,
+                                _ => board_handles.ground_handle,
+                            },
                             transform: Transform::from_translation(Vec3::new(
-                                x_to(x, ratio),
-                                y_to(y, ratio),
+                                x_to(x as i32, ratio),
+                                y_to(y as i32, ratio),
                                 Z_BACKGROUND,
                             ))
                             .with_scale(ratio),
@@ -81,6 +108,36 @@ fn setup(
                 board.push(line);
             }
             game.board = Some(board);
+            for x in 0..BOARD_X {
+                commands
+                    .spawn(SpriteComponents {
+                        material: board_handles.border_top_handle,
+                        transform: Transform::from_translation(Vec3::new(
+                            x_to(x as i32, ratio),
+                            y_to(BOARD_Y as i32, ratio),
+                            Z_BACKGROUND,
+                        ))
+                        .with_scale(ratio),
+                        ..Default::default()
+                    })
+                    .with(ScreenTag);
+            }
+            for y in (BOARD_Y + 1)..(BOARD_Y + 3) {
+                for x in 0..BOARD_X {
+                    commands
+                        .spawn(SpriteComponents {
+                            material: board_handles.water_handle,
+                            transform: Transform::from_translation(Vec3::new(
+                                x_to(x as i32, ratio),
+                                y_to(y as i32, ratio),
+                                Z_BACKGROUND,
+                            ))
+                            .with_scale(ratio),
+                            ..Default::default()
+                        })
+                        .with(ScreenTag);
+                }
+            }
         }
 
         let character_handle =
@@ -88,8 +145,8 @@ fn setup(
         commands
             .spawn((
                 Transform::from_translation(Vec3::new(
-                    x_to(game.player.x, ratio),
-                    y_to(game.player.y, ratio),
+                    x_to(game.player.x as i32, ratio),
+                    y_to(game.player.y as i32, ratio),
                     Z_PLAYER,
                 )),
                 GlobalTransform::identity(),
@@ -148,11 +205,11 @@ const Z_FIRE: f32 = 0.5;
 const TILE_SIZE: f32 = 64.;
 const PLAYER_SIZE: f32 = 256.;
 
-fn x_to(x: usize, ratio: f32) -> f32 {
+fn x_to(x: i32, ratio: f32) -> f32 {
     (x as f32 * TILE_SIZE - (TILE_SIZE * BOARD_X as f32) / 2. + TILE_SIZE as f32 / 2.) * ratio
 }
 
-fn y_to(y: usize, ratio: f32) -> f32 {
+fn y_to(y: i32, ratio: f32) -> f32 {
     (y as f32 * TILE_SIZE - (TILE_SIZE * BOARD_Y as f32) / 2.) * ratio
 }
 
@@ -267,20 +324,20 @@ fn keyboard_event_system(
                             entity,
                             transform.ease_to(
                                 Transform::from_translation(Vec3::new(
-                                    x_to(game.player.x, ratio),
-                                    y_to(game.player.y, ratio),
+                                    x_to(game.player.x as i32, ratio),
+                                    y_to(game.player.y as i32, ratio),
                                     Z_PLAYER,
                                 )),
                                 bevy_easings::EaseFunction::QuadraticInOut,
                                 bevy_easings::EasingType::Once {
-                                    duration: std::time::Duration::from_millis(500),
+                                    duration: std::time::Duration::from_millis(300),
                                 },
                             ),
                         );
                         commands.insert_one(
                             entity,
                             PlayerMoving {
-                                timer: Timer::from_seconds(0.5, false),
+                                timer: Timer::from_seconds(0.3, false),
                             },
                         );
                     }
@@ -292,13 +349,13 @@ fn keyboard_event_system(
                                     transform.with_scale(0.),
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(200),
+                                        duration: std::time::Duration::from_millis(100),
                                     },
                                 )
                                 .ease_to(
                                     Transform::from_translation(Vec3::new(
-                                        x_to(game.player.x, ratio),
-                                        y_to(game.player.y, ratio),
+                                        x_to(game.player.x as i32, ratio),
+                                        y_to(game.player.y as i32, ratio),
                                         Z_PLAYER,
                                     ))
                                     .with_scale(0.),
@@ -309,20 +366,20 @@ fn keyboard_event_system(
                                 )
                                 .ease_to(
                                     Transform::from_translation(Vec3::new(
-                                        x_to(game.player.x, ratio),
-                                        y_to(game.player.y, ratio),
+                                        x_to(game.player.x as i32, ratio),
+                                        y_to(game.player.y as i32, ratio),
                                         Z_PLAYER,
                                     )),
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(200),
+                                        duration: std::time::Duration::from_millis(100),
                                     },
                                 ),
                         );
                         commands.insert_one(
                             entity,
                             PlayerMoving {
-                                timer: Timer::from_seconds(0.5, false),
+                                timer: Timer::from_seconds(0.3, false),
                             },
                         );
                     }
