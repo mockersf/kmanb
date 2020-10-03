@@ -271,6 +271,7 @@ fn keyboard_event_system(
     wnds: Res<Windows>,
     mut player_query: Query<Without<PlayerMoving, (Entity, &PlayerComponent, &Transform)>>,
 ) {
+    let move_delay = 200;
     if game_state.current_screen == CURRENT_SCREEN {
         for event in state.event_reader.iter(&keyboard_input_events) {
             if event.state == ElementState::Pressed {
@@ -330,14 +331,17 @@ fn keyboard_event_system(
                                 )),
                                 bevy_easings::EaseFunction::QuadraticInOut,
                                 bevy_easings::EasingType::Once {
-                                    duration: std::time::Duration::from_millis(300),
+                                    duration: std::time::Duration::from_millis(move_delay),
                                 },
                             ),
                         );
                         commands.insert_one(
                             entity,
                             PlayerMoving {
-                                timer: Timer::from_seconds(0.3, false),
+                                timer: Timer::new(
+                                    std::time::Duration::from_millis(move_delay),
+                                    false,
+                                ),
                             },
                         );
                     }
@@ -349,7 +353,9 @@ fn keyboard_event_system(
                                     transform.with_scale(0.),
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(100),
+                                        duration: std::time::Duration::from_millis(
+                                            2 * move_delay / 5,
+                                        ),
                                     },
                                 )
                                 .ease_to(
@@ -361,7 +367,7 @@ fn keyboard_event_system(
                                     .with_scale(0.),
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(100),
+                                        duration: std::time::Duration::from_millis(move_delay / 5),
                                     },
                                 )
                                 .ease_to(
@@ -372,14 +378,19 @@ fn keyboard_event_system(
                                     )),
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(100),
+                                        duration: std::time::Duration::from_millis(
+                                            2 * move_delay / 5,
+                                        ),
                                     },
                                 ),
                         );
                         commands.insert_one(
                             entity,
                             PlayerMoving {
-                                timer: Timer::from_seconds(0.3, false),
+                                timer: Timer::new(
+                                    std::time::Duration::from_millis(move_delay),
+                                    false,
+                                ),
                             },
                         );
                     }
