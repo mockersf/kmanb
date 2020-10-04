@@ -60,7 +60,6 @@ pub fn event_system(
                         entity,
                         (
                             BombComponent {
-                                delay: game.player.bomb_speed as f32 / 1000.,
                                 damage: game.player.bomb_damage,
                                 range: game.player.bomb_range,
                                 state: BombState::Fuse,
