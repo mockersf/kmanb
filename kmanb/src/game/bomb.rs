@@ -197,7 +197,7 @@ pub fn player_powerups(
         let mut consumed = false;
         if entity == cell {
             match powerup.powerup {
-                PlayerPowerUp::Score => game.score += game.round * 100,
+                PlayerPowerUp::Score => game.score += game.round * 200,
                 PlayerPowerUp::BombCount => game.player.nb_bombs += 1,
                 PlayerPowerUp::BombDamage => game.player.bomb_damage += 1,
                 PlayerPowerUp::BombRange => game.player.bomb_range += 1,
