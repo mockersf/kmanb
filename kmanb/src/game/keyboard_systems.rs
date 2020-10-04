@@ -26,21 +26,56 @@ pub fn event_system(
     mut game: ResMut<Game>,
     keyboard_input_events: Res<Events<KeyboardInput>>,
     wnds: Res<Windows>,
+    mut asset_handles: ResMut<crate::AssetHandles>,
+    asset_server: Res<AssetServer>,
+    materials: ResMut<Assets<ColorMaterial>>,
     mut player_query: Query<Without<PlayerMoving, (Entity, &PlayerComponent, &Transform)>>,
     occupied_tiles: Query<(Entity, &super::laser::ObstacleComponent)>,
+    mut used_bomb: Query<&BombComponent>,
 ) {
-    let move_delay = 200;
+    let move_delay = game.player.speed;
     if game_state.current_screen == CURRENT_SCREEN {
+        let bomb_handle = asset_handles
+            .get_board_handles(&asset_server, materials)
+            .bomb_handle;
         for event in state.event_reader.iter(&keyboard_input_events) {
             if event.state == ElementState::Pressed {
+                let ratio =
+                    wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
+                if event.key_code == Some(KeyCode::Space)
+                    && game.player.nb_bombs > used_bomb.iter().iter().count()
+                {
+                    commands
+                        .spawn(SpriteComponents {
+                            material: bomb_handle,
+                            transform: Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
+                                .with_scale(ratio * 0.3),
+                            ..Default::default()
+                        })
+                        .with(BombSprite);
+                    let bomb = commands.current_entity().unwrap();
+                    let entity = game.board.as_ref().unwrap()[game.player.y][game.player.x].entity;
+                    commands.push_children(entity, &[bomb]);
+                    commands.insert(
+                        entity,
+                        (
+                            BombComponent {
+                                delay: game.player.bomb_speed as f32 / 1000.,
+                                damage: game.player.bomb_damage,
+                                range: game.player.bomb_range,
+                                state: BombState::Fuse,
+                                x: game.player.x,
+                                y: game.player.y,
+                            },
+                            Timer::from_seconds(game.player.bomb_speed as f32 / 1000. / 2., false),
+                        ),
+                    );
+                    continue;
+                }
                 let mut moved = false;
                 let mut teleport_border = false;
                 let mut bump = None;
                 for (entity, _player, transform) in &mut player_query.iter() {
-                    let ratio = wnds.get_primary().unwrap().width as f32
-                        / BOARD_X as f32
-                        / TILE_SIZE as f32;
-
                     match event.key_code {
                         Some(KeyCode::Right) => {
                             game.player.direction = FacingDirection::Right;

@@ -9,6 +9,7 @@ enum LaserPowerUp {
     Speed,
     ObstacleSpawnDelay,
     ObstacleSpawnCount,
+    ObstacleStrengh,
 }
 
 #[derive(Default)]
@@ -35,13 +36,14 @@ pub fn new_round(
                 let mut rng = rand::thread_rng();
                 match LaserPowerUp::iter().choose(&mut rng).unwrap() {
                     LaserPowerUp::Speed => {
-                        game.laser.speed = (game.laser.speed as f64 * 0.8) as u64
+                        game.laser.speed = (game.laser.speed as f64 * 0.9) as u64
                     }
                     LaserPowerUp::ObstacleSpawnDelay => {
                         game.laser.spawn_obstacles_delay =
                             (game.laser.spawn_obstacles_delay as f32 * 0.8) as u16
                     }
                     LaserPowerUp::ObstacleSpawnCount => game.laser.nb_obstacles += 2,
+                    LaserPowerUp::ObstacleStrengh => game.laser.obstacle_strength += 2,
                 }
             }
             GameEvents::Lost => {
@@ -58,10 +60,11 @@ pub fn score(mut game: ResMut<Game>, mut score: Mut<Text>, ui: &UiComponent, tim
     }
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum UiComponent {
     Round,
     Score,
+    BombsAvailable,
 }
 
 pub fn setup(
@@ -70,11 +73,15 @@ pub fn setup(
     mut asset_handles: ResMut<crate::AssetHandles>,
     screen: Res<Screen>,
     asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen (ui)");
         let font: Handle<Font> = asset_handles.get_font_main_handle(&asset_server);
-
+        let bomb_background = materials.add(Color::NONE.into());
+        let bomb_icon_handle = asset_handles
+            .get_board_handles(&asset_server, materials)
+            .bomb_icon_handle;
         commands
             .spawn(TextComponents {
                 style: Style {
@@ -107,7 +114,7 @@ pub fn setup(
             .spawn(TextComponents {
                 style: Style {
                     size: Size {
-                        height: Val::Px(150.),
+                        height: Val::Px(120.),
                         ..Default::default()
                     },
                     position_type: PositionType::Absolute,
@@ -123,7 +130,7 @@ pub fn setup(
                     font,
                     style: TextStyle {
                         color: crate::ui::ColorScheme::TEXT,
-                        font_size: 150.0,
+                        font_size: 120.0,
                     },
                 },
                 ..Default::default()
@@ -131,5 +138,90 @@ pub fn setup(
             .with(UiComponent::Score)
             .with(Timer::from_seconds(0.1, true))
             .with(ScreenTag);
+
+        commands
+            .spawn(NodeComponents {
+                style: Style {
+                    size: Size {
+                        height: Val::Px(30.),
+                        ..Default::default()
+                    },
+                    position_type: PositionType::Absolute,
+                    position: Rect {
+                        right: Val::Px(10.),
+                        top: Val::Px(130.),
+                        ..Default::default()
+                    },
+                    flex_direction: FlexDirection::RowReverse,
+                    ..Default::default()
+                },
+                material: bomb_background,
+                ..Default::default()
+            })
+            .with(UiComponent::BombsAvailable)
+            .with_children(|p| {
+                p.spawn(ImageComponents {
+                    style: Style {
+                        size: Size {
+                            height: Val::Px(30.),
+                            width: Val::Px(30.),
+                        },
+                        margin: Rect {
+                            left: Val::Px(10.),
+                            right: Val::Px(10.),
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                    material: bomb_icon_handle,
+                    ..Default::default()
+                });
+            })
+            .with(ScreenTag);
+    }
+}
+
+pub fn display_bombs_available(
+    mut commands: Commands,
+    game: Res<Game>,
+    mut asset_handles: ResMut<crate::AssetHandles>,
+    asset_server: Res<AssetServer>,
+    materials: ResMut<Assets<ColorMaterial>>,
+    mut used_bombs: Query<&BombComponent>,
+    mut parent_component: Query<(Entity, &mut Children, &UiComponent)>,
+) {
+    let used_bombs = used_bombs.iter().iter().count();
+    let bomb_icon_handle = asset_handles
+        .get_board_handles(&asset_server, materials)
+        .bomb_icon_handle;
+    for (entity, mut children, component) in &mut parent_component.iter() {
+        if *component == UiComponent::BombsAvailable {
+            if children.0.len() != game.player.nb_bombs - used_bombs {
+                for _ in 0..children.0.len() {
+                    let child = children.pop().unwrap();
+                    commands.despawn(child);
+                }
+                for _ in 0..(game.player.nb_bombs - used_bombs) {
+                    commands.spawn(ImageComponents {
+                        style: Style {
+                            size: Size {
+                                height: Val::Px(30.),
+                                width: Val::Px(30.),
+                            },
+                            margin: Rect {
+                                left: Val::Px(10.),
+                                right: Val::Px(10.),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        },
+                        material: bomb_icon_handle,
+                        ..Default::default()
+                    });
+                    let bomb_entity = commands.current_entity().unwrap();
+                    commands.push_children(entity, &[bomb_entity]);
+                }
+            }
+        }
     }
 }

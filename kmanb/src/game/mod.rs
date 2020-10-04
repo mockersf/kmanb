@@ -5,6 +5,7 @@ use bevy::{
 use tracing::info;
 
 mod board_setup;
+mod bomb;
 mod keyboard_systems;
 mod laser;
 mod ui;
@@ -49,6 +50,10 @@ impl bevy::app::Plugin for Plugin {
             .add_system(laser::spawn_obstacles.system())
             .add_system(ui::new_round.system())
             .add_system(ui::score.system())
+            .add_system(ui::display_bombs_available.system())
+            .add_system(bomb::fire.system())
+            .add_system(bomb::flash_bombs.system())
+            .add_system(bomb::destroyed_obstacles.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
     }
 }
@@ -148,7 +153,32 @@ fn tear_down(
 }
 
 pub struct LaserComponent;
+
 pub struct PlayerComponent;
+
+#[derive(PartialEq)]
+pub enum BombState {
+    Fuse,
+    Flash,
+}
+
+pub struct FireSprite;
+pub struct FireComponent {
+    damage: usize,
+    x: usize,
+    y: usize,
+    timer: Timer,
+}
+
+pub struct BombSprite;
+pub struct BombComponent {
+    damage: usize,
+    range: usize,
+    state: BombState,
+    x: usize,
+    y: usize,
+}
+
 pub struct PlayerMoving {
     timer: Timer,
 }
@@ -179,6 +209,11 @@ struct Player {
     x: usize,
     y: usize,
     direction: FacingDirection,
+    nb_bombs: usize,
+    bomb_range: usize,
+    bomb_damage: usize,
+    bomb_speed: u64,
+    speed: u64,
 }
 
 #[derive(Clone, Copy)]
@@ -193,6 +228,11 @@ impl Default for Player {
             x: BOARD_X / 4,
             y: BOARD_Y / 2,
             direction: FacingDirection::Right,
+            nb_bombs: 2,
+            bomb_range: 1,
+            bomb_damage: 2,
+            bomb_speed: 2000,
+            speed: 200,
         }
     }
 }
@@ -212,8 +252,8 @@ impl Default for Laser {
             x: 0,
             speed: 800,
             spawn_obstacles_delay: 10000,
-            nb_obstacles: 2,
-            obstacle_strength: 1,
+            nb_obstacles: 10,
+            obstacle_strength: 2,
         }
     }
 }

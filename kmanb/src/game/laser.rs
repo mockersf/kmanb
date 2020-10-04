@@ -6,47 +6,82 @@ pub fn move_laser(
     mut commands: Commands,
     mut game: ResMut<Game>,
     wnds: Res<Windows>,
+    mut asset_handles: ResMut<crate::AssetHandles>,
+    asset_server: Res<AssetServer>,
+    materials: ResMut<Assets<ColorMaterial>>,
     mut game_events: ResMut<Events<GameEvents>>,
-    mut timer: Mut<Timer>,
-    mut transform: Mut<Transform>,
-    entity: Entity,
-    _: &LaserComponent,
+    fire_query: Query<&FireComponent>,
+
+    mut laser_query: Query<(Entity, &mut Timer, &mut Transform, &LaserComponent)>,
 ) {
     if game.laser.x == game.player.x + 2 {
         game_events.send(GameEvents::Lost)
     }
-    if timer.just_finished {
-        let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
+    let fire_handle = asset_handles
+        .get_board_handles(&asset_server, materials)
+        .fire_handle;
+    for (entity, mut timer, mut transform, _) in &mut laser_query.iter() {
+        if timer.just_finished {
+            let ratio =
+                wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
-        game.laser.x += 1;
-        if game.laser.x == BOARD_X + 1 {
-            game.laser.x = 0;
-            *transform = Transform::from_translation(Vec3::new(
-                x_to(game.laser.x as i32 - 1, ratio),
-                0.,
-                Z_FIRE,
-            ));
-            commands.remove_one::<bevy_easings::EasingComponent<Transform>>(entity);
-        } else {
-            commands.insert_one(
-                entity,
-                transform.ease_to(
-                    Transform::from_translation(Vec3::new(
-                        x_to(game.laser.x as i32 - 1, ratio),
-                        1.,
-                        Z_FIRE,
-                    )),
-                    bevy_easings::EaseFunction::BounceInOut,
-                    bevy_easings::EasingType::Once {
-                        duration: std::time::Duration::from_millis(game.laser.speed),
-                    },
-                ),
-            );
+            if 0 <= game.laser.x as i32 - 1 && game.laser.x as i32 - 1 < BOARD_X as i32 {
+                for y in 0..BOARD_Y {
+                    let entity = game.board.as_ref().unwrap()[y as usize][game.laser.x - 1].entity;
+                    if fire_query.get::<FireComponent>(entity).is_err() {
+                        commands
+                            .spawn(SpriteComponents {
+                                material: fire_handle,
+                                transform: Transform::from_translation(Vec3::new(0., 0., Z_FIRE))
+                                    .with_scale(ratio),
+                                ..Default::default()
+                            })
+                            .with(FireSprite);
+                        let fire = commands.current_entity().unwrap();
+                        commands.push_children(entity, &[fire]);
+                        commands.insert(
+                            entity,
+                            (FireComponent {
+                                damage: 1,
+                                x: game.laser.x - 1,
+                                y: y as usize,
+                                timer: Timer::from_seconds(1500. / 1000., false),
+                            },),
+                        );
+                    }
+                }
+            }
+
+            game.laser.x += 1;
+            if game.laser.x == BOARD_X + 1 {
+                game.laser.x = 0;
+                *transform = Transform::from_translation(Vec3::new(
+                    x_to(game.laser.x as i32 - 1, ratio),
+                    0.,
+                    Z_FIRE,
+                ));
+                commands.remove_one::<bevy_easings::EasingComponent<Transform>>(entity);
+            } else {
+                commands.insert_one(
+                    entity,
+                    transform.ease_to(
+                        Transform::from_translation(Vec3::new(
+                            x_to(game.laser.x as i32 - 1, ratio),
+                            1.,
+                            Z_FIRE,
+                        )),
+                        bevy_easings::EaseFunction::BounceInOut,
+                        bevy_easings::EasingType::Once {
+                            duration: std::time::Duration::from_millis(game.laser.speed),
+                        },
+                    ),
+                );
+            }
+            if game.laser.x == BOARD_X / 2 {
+                game_events.send(GameEvents::NewRound)
+            }
+            timer.duration = game.laser.speed as f32 / 1000.;
         }
-        if game.laser.x == BOARD_X / 2 {
-            game_events.send(GameEvents::NewRound)
-        }
-        timer.duration = game.laser.speed as f32 / 1000.;
     }
 }
 
@@ -78,7 +113,8 @@ pub fn setup(
     }
 }
 
-pub struct ObstacleComponent(usize);
+pub struct ObstacleSprite;
+pub struct ObstacleComponent(pub usize);
 
 pub fn spawn_obstacles(
     mut commands: Commands,
@@ -89,7 +125,7 @@ pub fn spawn_obstacles(
     materials: ResMut<Assets<ColorMaterial>>,
     wnds: Res<Windows>,
     mut timer_query: Query<(&ObstacleSpawner, &mut Timer)>,
-    occupied_tiles: Query<(Entity, &ObstacleComponent)>,
+    occupied_tiles: Query<&ObstacleComponent>,
 ) {
     if game_state.current_screen == CURRENT_SCREEN {
         let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
@@ -100,22 +136,26 @@ pub fn spawn_obstacles(
         for (_, mut timer) in &mut timer_query.iter() {
             if timer.just_finished {
                 let mut rng = rand::thread_rng();
+
                 std::iter::repeat_with(|| {
                     let x = rng.gen_range(0, BOARD_X);
                     let y = rng.gen_range(0, BOARD_Y);
                     (x, y)
                 })
-                .skip_while(|(x, y)| *x == game.player.x && *y == game.player.y)
+                .filter(|(x, y)| *x != game.player.x || *y != game.player.y)
+                .take(game.laser.nb_obstacles * 2)
                 .map(|(x, y)| game.board.as_ref().unwrap()[y][x].entity)
-                .skip_while(|cell| occupied_tiles.get::<ObstacleComponent>(*cell).is_ok())
+                .filter(|cell| occupied_tiles.get::<ObstacleComponent>(*cell).is_err())
                 .take(game.laser.nb_obstacles)
                 .for_each(|entity| {
-                    commands.spawn(SpriteComponents {
-                        material: crate_handle,
-                        transform: Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
-                            .with_scale(ratio * 0.7),
-                        ..Default::default()
-                    });
+                    commands
+                        .spawn(SpriteComponents {
+                            material: crate_handle,
+                            transform: Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
+                                .with_scale(ratio * 0.7),
+                            ..Default::default()
+                        })
+                        .with(ObstacleSprite);
                     let obstacle = commands.current_entity().unwrap();
                     commands.push_children(entity, &[obstacle]);
                     commands.insert_one(entity, ObstacleComponent(game.laser.obstacle_strength));

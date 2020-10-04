@@ -26,6 +26,9 @@ pub struct GameBoardHandles {
     pub water_handle: Handle<ColorMaterial>,
     pub laser_handle: Handle<ColorMaterial>,
     pub crate_handle: Handle<ColorMaterial>,
+    pub bomb_handle: Handle<ColorMaterial>,
+    pub bomb_icon_handle: Handle<ColorMaterial>,
+    pub fire_handle: Handle<ColorMaterial>,
 }
 
 impl AssetHandles {
@@ -236,6 +239,31 @@ impl AssetHandles {
                 color: Color::rgb(0.9, 0.3, 0.3),
             });
 
+            let bomb = include_bytes!("../assets/game/bomb.png");
+            let bomb_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(bomb.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+            let bomb_icon_handle: Handle<ColorMaterial> = materials.add(ColorMaterial {
+                texture: Some(
+                    asset_server
+                        .load_from(Box::new(bomb.as_ref()))
+                        .expect("was able to load texture"),
+                ),
+                color: Color::rgb(0.9, 0.3, 0.3),
+            });
+            let fire = include_bytes!("../assets/game/fire_01.png");
+            let fire_handle: Handle<ColorMaterial> = materials.add(ColorMaterial {
+                texture: Some(
+                    asset_server
+                        .load_from(Box::new(fire.as_ref()))
+                        .expect("was able to load texture"),
+                ),
+                color: Color::rgb(0.9, 0.3, 0.3),
+            });
+
             self.board = Some(GameBoardHandles {
                 ground_handle,
                 ground_bottom_handle,
@@ -251,6 +279,9 @@ impl AssetHandles {
                 water_handle,
                 laser_handle,
                 crate_handle,
+                bomb_handle,
+                bomb_icon_handle,
+                fire_handle,
             })
         }
         self.board.as_ref().unwrap().clone()
