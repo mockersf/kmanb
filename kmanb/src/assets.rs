@@ -24,6 +24,7 @@ pub struct GameBoardHandles {
     pub corner_bottom_left_handle: Handle<ColorMaterial>,
     pub corner_bottom_right_handle: Handle<ColorMaterial>,
     pub water_handle: Handle<ColorMaterial>,
+    pub laser_handle: Handle<ColorMaterial>,
 }
 
 impl AssetHandles {
@@ -214,6 +215,14 @@ impl AssetHandles {
                     .into(),
             );
 
+            let laser = include_bytes!("../assets/game/spark_06.png");
+            let laser_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(laser.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+
             self.board = Some(GameBoardHandles {
                 ground_handle,
                 ground_bottom_handle,
@@ -227,6 +236,7 @@ impl AssetHandles {
                 corner_top_left_handle,
                 corner_top_right_handle,
                 water_handle,
+                laser_handle,
             })
         }
         self.board.as_ref().unwrap().clone()

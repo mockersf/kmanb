@@ -12,7 +12,7 @@ serde = "1.0"
 tracing = "0.1"
 tracing-subscriber = "0.2"
 rand = "0.7"
-bevy_easings = { version = "0.1.0", no-default-features = true }
+bevy_easings = { version = "0.1.0", default-features = false }
 bevy_log_diagnostic = "0.1"
 bevy_diagnostic_entity_count = { git = "https://github.com/mockersf/bevy_extra" }
 bevy_ninepatch = "0.1.2"

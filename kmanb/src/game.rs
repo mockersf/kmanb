@@ -34,6 +34,7 @@ impl bevy::app::Plugin for Plugin {
             .add_system(walk_animate_sprite_system.system())
             .add_system(keyboard_input_system.system())
             .add_system(clear_moving_marker.system())
+            .add_system(move_laser.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
     }
 }
@@ -166,6 +167,33 @@ fn setup(
             .with(PlayerComponent)
             .with(ScreenTag);
 
+        commands.spawn((
+            Transform::from_translation(Vec3::new(x_to(game.laser.x as i32, ratio), 1., Z_FIRE)),
+            GlobalTransform::identity(),
+            LaserComponent,
+            Timer::new(std::time::Duration::from_millis(game.laser.speed), true),
+        ));
+        for y in 0..BOARD_Y + 5 {
+            commands
+                .with_children(|laser_parent| {
+                    laser_parent.spawn(SpriteComponents {
+                        material: board_handles.laser_handle,
+                        transform: Transform::from_translation(Vec3::new(
+                            1.,
+                            y_to(y as i32 - 2, ratio),
+                            1.,
+                        ))
+                        .with_non_uniform_scale(Vec3::new(
+                            3. * ratio,
+                            ratio,
+                            1.,
+                        )),
+                        ..Default::default()
+                    });
+                })
+                .with(ScreenTag);
+        }
+
         screen.loaded = true;
         screen.first_load = false;
     }
@@ -188,6 +216,7 @@ fn tear_down(
     }
 }
 
+struct LaserComponent;
 struct PlayerComponent;
 struct PlayerMoving {
     timer: Timer,
@@ -237,10 +266,22 @@ impl Default for Player {
     }
 }
 
+struct Laser {
+    x: usize,
+    speed: u64,
+}
+
+impl Default for Laser {
+    fn default() -> Self {
+        Laser { x: 0, speed: 1000 }
+    }
+}
+
 #[derive(Default)]
 struct Game {
     board: Option<Vec<Vec<Cell>>>,
     player: Player,
+    laser: Laser,
 }
 
 fn walk_animate_sprite_system(
@@ -484,5 +525,35 @@ fn clear_moving_marker(
     moving.timer.tick(time.delta_seconds);
     if moving.timer.finished {
         commands.remove_one::<PlayerMoving>(entity);
+    }
+}
+
+fn move_laser(
+    mut commands: Commands,
+    mut game: ResMut<Game>,
+    wnds: Res<Windows>,
+    timer: &Timer,
+    transform: Mut<Transform>,
+    entity: Entity,
+    _: &LaserComponent,
+) {
+    if timer.just_finished {
+        let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
+
+        game.laser.x = (game.laser.x + 1) % (BOARD_X + 2);
+        commands.insert_one(
+            entity,
+            transform.ease_to(
+                Transform::from_translation(Vec3::new(
+                    x_to(game.laser.x as i32 - 1, ratio),
+                    1.,
+                    Z_FIRE,
+                )),
+                bevy_easings::EaseFunction::BounceInOut,
+                bevy_easings::EasingType::Once {
+                    duration: std::time::Duration::from_millis(game.laser.speed),
+                },
+            ),
+        );
     }
 }
