@@ -216,12 +216,14 @@ impl AssetHandles {
             );
 
             let laser = include_bytes!("../assets/game/spark_06.png");
-            let laser_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(laser.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
+            let laser_handle: Handle<ColorMaterial> = materials.add(ColorMaterial {
+                texture: Some(
+                    asset_server
+                        .load_from(Box::new(laser.as_ref()))
+                        .expect("was able to load texture"),
+                ),
+                color: Color::rgb(0.9, 0.3, 0.3),
+            });
 
             self.board = Some(GameBoardHandles {
                 ground_handle,

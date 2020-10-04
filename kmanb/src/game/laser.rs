@@ -1,5 +1,7 @@
 use super::*;
 
+use rand::Rng;
+
 pub fn move_laser(
     mut commands: Commands,
     mut game: ResMut<Game>,
@@ -17,9 +19,10 @@ pub fn move_laser(
             game.laser.x = 0;
             *transform = Transform::from_translation(Vec3::new(
                 x_to(game.laser.x as i32 - 1, ratio),
-                1.,
+                0.,
                 Z_FIRE,
             ));
+            commands.remove_one::<bevy_easings::EasingComponent<Transform>>(entity);
         } else {
             commands.insert_one(
                 entity,
@@ -37,4 +40,9 @@ pub fn move_laser(
             );
         }
     }
+}
+
+pub fn jitter_laser(mut transform: Mut<Transform>, _: &LaserComponent) {
+    let mut rng = rand::thread_rng();
+    transform.translate(Vec3::new(0., rng.gen_range(-5., 5.), 0.));
 }
