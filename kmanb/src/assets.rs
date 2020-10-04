@@ -34,6 +34,8 @@ pub struct GameBoardHandles {
     pub powerup_bomb_range_handle: Handle<ColorMaterial>,
     pub powerup_bomb_damage_handle: Handle<ColorMaterial>,
     pub powerup_bomb_speed_handle: Handle<ColorMaterial>,
+    pub arrow_left_handle: Handle<ColorMaterial>,
+    pub arrow_right_handle: Handle<ColorMaterial>,
 }
 
 impl AssetHandles {
@@ -305,6 +307,21 @@ impl AssetHandles {
                     .into(),
             );
 
+            let arrow_left = include_bytes!("../assets/game/arrowLeft.png");
+            let arrow_left_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(arrow_left.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+            let arrow_right = include_bytes!("../assets/game/arrowRight.png");
+            let arrow_right_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(arrow_right.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+
             self.board = Some(GameBoardHandles {
                 ground_handle,
                 ground_bottom_handle,
@@ -328,6 +345,8 @@ impl AssetHandles {
                 powerup_bomb_damage_handle,
                 powerup_bomb_range_handle,
                 powerup_bomb_speed_handle,
+                arrow_left_handle,
+                arrow_right_handle,
             })
         }
         self.board.as_ref().unwrap().clone()

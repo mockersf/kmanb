@@ -44,6 +44,7 @@ impl bevy::app::Plugin for Plugin {
             .add_system(laser::setup.system())
             .add_system(setup.system())
             .add_system(walk_animate_sprite_system.system())
+            .add_system(board_setup::remove_indications.system())
             .add_system(keyboard_systems::input_system.system())
             .add_system(clear_moving_marker.system())
             .add_system(laser::jitter_laser.system())
@@ -260,7 +261,7 @@ struct Laser {
 impl Default for Laser {
     fn default() -> Self {
         Laser {
-            x: 0,
+            x: 1,
             speed: 800,
             spawn_obstacles_delay: 10000,
             nb_obstacles: 10,

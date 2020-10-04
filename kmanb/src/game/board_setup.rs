@@ -1,5 +1,35 @@
 use super::*;
 
+pub struct TeleportIndicationSprite;
+pub struct TeleportIndicationComponent {
+    timer: Timer,
+}
+
+pub fn remove_indications(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut indication_query: Query<(Entity, &mut TeleportIndicationComponent, &mut Children)>,
+    indication_sprite_query: Query<&TeleportIndicationSprite>,
+) {
+    for (entity, mut indication, mut children) in &mut indication_query.iter() {
+        indication.timer.tick(time.delta_seconds);
+        if indication.timer.just_finished {
+            commands.remove_one::<TeleportIndicationComponent>(entity);
+            let mut targets = vec![];
+            for child in children.iter() {
+                if indication_sprite_query
+                    .get::<TeleportIndicationSprite>(*child)
+                    .is_ok()
+                {
+                    commands.despawn(*child);
+                    targets.push(*child);
+                }
+            }
+            children.retain(|i| !targets.contains(i));
+        }
+    }
+}
+
 pub fn setup(
     mut commands: Commands,
     game_state: Res<crate::GameState>,
@@ -62,6 +92,24 @@ pub fn setup(
                         })
                         .with(ScreenTag);
                     let entity = commands.current_entity().unwrap();
+                    if x == 0 || x == BOARD_X - 1 {
+                        commands.with(TeleportIndicationComponent {
+                            timer: Timer::from_seconds(5., false),
+                        });
+                        commands.with_children(|cell| {
+                            cell.spawn(SpriteComponents {
+                                material: if x == 0 {
+                                    board_handles.arrow_left_handle
+                                } else {
+                                    board_handles.arrow_right_handle
+                                },
+                                transform: Transform::from_translation(Vec3::new(0., 0., Z_FIRE))
+                                    .with_scale(ratio),
+                                ..Default::default()
+                            })
+                            .with(TeleportIndicationSprite);
+                        });
+                    }
                     line.push(Cell { entity });
                 }
                 board.push(line);
