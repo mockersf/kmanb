@@ -1,5 +1,7 @@
 use super::*;
 
+use rand::{prelude::*, Rng};
+
 pub fn flash_bombs(
     mut commands: Commands,
     game: Res<Game>,
@@ -125,9 +127,17 @@ pub fn fire(
 
 pub fn destroyed_obstacles(
     mut commands: Commands,
+    mut asset_handles: ResMut<crate::AssetHandles>,
+    asset_server: Res<AssetServer>,
+    materials: ResMut<Assets<ColorMaterial>>,
+    wnds: Res<Windows>,
     mut obstacle_query: Query<(Entity, &super::laser::ObstacleComponent, &mut Children)>,
     obstacle_sprite_query: Query<&super::laser::ObstacleSprite>,
 ) {
+    let mut rng = rand::thread_rng();
+    let assets = asset_handles.get_board_handles(&asset_server, materials);
+    let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
+
     for (entity, obstacle, mut children) in &mut obstacle_query.iter() {
         if obstacle.0 == 0 {
             commands.remove_one::<super::laser::ObstacleComponent>(entity);
@@ -142,6 +152,76 @@ pub fn destroyed_obstacles(
                 }
             }
             children.retain(|i| !targets.contains(i));
+
+            if rng.gen_bool(0.2) {
+                let powerup = PlayerPowerUp::iter().choose(&mut rng).unwrap();
+                commands.insert_one(
+                    entity,
+                    PowerUpComponent {
+                        powerup,
+                        timer: Timer::from_seconds(20., false),
+                    },
+                );
+                commands
+                    .spawn(SpriteComponents {
+                        material: match powerup {
+                            PlayerPowerUp::Score => assets.powerup_score_handle,
+                            PlayerPowerUp::BombCount => assets.powerup_bomb_count_handle,
+                            PlayerPowerUp::BombDamage => assets.powerup_bomb_damage_handle,
+                            PlayerPowerUp::BombRange => assets.powerup_bomb_range_handle,
+                            PlayerPowerUp::BombSpeed => assets.powerup_bomb_speed_handle,
+                        },
+                        transform: Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
+                            .with_scale(ratio * 0.5),
+                        ..Default::default()
+                    })
+                    .with(PowerUpSprite);
+                let fire = commands.current_entity().unwrap();
+                commands.push_children(entity, &[fire]);
+            }
         }
     }
+}
+
+pub fn player_powerups(
+    mut commands: Commands,
+    mut game: ResMut<Game>,
+    time: Res<Time>,
+    mut powerup_query: Query<(Entity, &mut PowerUpComponent, &mut Children)>,
+    powerup_sprite_query: Query<&PowerUpSprite>,
+) {
+    for (entity, mut powerup, mut children) in &mut powerup_query.iter() {
+        powerup.timer.tick(time.delta_seconds);
+
+        let cell = game.board.as_ref().unwrap()[game.player.y][game.player.x].entity;
+        let mut consumed = false;
+        if entity == cell {
+            match powerup.powerup {
+                PlayerPowerUp::Score => game.score += game.round * 100,
+                PlayerPowerUp::BombCount => game.player.nb_bombs += 1,
+                PlayerPowerUp::BombDamage => game.player.bomb_damage += 1,
+                PlayerPowerUp::BombRange => game.player.bomb_range += 1,
+                PlayerPowerUp::BombSpeed => {
+                    game.player.bomb_speed = (game.player.bomb_speed as f64 * 0.9) as u64
+                }
+            }
+            consumed = true;
+        }
+        if powerup.timer.just_finished || consumed {
+            commands.remove_one::<PowerUpComponent>(entity);
+            let mut targets = vec![];
+            for child in children.iter() {
+                if powerup_sprite_query.get::<PowerUpSprite>(*child).is_ok() {
+                    commands.despawn(*child);
+                    targets.push(*child);
+                }
+            }
+            children.retain(|i| !targets.contains(i));
+        }
+    }
+}
+pub struct PowerUpSprite;
+pub struct PowerUpComponent {
+    timer: Timer,
+    powerup: PlayerPowerUp,
 }

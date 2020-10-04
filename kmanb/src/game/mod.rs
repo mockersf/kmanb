@@ -2,6 +2,7 @@ use bevy::{
     input::keyboard::{ElementState, KeyboardInput},
     prelude::*,
 };
+use enum_utils::IterVariants;
 use tracing::info;
 
 mod board_setup;
@@ -54,6 +55,7 @@ impl bevy::app::Plugin for Plugin {
             .add_system(bomb::fire.system())
             .add_system(bomb::flash_bombs.system())
             .add_system(bomb::destroyed_obstacles.system())
+            .add_system(bomb::player_powerups.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
     }
 }
@@ -203,6 +205,15 @@ fn y_to(y: i32, ratio: f32) -> f32 {
 
 struct Cell {
     entity: Entity,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, IterVariants)]
+enum PlayerPowerUp {
+    Score,
+    BombCount,
+    BombDamage,
+    BombRange,
+    BombSpeed,
 }
 
 struct Player {

@@ -29,6 +29,11 @@ pub struct GameBoardHandles {
     pub bomb_handle: Handle<ColorMaterial>,
     pub bomb_icon_handle: Handle<ColorMaterial>,
     pub fire_handle: Handle<ColorMaterial>,
+    pub powerup_score_handle: Handle<ColorMaterial>,
+    pub powerup_bomb_count_handle: Handle<ColorMaterial>,
+    pub powerup_bomb_range_handle: Handle<ColorMaterial>,
+    pub powerup_bomb_damage_handle: Handle<ColorMaterial>,
+    pub powerup_bomb_speed_handle: Handle<ColorMaterial>,
 }
 
 impl AssetHandles {
@@ -264,6 +269,42 @@ impl AssetHandles {
                 color: Color::rgb(0.9, 0.3, 0.3),
             });
 
+            let coin = include_bytes!("../assets/game/coinGold.png");
+            let powerup_score_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(coin.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+            let gem_blue = include_bytes!("../assets/game/gemBlue.png");
+            let powerup_bomb_count_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(gem_blue.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+            let gem_green = include_bytes!("../assets/game/gemGreen.png");
+            let powerup_bomb_range_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(gem_green.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+            let gem_red = include_bytes!("../assets/game/gemRed.png");
+            let powerup_bomb_damage_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(gem_red.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+            let gem_yellow = include_bytes!("../assets/game/gemYellow.png");
+            let powerup_bomb_speed_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(gem_yellow.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
+
             self.board = Some(GameBoardHandles {
                 ground_handle,
                 ground_bottom_handle,
@@ -282,6 +323,11 @@ impl AssetHandles {
                 bomb_handle,
                 bomb_icon_handle,
                 fire_handle,
+                powerup_score_handle,
+                powerup_bomb_count_handle,
+                powerup_bomb_damage_handle,
+                powerup_bomb_range_handle,
+                powerup_bomb_speed_handle,
             })
         }
         self.board.as_ref().unwrap().clone()
