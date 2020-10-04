@@ -36,9 +36,13 @@ fn setup(
     if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
 
+        let color_none = materials.add(Color::NONE.into());
+
         let font: Handle<Font> = asset_handles.get_font_main_handle(&asset_server);
 
         let font_sub: Handle<Font> = asset_handles.get_font_sub_handle(&asset_server);
+
+        let board_assets = asset_handles.get_board_handles(&asset_server, materials);
 
         commands
             .spawn(NodeComponents {
@@ -57,7 +61,7 @@ fn setup(
                     flex_direction: FlexDirection::ColumnReverse,
                     ..Default::default()
                 },
-                material: materials.add(Color::NONE.into()),
+                material: color_none,
                 ..Default::default()
             })
             .with_children(|title_parent| {
@@ -110,7 +114,7 @@ fn setup(
                 style: Style {
                     position_type: PositionType::Absolute,
                     position: Rect::<Val> {
-                        left: Val::Percent(30.),
+                        left: Val::Percent(10.),
                         right: Val::Undefined,
                         bottom: Val::Undefined,
                         top: Val::Percent(40.),
@@ -118,7 +122,7 @@ fn setup(
                     flex_direction: FlexDirection::ColumnReverse,
                     ..Default::default()
                 },
-                material: materials.add(Color::NONE.into()),
+                material: color_none,
                 ..Default::default()
             })
             .with(ScreenTag)
@@ -153,7 +157,7 @@ fn setup(
                             flex_direction: FlexDirection::ColumnReverse,
                             ..Default::default()
                         },
-                        material: materials.add(Color::NONE.into()),
+                        material: color_none,
                         ..Default::default()
                     })
                     .with_children(|controls_parent| {
@@ -166,7 +170,43 @@ fn setup(
                                 ..Default::default()
                             },
                             text: Text {
-                                value: "Move right".to_string(),
+                                value: "Use arrows for direction".to_string(),
+                                font: font_sub,
+                                style: TextStyle {
+                                    color: crate::ui::ColorScheme::TEXT,
+                                    font_size: 60.0 / 2.,
+                                },
+                            },
+                            ..Default::default()
+                        });
+                        controls_parent.spawn(TextComponents {
+                            style: Style {
+                                size: Size {
+                                    height: Val::Px(60. / 2.),
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            },
+                            text: Text {
+                                value: "Avoid the wall of fire".to_string(),
+                                font: font_sub,
+                                style: TextStyle {
+                                    color: crate::ui::ColorScheme::TEXT,
+                                    font_size: 60.0 / 2.,
+                                },
+                            },
+                            ..Default::default()
+                        });
+                        controls_parent.spawn(TextComponents {
+                            style: Style {
+                                size: Size {
+                                    height: Val::Px(60. / 2.),
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            },
+                            text: Text {
+                                value: "Use spacebar to place a bomb".to_string(),
                                 font: font_sub,
                                 style: TextStyle {
                                     color: crate::ui::ColorScheme::TEXT,
@@ -211,6 +251,279 @@ fn setup(
                             },
                             ..Default::default()
                         });
+                        controls_parent.spawn(TextComponents {
+                            style: Style {
+                                size: Size {
+                                    height: Val::Px(60. / 2.),
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            },
+                            text: Text {
+                                value: "Game difficulty will increase each round".to_string(),
+                                font: font_sub,
+                                style: TextStyle {
+                                    color: crate::ui::ColorScheme::TEXT,
+                                    font_size: 60.0 / 2.,
+                                },
+                            },
+                            ..Default::default()
+                        });
+                    });
+            });
+
+        commands
+            .spawn(NodeComponents {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    position: Rect::<Val> {
+                        left: Val::Percent(50.),
+                        right: Val::Undefined,
+                        bottom: Val::Undefined,
+                        top: Val::Percent(40.),
+                    },
+                    flex_direction: FlexDirection::ColumnReverse,
+                    ..Default::default()
+                },
+                material: color_none,
+                ..Default::default()
+            })
+            .with(ScreenTag)
+            .with_children(|bonus_parent| {
+                bonus_parent.spawn(TextComponents {
+                    style: Style {
+                        size: Size {
+                            height: Val::Px(70. / 2.),
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                    text: Text {
+                        value: "Bonus:".to_string(),
+                        font: font_sub,
+                        style: TextStyle {
+                            color: crate::ui::ColorScheme::TEXT,
+                            font_size: 70.0 / 2.,
+                        },
+                    },
+                    ..Default::default()
+                });
+                bonus_parent
+                    .spawn(NodeComponents {
+                        style: Style {
+                            position: Rect::<Val> {
+                                left: Val::Px(50. / 2.),
+                                right: Val::Undefined,
+                                bottom: Val::Undefined,
+                                top: Val::Px(10. / 2.),
+                            },
+                            flex_direction: FlexDirection::ColumnReverse,
+                            ..Default::default()
+                        },
+                        material: color_none,
+                        ..Default::default()
+                    })
+                    .with_children(|controls_parent| {
+                        controls_parent
+                            .spawn(NodeComponents {
+                                style: Style {
+                                    flex_direction: FlexDirection::Row,
+                                    ..Default::default()
+                                },
+                                material: color_none,
+                                ..Default::default()
+                            })
+                            .with_children(|this_bonus_parent| {
+                                this_bonus_parent.spawn(ImageComponents {
+                                    style: Style {
+                                        size: Size {
+                                            height: Val::Px(30.),
+                                            width: Val::Px(30.),
+                                        },
+                                        ..Default::default()
+                                    },
+                                    material: board_assets.powerup_score_handle,
+                                    ..Default::default()
+                                });
+                                this_bonus_parent.spawn(TextComponents {
+                                    style: Style {
+                                        size: Size {
+                                            height: Val::Px(60. / 2.),
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    },
+                                    text: Text {
+                                        value: "Score bonus".to_string(),
+                                        font: font_sub,
+                                        style: TextStyle {
+                                            color: crate::ui::ColorScheme::TEXT,
+                                            font_size: 60.0 / 2.,
+                                        },
+                                    },
+                                    ..Default::default()
+                                });
+                            });
+                        controls_parent
+                            .spawn(NodeComponents {
+                                style: Style {
+                                    flex_direction: FlexDirection::Row,
+                                    ..Default::default()
+                                },
+                                material: color_none,
+                                ..Default::default()
+                            })
+                            .with_children(|this_bonus_parent| {
+                                this_bonus_parent.spawn(ImageComponents {
+                                    style: Style {
+                                        size: Size {
+                                            height: Val::Px(30.),
+                                            width: Val::Px(30.),
+                                        },
+                                        ..Default::default()
+                                    },
+                                    material: board_assets.powerup_bomb_damage_handle,
+                                    ..Default::default()
+                                });
+                                this_bonus_parent.spawn(TextComponents {
+                                    style: Style {
+                                        size: Size {
+                                            height: Val::Px(60. / 2.),
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    },
+                                    text: Text {
+                                        value: "Increase bomb damage".to_string(),
+                                        font: font_sub,
+                                        style: TextStyle {
+                                            color: crate::ui::ColorScheme::TEXT,
+                                            font_size: 60.0 / 2.,
+                                        },
+                                    },
+                                    ..Default::default()
+                                });
+                            });
+                        controls_parent
+                            .spawn(NodeComponents {
+                                style: Style {
+                                    flex_direction: FlexDirection::Row,
+                                    ..Default::default()
+                                },
+                                material: color_none,
+                                ..Default::default()
+                            })
+                            .with_children(|this_bonus_parent| {
+                                this_bonus_parent.spawn(ImageComponents {
+                                    style: Style {
+                                        size: Size {
+                                            height: Val::Px(30.),
+                                            width: Val::Px(30.),
+                                        },
+                                        ..Default::default()
+                                    },
+                                    material: board_assets.powerup_bomb_range_handle,
+                                    ..Default::default()
+                                });
+                                this_bonus_parent.spawn(TextComponents {
+                                    style: Style {
+                                        size: Size {
+                                            height: Val::Px(60. / 2.),
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    },
+                                    text: Text {
+                                        value: "Increase bomb range".to_string(),
+                                        font: font_sub,
+                                        style: TextStyle {
+                                            color: crate::ui::ColorScheme::TEXT,
+                                            font_size: 60.0 / 2.,
+                                        },
+                                    },
+                                    ..Default::default()
+                                });
+                            });
+                        controls_parent
+                            .spawn(NodeComponents {
+                                style: Style {
+                                    flex_direction: FlexDirection::Row,
+                                    ..Default::default()
+                                },
+                                material: color_none,
+                                ..Default::default()
+                            })
+                            .with_children(|this_bonus_parent| {
+                                this_bonus_parent.spawn(ImageComponents {
+                                    style: Style {
+                                        size: Size {
+                                            height: Val::Px(30.),
+                                            width: Val::Px(30.),
+                                        },
+                                        ..Default::default()
+                                    },
+                                    material: board_assets.powerup_bomb_count_handle,
+                                    ..Default::default()
+                                });
+                                this_bonus_parent.spawn(TextComponents {
+                                    style: Style {
+                                        size: Size {
+                                            height: Val::Px(60. / 2.),
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    },
+                                    text: Text {
+                                        value: "Increase number of bombs".to_string(),
+                                        font: font_sub,
+                                        style: TextStyle {
+                                            color: crate::ui::ColorScheme::TEXT,
+                                            font_size: 60.0 / 2.,
+                                        },
+                                    },
+                                    ..Default::default()
+                                });
+                            });
+                        controls_parent
+                            .spawn(NodeComponents {
+                                style: Style {
+                                    flex_direction: FlexDirection::Row,
+                                    ..Default::default()
+                                },
+                                material: color_none,
+                                ..Default::default()
+                            })
+                            .with_children(|this_bonus_parent| {
+                                this_bonus_parent.spawn(ImageComponents {
+                                    style: Style {
+                                        size: Size {
+                                            height: Val::Px(30.),
+                                            width: Val::Px(30.),
+                                        },
+                                        ..Default::default()
+                                    },
+                                    material: board_assets.powerup_bomb_speed_handle,
+                                    ..Default::default()
+                                });
+                                this_bonus_parent.spawn(TextComponents {
+                                    style: Style {
+                                        size: Size {
+                                            height: Val::Px(60. / 2.),
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    },
+                                    text: Text {
+                                        value: "Decrease delay before bomb explosion".to_string(),
+                                        font: font_sub,
+                                        style: TextStyle {
+                                            color: crate::ui::ColorScheme::TEXT,
+                                            font_size: 60.0 / 2.,
+                                        },
+                                    },
+                                    ..Default::default()
+                                });
+                            });
                     });
             });
 
