@@ -58,7 +58,7 @@ fn setup(
                 parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(150.),
+                            height: Val::Px(150. / 2.),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -68,7 +68,7 @@ fn setup(
                         font,
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
-                            font_size: 150.0,
+                            font_size: 150.0 / 2.,
                         },
                     },
                     ..Default::default()
@@ -76,7 +76,7 @@ fn setup(
                 parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(200.),
+                            height: Val::Px(200. / 2.),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -86,7 +86,7 @@ fn setup(
                         font: font_sub,
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
-                            font_size: 200.0,
+                            font_size: 200.0 / 2.,
                         },
                     },
                     ..Default::default()
@@ -94,7 +94,7 @@ fn setup(
                 parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(100.),
+                            height: Val::Px(100. / 2.),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -104,186 +104,12 @@ fn setup(
                         font: font_sub,
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
-                            font_size: 100.0,
+                            font_size: 100.0 / 2.,
                         },
                     },
                     ..Default::default()
                 });
             });
-
-        // commands
-        //     .spawn(NodeComponents {
-        //         style: Style {
-        //             position_type: PositionType::Absolute,
-        //             position: Rect::<Val> {
-        //                 left: Val::Percent(20.),
-        //                 right: Val::Undefined,
-        //                 bottom: Val::Undefined,
-        //                 top: Val::Percent(25.),
-        //             },
-        //             size: Size::<Val> {
-        //                 height: Val::Px(190.),
-        //                 width: Val::Auto,
-        //             },
-        //             flex_direction: FlexDirection::ColumnReverse,
-        //             ..Default::default()
-        //         },
-        //         material: materials.add(Color::NONE.into()),
-        //         ..Default::default()
-        //     })
-        //     .with_children(|title_parent| {
-        //         title_parent.spawn(TextComponents {
-        //             style: Style {
-        //                 size: Size {
-        //                     height: Val::Px(150.),
-        //                     ..Default::default()
-        //                 },
-        //                 ..Default::default()
-        //             },
-        //             text: Text {
-        //                 value: "Keep Moving".to_string(),
-        //                 font,
-        //                 style: TextStyle {
-        //                     color: crate::ui::ColorScheme::TEXT,
-        //                     font_size: 150.0,
-        //                 },
-        //             },
-        //             ..Default::default()
-        //         });
-        //         title_parent.spawn(TextComponents {
-        //             style: Style {
-        //                 size: Size {
-        //                     height: Val::Px(40.),
-        //                     ..Default::default()
-        //                 },
-        //                 margin: Rect {
-        //                     right: Val::Px(20.),
-        //                     ..Default::default()
-        //                 },
-        //                 align_self: AlignSelf::FlexEnd,
-        //                 ..Default::default()
-        //             },
-        //             text: Text {
-        //                 value: format!("v{}", env!("CARGO_PKG_VERSION")),
-        //                 font: font_sub,
-        //                 style: TextStyle {
-        //                     color: crate::ui::ColorScheme::TEXT_DIM,
-        //                     font_size: 40.0,
-        //                 },
-        //             },
-        //             ..Default::default()
-        //         });
-        //     })
-        //     .with(ScreenTag);
-
-        // commands
-        //     .spawn(NodeComponents {
-        //         style: Style {
-        //             position_type: PositionType::Absolute,
-        //             position: Rect::<Val> {
-        //                 left: Val::Percent(30.),
-        //                 right: Val::Undefined,
-        //                 bottom: Val::Undefined,
-        //                 top: Val::Percent(40.),
-        //             },
-        //             flex_direction: FlexDirection::ColumnReverse,
-        //             ..Default::default()
-        //         },
-        //         material: materials.add(Color::NONE.into()),
-        //         ..Default::default()
-        //     })
-        //     .with(ScreenTag)
-        //     .with_children(|instruction_parent| {
-        //         instruction_parent.spawn(TextComponents {
-        //             style: Style {
-        //                 size: Size {
-        //                     height: Val::Px(70.),
-        //                     ..Default::default()
-        //                 },
-        //                 ..Default::default()
-        //             },
-        //             text: Text {
-        //                 value: "Instructions:".to_string(),
-        //                 font: font_sub,
-        //                 style: TextStyle {
-        //                     color: crate::ui::ColorScheme::TEXT,
-        //                     font_size: 70.0,
-        //                 },
-        //             },
-        //             ..Default::default()
-        //         });
-        //         instruction_parent
-        //             .spawn(NodeComponents {
-        //                 style: Style {
-        //                     position: Rect::<Val> {
-        //                         left: Val::Px(50.),
-        //                         right: Val::Undefined,
-        //                         bottom: Val::Undefined,
-        //                         top: Val::Px(10.),
-        //                     },
-        //                     flex_direction: FlexDirection::ColumnReverse,
-        //                     ..Default::default()
-        //                 },
-        //                 material: materials.add(Color::NONE.into()),
-        //                 ..Default::default()
-        //             })
-        //             .with_children(|controls_parent| {
-        //                 controls_parent.spawn(TextComponents {
-        //                     style: Style {
-        //                         size: Size {
-        //                             height: Val::Px(60.),
-        //                             ..Default::default()
-        //                         },
-        //                         ..Default::default()
-        //                     },
-        //                     text: Text {
-        //                         value: "Move right".to_string(),
-        //                         font: font_sub,
-        //                         style: TextStyle {
-        //                             color: crate::ui::ColorScheme::TEXT,
-        //                             font_size: 60.0,
-        //                         },
-        //                     },
-        //                     ..Default::default()
-        //                 });
-        //                 controls_parent.spawn(TextComponents {
-        //                     style: Style {
-        //                         size: Size {
-        //                             height: Val::Px(60.),
-        //                             ..Default::default()
-        //                         },
-        //                         ..Default::default()
-        //                     },
-        //                     text: Text {
-        //                         value: "Blow away obstacles or avoid them".to_string(),
-        //                         font: font_sub,
-        //                         style: TextStyle {
-        //                             color: crate::ui::ColorScheme::TEXT,
-        //                             font_size: 60.0,
-        //                         },
-        //                     },
-        //                     ..Default::default()
-        //                 });
-        //                 controls_parent.spawn(TextComponents {
-        //                     style: Style {
-        //                         size: Size {
-        //                             height: Val::Px(60.),
-        //                             ..Default::default()
-        //                         },
-        //                         ..Default::default()
-        //                     },
-        //                     text: Text {
-        //                         value: "Survive for as long as you can".to_string(),
-        //                         font: font_sub,
-        //                         style: TextStyle {
-        //                             color: crate::ui::ColorScheme::TEXT,
-        //                             font_size: 60.0,
-        //                         },
-        //                     },
-        //                     ..Default::default()
-        //                 });
-        //             });
-        //     });
 
         *game = crate::game::Game::default();
 

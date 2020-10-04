@@ -86,13 +86,13 @@ pub fn setup(
             .spawn(TextComponents {
                 style: Style {
                     size: Size {
-                        height: Val::Px(150.),
+                        height: Val::Px(150. / 3.),
                         ..Default::default()
                     },
                     position_type: PositionType::Absolute,
                     position: Rect {
-                        left: Val::Px(10.),
-                        top: Val::Px(10.),
+                        left: Val::Px(10. / 3.),
+                        top: Val::Px(10. / 3.),
                         ..Default::default()
                     },
                     ..Default::default()
@@ -102,7 +102,7 @@ pub fn setup(
                     font,
                     style: TextStyle {
                         color: crate::ui::ColorScheme::TEXT,
-                        font_size: 150.0,
+                        font_size: 150.0 / 3.,
                     },
                 },
                 ..Default::default()
@@ -114,13 +114,13 @@ pub fn setup(
             .spawn(TextComponents {
                 style: Style {
                     size: Size {
-                        height: Val::Px(120.),
+                        height: Val::Px(120. / 4.),
                         ..Default::default()
                     },
                     position_type: PositionType::Absolute,
                     position: Rect {
-                        right: Val::Px(10.),
-                        top: Val::Px(10.),
+                        right: Val::Px(10. / 4.),
+                        top: Val::Px(10. / 4.),
                         ..Default::default()
                     },
                     ..Default::default()
@@ -130,7 +130,7 @@ pub fn setup(
                     font,
                     style: TextStyle {
                         color: crate::ui::ColorScheme::TEXT,
-                        font_size: 120.0,
+                        font_size: 120.0 / 4.,
                     },
                 },
                 ..Default::default()
@@ -143,13 +143,13 @@ pub fn setup(
             .spawn(NodeComponents {
                 style: Style {
                     size: Size {
-                        height: Val::Px(30.),
+                        height: Val::Px(30. / 2.),
                         ..Default::default()
                     },
                     position_type: PositionType::Absolute,
                     position: Rect {
-                        right: Val::Px(10.),
-                        top: Val::Px(130.),
+                        right: Val::Px(10. / 4.),
+                        top: Val::Px(130. / 4.),
                         ..Default::default()
                     },
                     flex_direction: FlexDirection::RowReverse,
@@ -163,12 +163,12 @@ pub fn setup(
                 p.spawn(ImageComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(30.),
-                            width: Val::Px(30.),
+                            height: Val::Px(30. / 2.),
+                            width: Val::Px(30. / 2.),
                         },
                         margin: Rect {
-                            left: Val::Px(10.),
-                            right: Val::Px(10.),
+                            left: Val::Px(10. / 2.),
+                            right: Val::Px(10. / 2.),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -205,12 +205,12 @@ pub fn display_bombs_available(
                     commands.spawn(ImageComponents {
                         style: Style {
                             size: Size {
-                                height: Val::Px(30.),
-                                width: Val::Px(30.),
+                                height: Val::Px(30. / 2.),
+                                width: Val::Px(30. / 2.),
                             },
                             margin: Rect {
-                                left: Val::Px(10.),
-                                right: Val::Px(10.),
+                                left: Val::Px(10. / 2.),
+                                right: Val::Px(10. / 2.),
                                 ..Default::default()
                             },
                             ..Default::default()

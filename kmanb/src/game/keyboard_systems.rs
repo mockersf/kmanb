@@ -3,7 +3,7 @@ use super::*;
 pub fn input_system(mut game_state: ResMut<crate::GameState>, keyboard_input: Res<Input<KeyCode>>) {
     if game_state.current_screen == CURRENT_SCREEN && keyboard_input.just_released(KeyCode::Escape)
     {
-        game_state.current_screen = crate::Screen::Menu;
+        game_state.current_screen = crate::Screen::Lost;
     }
 }
 
@@ -49,7 +49,7 @@ pub fn event_system(
                         .spawn(SpriteComponents {
                             material: bomb_handle,
                             transform: Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
-                                .with_scale(ratio * 0.3),
+                                .with_scale(ratio * 0.8),
                             ..Default::default()
                         })
                         .with(BombSprite);

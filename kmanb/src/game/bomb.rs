@@ -41,7 +41,7 @@ pub fn flash_bombs(
                         .spawn(SpriteComponents {
                             material: fire_handle,
                             transform: Transform::from_translation(Vec3::new(0., 0., Z_FIRE))
-                                .with_scale(ratio),
+                                .with_scale(ratio * 1.3),
                             ..Default::default()
                         })
                         .with(FireSprite);
@@ -66,7 +66,7 @@ pub fn flash_bombs(
                             .spawn(SpriteComponents {
                                 material: fire_handle,
                                 transform: Transform::from_translation(Vec3::new(0., 0., Z_FIRE))
-                                    .with_scale(ratio),
+                                    .with_scale(ratio * 1.3),
                                 ..Default::default()
                             })
                             .with(FireSprite);

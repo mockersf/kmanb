@@ -64,7 +64,7 @@ fn setup(
                 title_parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(150.),
+                            height: Val::Px(150. / 2.),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -74,7 +74,7 @@ fn setup(
                         font,
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
-                            font_size: 150.0,
+                            font_size: 150.0 / 2.,
                         },
                     },
                     ..Default::default()
@@ -82,11 +82,11 @@ fn setup(
                 title_parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(40.),
+                            height: Val::Px(40. / 2.),
                             ..Default::default()
                         },
                         margin: Rect {
-                            right: Val::Px(20.),
+                            right: Val::Px(20. / 2.),
                             ..Default::default()
                         },
                         align_self: AlignSelf::FlexEnd,
@@ -97,7 +97,7 @@ fn setup(
                         font: font_sub,
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT_DIM,
-                            font_size: 40.0,
+                            font_size: 40.0 / 2.,
                         },
                     },
                     ..Default::default()
@@ -126,7 +126,7 @@ fn setup(
                 instruction_parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(70.),
+                            height: Val::Px(70. / 2.),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -136,7 +136,7 @@ fn setup(
                         font: font_sub,
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
-                            font_size: 70.0,
+                            font_size: 70.0 / 2.,
                         },
                     },
                     ..Default::default()
@@ -145,10 +145,10 @@ fn setup(
                     .spawn(NodeComponents {
                         style: Style {
                             position: Rect::<Val> {
-                                left: Val::Px(50.),
+                                left: Val::Px(50. / 2.),
                                 right: Val::Undefined,
                                 bottom: Val::Undefined,
-                                top: Val::Px(10.),
+                                top: Val::Px(10. / 2.),
                             },
                             flex_direction: FlexDirection::ColumnReverse,
                             ..Default::default()
@@ -160,7 +160,7 @@ fn setup(
                         controls_parent.spawn(TextComponents {
                             style: Style {
                                 size: Size {
-                                    height: Val::Px(60.),
+                                    height: Val::Px(60. / 2.),
                                     ..Default::default()
                                 },
                                 ..Default::default()
@@ -170,7 +170,7 @@ fn setup(
                                 font: font_sub,
                                 style: TextStyle {
                                     color: crate::ui::ColorScheme::TEXT,
-                                    font_size: 60.0,
+                                    font_size: 60.0 / 2.,
                                 },
                             },
                             ..Default::default()
@@ -178,7 +178,7 @@ fn setup(
                         controls_parent.spawn(TextComponents {
                             style: Style {
                                 size: Size {
-                                    height: Val::Px(60.),
+                                    height: Val::Px(60. / 2.),
                                     ..Default::default()
                                 },
                                 ..Default::default()
@@ -188,7 +188,7 @@ fn setup(
                                 font: font_sub,
                                 style: TextStyle {
                                     color: crate::ui::ColorScheme::TEXT,
-                                    font_size: 60.0,
+                                    font_size: 60.0 / 2.,
                                 },
                             },
                             ..Default::default()
@@ -196,7 +196,7 @@ fn setup(
                         controls_parent.spawn(TextComponents {
                             style: Style {
                                 size: Size {
-                                    height: Val::Px(60.),
+                                    height: Val::Px(60. / 2.),
                                     ..Default::default()
                                 },
                                 ..Default::default()
@@ -206,7 +206,7 @@ fn setup(
                                 font: font_sub,
                                 style: TextStyle {
                                     color: crate::ui::ColorScheme::TEXT,
-                                    font_size: 60.0,
+                                    font_size: 60.0 / 2.,
                                 },
                             },
                             ..Default::default()

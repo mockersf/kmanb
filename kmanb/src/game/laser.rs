@@ -33,7 +33,7 @@ pub fn move_laser(
                             .spawn(SpriteComponents {
                                 material: fire_handle,
                                 transform: Transform::from_translation(Vec3::new(0., 0., Z_FIRE))
-                                    .with_scale(ratio),
+                                    .with_scale(ratio * 1.3),
                                 ..Default::default()
                             })
                             .with(FireSprite);
@@ -152,7 +152,7 @@ pub fn spawn_obstacles(
                         .spawn(SpriteComponents {
                             material: crate_handle,
                             transform: Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
-                                .with_scale(ratio * 0.7),
+                                .with_scale(ratio * 1.),
                             ..Default::default()
                         })
                         .with(ObstacleSprite);

@@ -92,7 +92,8 @@ fn setup(
         commands
             .spawn(SpriteSheetComponents {
                 texture_atlas: character_handle,
-                transform: Transform::from_translation(Vec3::new(-400., -150., 0.)).with_scale(2.5),
+                transform: Transform::from_translation(Vec3::new(-400. / 2., -150. / 2., 0.))
+                    .with_scale(2.5 / 2.),
                 sprite: TextureAtlasSprite {
                     index: 36,
                     ..Default::default()
@@ -113,7 +114,7 @@ fn setup(
                         top: Val::Percent(25.),
                     },
                     size: Size::<Val> {
-                        height: Val::Px(190.),
+                        height: Val::Px(190. / 2.),
                         width: Val::Auto,
                     },
                     flex_direction: FlexDirection::ColumnReverse,
@@ -126,7 +127,7 @@ fn setup(
                 title_parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(150.),
+                            height: Val::Px(150. / 2.),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -136,7 +137,7 @@ fn setup(
                         font,
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
-                            font_size: 150.0,
+                            font_size: 150.0 / 2.,
                         },
                     },
                     ..Default::default()
@@ -144,7 +145,7 @@ fn setup(
                 title_parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(40.),
+                            height: Val::Px(40. / 2.),
                             ..Default::default()
                         },
                         margin: Rect {
@@ -159,7 +160,7 @@ fn setup(
                         font,
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT_DIM,
-                            font_size: 40.0,
+                            font_size: 40.0 / 2.,
                         },
                     },
                     ..Default::default()
@@ -173,7 +174,7 @@ fn setup(
                 position: Rect::<Val> {
                     left: Val::Percent(120.),
                     right: Val::Undefined,
-                    bottom: Val::Percent(20.),
+                    bottom: Val::Percent(15.),
                     top: Val::Undefined,
                 },
                 ..Default::default()
@@ -188,7 +189,7 @@ fn setup(
                     position: Rect::<Val> {
                         left: Val::Percent(120.),
                         right: Val::Undefined,
-                        bottom: Val::Percent(20.),
+                        bottom: Val::Percent(15.),
                         top: Val::Undefined,
                     },
                     ..Default::default()
@@ -199,7 +200,7 @@ fn setup(
                         position: Rect::<Val> {
                             left: Val::Percent(53.),
                             right: Val::Undefined,
-                            bottom: Val::Percent(20.),
+                            bottom: Val::Percent(15.),
                             top: Val::Undefined,
                         },
                         ..Default::default()
@@ -216,7 +217,7 @@ fn setup(
                 position: Rect::<Val> {
                     left: Val::Percent(53.),
                     right: Val::Undefined,
-                    bottom: Val::Percent(20.),
+                    bottom: Val::Percent(15.),
                     top: Val::Undefined,
                 },
                 ..Default::default()
@@ -226,8 +227,8 @@ fn setup(
             .with_children(|global_parent| {
                 np_panel.add(
                     global_parent,
-                    30. + 450. + 3. * 75. + 70.,
-                    600.,
+                    (30. + 450. + 3. * 75. + 70.) / 2.,
+                    300.,
                     |inside, _| {
                         inside
                             .spawn(NodeComponents {
@@ -244,11 +245,11 @@ fn setup(
                             })
                             .with_children(|commands| {
                                 let mut current_button_shift = 30.;
-                                let button_shift = 90.;
+                                let button_shift = 90. / 2.;
                                 button.add(
                                     commands,
-                                    450.,
-                                    100.,
+                                    450. / 2.,
+                                    100. / 2.,
                                     Rect {
                                         left: Val::Px(current_button_shift),
                                         right: Val::Auto,
@@ -257,13 +258,13 @@ fn setup(
                                     },
                                     font,
                                     MenuButton::NewGame,
-                                    40.,
+                                    40. / 2.,
                                 );
                                 current_button_shift += button_shift;
                                 button.add(
                                     commands,
-                                    450.,
-                                    100.,
+                                    450. / 2.,
+                                    100. / 2.,
                                     Rect {
                                         left: Val::Px(current_button_shift),
                                         right: Val::Auto,
@@ -272,13 +273,13 @@ fn setup(
                                     },
                                     font,
                                     MenuButton::About,
-                                    40.,
+                                    40. / 2.,
                                 );
                                 current_button_shift += button_shift;
                                 button.add(
                                     commands,
-                                    450.,
-                                    100.,
+                                    450. / 2.,
+                                    100. / 2.,
                                     Rect {
                                         left: Val::Px(current_button_shift),
                                         right: Val::Auto,
@@ -287,7 +288,7 @@ fn setup(
                                     },
                                     font,
                                     MenuButton::Quit,
-                                    40.,
+                                    40. / 2.,
                                 );
                             });
                     },

@@ -42,8 +42,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // resources
         .add_resource(WindowDescriptor {
             title: "kmanb".to_string(),
-            width: settings.width,
-            height: settings.height,
+            // width: settings.width,
+            // height: settings.height,
             vsync: true,
             resizable: false,
             mode: if settings.fullscreen {
