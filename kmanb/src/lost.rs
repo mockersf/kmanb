@@ -21,6 +21,7 @@ impl bevy::app::Plugin for Plugin {
             .add_system(mouse_input_system.system())
             .add_system(setup.system())
             .add_system(keyboard_input_system.system())
+            .add_system(hurt_animate_sprite_system.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
     }
 }
@@ -33,18 +34,42 @@ fn setup(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut asset_handles: ResMut<crate::AssetHandles>,
+    mut textures: ResMut<Assets<Texture>>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
+
+        let character_handle =
+            asset_handles.get_character_handle(&asset_server, &mut textures, &mut texture_atlases);
 
         let font: Handle<Font> = asset_handles.get_font_main_handle(&asset_server);
 
         let font_sub: Handle<Font> = asset_handles.get_font_sub_handle(&asset_server);
 
         commands
+            .spawn(SpriteSheetComponents {
+                texture_atlas: character_handle,
+                transform: Transform::from_translation(Vec3::new(-200., 0., 0.)),
+                sprite: TextureAtlasSprite {
+                    index: 0,
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+            .with(Timer::from_seconds(0.2, true))
+            .with(ScreenTag);
+
+        commands
             .spawn(NodeComponents {
                 style: Style {
-                    margin: Rect::all(Val::Auto),
+                    position_type: PositionType::Absolute,
+                    position: Rect::<Val> {
+                        left: Val::Percent(50.),
+                        right: Val::Undefined,
+                        bottom: Val::Percent(30.),
+                        top: Val::Undefined,
+                    },
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     flex_direction: FlexDirection::ColumnReverse,
@@ -154,5 +179,22 @@ fn mouse_input_system(
         && mouse_button_input.just_pressed(MouseButton::Left)
     {
         game_state.current_screen = crate::Screen::Menu;
+    }
+}
+
+fn hurt_animate_sprite_system(
+    game_state: Res<crate::GameState>,
+    mut query: Query<(&mut Timer, &mut TextureAtlasSprite)>,
+) {
+    if game_state.current_screen == CURRENT_SCREEN {
+        for (timer, mut sprite) in &mut query.iter() {
+            if timer.finished {
+                if sprite.index == 0 {
+                    sprite.index = 4;
+                } else {
+                    sprite.index = 0
+                }
+            }
+        }
     }
 }

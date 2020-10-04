@@ -92,8 +92,7 @@ fn setup(
         commands
             .spawn(SpriteSheetComponents {
                 texture_atlas: character_handle,
-                transform: Transform::from_translation(Vec3::new(-400. / 2., -150. / 2., 0.))
-                    .with_scale(2.5 / 2.),
+                transform: Transform::from_translation(Vec3::new(-400. / 2., -150. / 2., 0.)),
                 sprite: TextureAtlasSprite {
                     index: 36,
                     ..Default::default()
