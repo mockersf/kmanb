@@ -224,7 +224,10 @@ struct Player {
 
 impl Default for Player {
     fn default() -> Self {
-        Player { x: 0, y: 0 }
+        Player {
+            x: BOARD_X / 4,
+            y: BOARD_Y / 2,
+        }
     }
 }
 
