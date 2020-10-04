@@ -80,7 +80,7 @@ impl AssetHandles {
         texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
     ) -> Handle<TextureAtlas> {
         if self.character_handle.is_none() {
-            let character = include_bytes!("../assets/game/character_femaleAdventurer_sheetHD.png");
+            let character = include_bytes!("../assets/game/character_femalePerson_sheetHD.png");
             let character_texture_handle = asset_server
                 .load_sync_from(&mut textures, &mut character.as_ref())
                 .unwrap();
