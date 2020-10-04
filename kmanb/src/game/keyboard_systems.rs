@@ -12,6 +12,13 @@ pub struct KeyboardState {
     event_reader: EventReader<KeyboardInput>,
 }
 
+pub enum BumpDirection {
+    Top,
+    Bottom,
+    Left,
+    Right,
+}
+
 pub fn event_system(
     mut commands: Commands,
     game_state: Res<crate::GameState>,
@@ -20,6 +27,7 @@ pub fn event_system(
     keyboard_input_events: Res<Events<KeyboardInput>>,
     wnds: Res<Windows>,
     mut player_query: Query<Without<PlayerMoving, (Entity, &PlayerComponent, &Transform)>>,
+    occupied_tiles: Query<(Entity, &super::laser::ObstacleComponent)>,
 ) {
     let move_delay = 200;
     if game_state.current_screen == CURRENT_SCREEN {
@@ -27,7 +35,7 @@ pub fn event_system(
             if event.state == ElementState::Pressed {
                 let mut moved = false;
                 let mut teleport_border = false;
-                let mut bump_border = false;
+                let mut bump = None;
                 for (entity, _player, transform) in &mut player_query.iter() {
                     let ratio = wnds.get_primary().unwrap().width as f32
                         / BOARD_X as f32
@@ -36,38 +44,90 @@ pub fn event_system(
                     match event.key_code {
                         Some(KeyCode::Right) => {
                             game.player.direction = FacingDirection::Right;
-                            if game.player.x == BOARD_X - 1 {
-                                game.player.x = 0;
-                                teleport_border = true;
+                            if occupied_tiles
+                                .get::<super::laser::ObstacleComponent>(
+                                    game.board.as_ref().unwrap()[game.player.y]
+                                        [(game.player.x + 1) % BOARD_X]
+                                        .entity,
+                                )
+                                .is_ok()
+                            {
+                                bump = Some(BumpDirection::Right);
                             } else {
-                                game.player.x += 1;
-                                moved = true;
+                                if game.player.x == BOARD_X - 1 {
+                                    game.player.x = 0;
+                                    teleport_border = true;
+                                } else {
+                                    game.player.x += 1;
+                                    moved = true;
+                                }
                             }
                         }
                         Some(KeyCode::Left) => {
                             game.player.direction = FacingDirection::Left;
-                            if game.player.x == 0 {
-                                game.player.x = BOARD_X - 1;
-                                teleport_border = true
+                            if occupied_tiles
+                                .get::<super::laser::ObstacleComponent>(
+                                    game.board.as_ref().unwrap()[game.player.y][if game.player.x
+                                        == 0
+                                    {
+                                        BOARD_X - 1
+                                    } else {
+                                        game.player.x - 1
+                                    }]
+                                    .entity,
+                                )
+                                .is_ok()
+                            {
+                                bump = Some(BumpDirection::Left);
                             } else {
-                                game.player.x -= 1;
-                                moved = true;
+                                if game.player.x == 0 {
+                                    game.player.x = BOARD_X - 1;
+                                    teleport_border = true
+                                } else {
+                                    game.player.x -= 1;
+                                    moved = true;
+                                }
                             }
                         }
                         Some(KeyCode::Up) => {
-                            if game.player.y == BOARD_Y - 1 {
-                                bump_border = true;
+                            if occupied_tiles
+                                .get::<super::laser::ObstacleComponent>(
+                                    game.board.as_ref().unwrap()[(game.player.y + 1) % BOARD_Y]
+                                        [game.player.x]
+                                        .entity,
+                                )
+                                .is_ok()
+                            {
+                                bump = Some(BumpDirection::Bottom);
                             } else {
-                                game.player.y += 1;
-                                moved = true;
+                                if game.player.y == BOARD_Y - 1 {
+                                    bump = Some(BumpDirection::Top);
+                                } else {
+                                    game.player.y += 1;
+                                    moved = true;
+                                }
                             }
                         }
                         Some(KeyCode::Down) => {
-                            if game.player.y == 0 {
-                                bump_border = true
+                            if occupied_tiles
+                                .get::<super::laser::ObstacleComponent>(
+                                    game.board.as_ref().unwrap()[if game.player.y == 0 {
+                                        BOARD_Y - 1
+                                    } else {
+                                        game.player.y - 1
+                                    }][game.player.x]
+                                        .entity,
+                                )
+                                .is_ok()
+                            {
+                                bump = Some(BumpDirection::Top);
                             } else {
-                                game.player.y -= 1;
-                                moved = true;
+                                if game.player.y == 0 {
+                                    bump = Some(BumpDirection::Bottom);
+                                } else {
+                                    game.player.y -= 1;
+                                    moved = true;
+                                }
                             }
                         }
                         _ => (),
@@ -164,10 +224,12 @@ pub fn event_system(
                             },
                         );
                     }
-                    if bump_border {
-                        let factor = match game.player.y {
-                            0 => -1.,
-                            _ => 1.,
+                    if let Some(bump_direction) = bump.as_ref() {
+                        let (x_factor, y_factor) = match bump_direction {
+                            BumpDirection::Top => (0., -1.),
+                            BumpDirection::Bottom => (0., 1.),
+                            BumpDirection::Left => (-1., 0.),
+                            BumpDirection::Right => (1., 0.),
                         };
                         commands.insert_one(
                             entity,
@@ -181,9 +243,10 @@ pub fn event_system(
                                     )
                                     .with_translation(
                                         Vec3::new(
-                                            x_to(game.player.x as i32, ratio),
+                                            x_to(game.player.x as i32, ratio)
+                                                + x_factor * 0.75 * ratio * TILE_SIZE as f32 / 2.,
                                             y_to(game.player.y as i32, ratio)
-                                                + factor * 0.75 * ratio * TILE_SIZE as f32 / 2.,
+                                                + y_factor * 0.75 * ratio * TILE_SIZE as f32 / 2.,
                                             Z_PLAYER,
                                         ),
                                     ),

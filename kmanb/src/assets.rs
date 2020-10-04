@@ -25,6 +25,7 @@ pub struct GameBoardHandles {
     pub corner_bottom_right_handle: Handle<ColorMaterial>,
     pub water_handle: Handle<ColorMaterial>,
     pub laser_handle: Handle<ColorMaterial>,
+    pub crate_handle: Handle<ColorMaterial>,
 }
 
 impl AssetHandles {
@@ -225,6 +226,16 @@ impl AssetHandles {
                 color: Color::rgb(0.9, 0.3, 0.3),
             });
 
+            let crate_png = include_bytes!("../assets/game/rpgTile163.png");
+            let crate_handle: Handle<ColorMaterial> = materials.add(ColorMaterial {
+                texture: Some(
+                    asset_server
+                        .load_from(Box::new(crate_png.as_ref()))
+                        .expect("was able to load texture"),
+                ),
+                color: Color::rgb(0.9, 0.3, 0.3),
+            });
+
             self.board = Some(GameBoardHandles {
                 ground_handle,
                 ground_bottom_handle,
@@ -239,6 +250,7 @@ impl AssetHandles {
                 corner_top_right_handle,
                 water_handle,
                 laser_handle,
+                crate_handle,
             })
         }
         self.board.as_ref().unwrap().clone()

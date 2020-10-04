@@ -39,12 +39,14 @@ impl bevy::app::Plugin for Plugin {
             .add_system(keyboard_systems::event_system.system())
             .add_system(board_setup::setup.system())
             .add_system(ui::setup.system())
+            .add_system(laser::setup.system())
             .add_system(setup.system())
             .add_system(walk_animate_sprite_system.system())
             .add_system(keyboard_systems::input_system.system())
             .add_system(clear_moving_marker.system())
             .add_system(laser::jitter_laser.system())
             .add_system(laser::move_laser.system())
+            .add_system(laser::spawn_obstacles.system())
             .add_system(ui::new_round.system())
             .add_system(ui::score.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
@@ -198,11 +200,20 @@ impl Default for Player {
 struct Laser {
     x: usize,
     speed: u64,
+    spawn_obstacles_delay: u16,
+    nb_obstacles: usize,
+    obstacle_strength: usize,
 }
 
 impl Default for Laser {
     fn default() -> Self {
-        Laser { x: 0, speed: 1000 }
+        Laser {
+            x: 0,
+            speed: 1000,
+            spawn_obstacles_delay: 10000,
+            nb_obstacles: 2,
+            obstacle_strength: 1,
+        }
     }
 }
 
