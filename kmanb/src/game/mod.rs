@@ -7,6 +7,7 @@ use tracing::info;
 mod board_setup;
 mod keyboard_systems;
 mod laser;
+mod ui;
 
 use bevy_easings::Ease;
 
@@ -33,14 +34,19 @@ impl bevy::app::Plugin for Plugin {
         app.add_resource(Screen::default())
             .add_resource(Game::default())
             .init_resource::<keyboard_systems::KeyboardState>()
+            .init_resource::<ui::GameEventsListenerState>()
+            .add_event::<GameEvents>()
             .add_system(keyboard_systems::event_system.system())
             .add_system(board_setup::setup.system())
+            .add_system(ui::setup.system())
             .add_system(setup.system())
             .add_system(walk_animate_sprite_system.system())
             .add_system(keyboard_systems::input_system.system())
             .add_system(clear_moving_marker.system())
             .add_system(laser::jitter_laser.system())
             .add_system(laser::move_laser.system())
+            .add_system(ui::new_round.system())
+            .add_system(ui::score.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
     }
 }
@@ -205,6 +211,8 @@ pub struct Game {
     board: Option<Vec<Vec<Cell>>>,
     player: Player,
     laser: Laser,
+    round: u16,
+    score: u16,
 }
 
 fn walk_animate_sprite_system(
@@ -230,4 +238,8 @@ fn clear_moving_marker(
     if moving.timer.finished {
         commands.remove_one::<PlayerMoving>(entity);
     }
+}
+
+pub enum GameEvents {
+    NewRound,
 }

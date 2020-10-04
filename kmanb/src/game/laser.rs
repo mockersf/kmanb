@@ -6,6 +6,7 @@ pub fn move_laser(
     mut commands: Commands,
     mut game: ResMut<Game>,
     wnds: Res<Windows>,
+    mut game_events: ResMut<Events<GameEvents>>,
     timer: &Timer,
     mut transform: Mut<Transform>,
     entity: Entity,
@@ -38,6 +39,9 @@ pub fn move_laser(
                     },
                 ),
             );
+        }
+        if game.laser.x == BOARD_X / 2 {
+            game_events.send(GameEvents::NewRound)
         }
     }
 }
