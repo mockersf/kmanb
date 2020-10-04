@@ -1,14 +1,15 @@
 use bevy::{app::AppExit, prelude::*, window::WindowMode};
 use serde::{Deserialize, Serialize};
 
+mod assets;
 pub mod ui;
+use assets::AssetHandles;
 
 mod about;
-mod assets;
 mod game;
+mod lost;
 mod menu;
 mod splash;
-use assets::AssetHandles;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Settings {
@@ -73,6 +74,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_plugin(crate::menu::Plugin)
         .add_plugin(crate::about::Plugin)
         .add_plugin(crate::game::Plugin)
+        .add_plugin(crate::lost::Plugin)
         .run();
 
     Ok(())
@@ -89,6 +91,7 @@ pub enum Screen {
     About,
     Game,
     Exit,
+    Lost,
 }
 
 #[derive(Debug)]

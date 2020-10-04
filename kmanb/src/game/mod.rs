@@ -222,8 +222,8 @@ pub struct Game {
     board: Option<Vec<Vec<Cell>>>,
     player: Player,
     laser: Laser,
-    round: u16,
-    score: u16,
+    pub round: u16,
+    pub score: u16,
 }
 
 fn walk_animate_sprite_system(
@@ -251,6 +251,8 @@ fn clear_moving_marker(
     }
 }
 
+#[derive(PartialEq)]
 pub enum GameEvents {
     NewRound,
+    Lost,
 }

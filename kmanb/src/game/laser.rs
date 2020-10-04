@@ -12,11 +12,14 @@ pub fn move_laser(
     entity: Entity,
     _: &LaserComponent,
 ) {
+    if game.laser.x == game.player.x + 2 {
+        game_events.send(GameEvents::Lost)
+    }
     if timer.just_finished {
         let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
         game.laser.x += 1;
-        if game.laser.x == BOARD_X + 2 {
+        if game.laser.x == BOARD_X + 1 {
             game.laser.x = 0;
             *transform = Transform::from_translation(Vec3::new(
                 x_to(game.laser.x as i32 - 1, ratio),
@@ -62,13 +65,15 @@ pub fn setup(
     if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen (laser)");
 
-        commands.spawn((
-            ObstacleSpawner,
-            Timer::new(
-                std::time::Duration::from_millis(game.laser.spawn_obstacles_delay as u64),
-                true,
-            ),
-        ));
+        commands
+            .spawn((
+                ObstacleSpawner,
+                Timer::new(
+                    std::time::Duration::from_millis(game.laser.spawn_obstacles_delay as u64),
+                    true,
+                ),
+            ))
+            .with(ScreenTag);
     }
 }
 

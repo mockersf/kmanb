@@ -6,6 +6,7 @@ pub struct GameEventsListenerState {
 }
 
 pub fn new_round(
+    mut game_state: ResMut<crate::GameState>,
     mut game: ResMut<Game>,
     mut state: ResMut<GameEventsListenerState>,
     events: Res<Events<GameEvents>>,
@@ -20,6 +21,9 @@ pub fn new_round(
                         text.value = format!("Round {}", game.round);
                     }
                 }
+            }
+            GameEvents::Lost => {
+                game_state.current_screen = crate::Screen::Lost;
             }
         }
     }
@@ -74,7 +78,8 @@ pub fn setup(
                 },
                 ..Default::default()
             })
-            .with(UiComponent::Round);
+            .with(UiComponent::Round)
+            .with(ScreenTag);
 
         commands
             .spawn(TextComponents {
@@ -102,6 +107,7 @@ pub fn setup(
                 ..Default::default()
             })
             .with(UiComponent::Score)
-            .with(Timer::from_seconds(0.1, true));
+            .with(Timer::from_seconds(0.1, true))
+            .with(ScreenTag);
     }
 }
