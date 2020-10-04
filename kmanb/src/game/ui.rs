@@ -1,4 +1,15 @@
 use super::*;
+use enum_utils::IterVariants;
+use rand::prelude::IteratorRandom;
+
+// use rand::Rng;
+
+#[derive(Debug, Clone, PartialEq, Eq, IterVariants)]
+enum LaserPowerUp {
+    Speed,
+    ObstacleSpawnDelay,
+    ObstacleSpawnCount,
+}
 
 #[derive(Default)]
 pub struct GameEventsListenerState {
@@ -20,6 +31,17 @@ pub fn new_round(
                     if *component == UiComponent::Round {
                         text.value = format!("Round {}", game.round);
                     }
+                }
+                let mut rng = rand::thread_rng();
+                match LaserPowerUp::iter().choose(&mut rng).unwrap() {
+                    LaserPowerUp::Speed => {
+                        game.laser.speed = (game.laser.speed as f64 * 0.8) as u64
+                    }
+                    LaserPowerUp::ObstacleSpawnDelay => {
+                        game.laser.spawn_obstacles_delay =
+                            (game.laser.spawn_obstacles_delay as f32 * 0.8) as u16
+                    }
+                    LaserPowerUp::ObstacleSpawnCount => game.laser.nb_obstacles += 2,
                 }
             }
             GameEvents::Lost => {

@@ -7,7 +7,7 @@ pub fn move_laser(
     mut game: ResMut<Game>,
     wnds: Res<Windows>,
     mut game_events: ResMut<Events<GameEvents>>,
-    timer: &Timer,
+    mut timer: Mut<Timer>,
     mut transform: Mut<Transform>,
     entity: Entity,
     _: &LaserComponent,
@@ -46,6 +46,7 @@ pub fn move_laser(
         if game.laser.x == BOARD_X / 2 {
             game_events.send(GameEvents::NewRound)
         }
+        timer.duration = game.laser.speed as f32 / 1000.;
     }
 }
 
@@ -87,7 +88,7 @@ pub fn spawn_obstacles(
     asset_server: Res<AssetServer>,
     materials: ResMut<Assets<ColorMaterial>>,
     wnds: Res<Windows>,
-    mut timer_query: Query<(&ObstacleSpawner, &Timer)>,
+    mut timer_query: Query<(&ObstacleSpawner, &mut Timer)>,
     occupied_tiles: Query<(Entity, &ObstacleComponent)>,
 ) {
     if game_state.current_screen == CURRENT_SCREEN {
@@ -96,7 +97,7 @@ pub fn spawn_obstacles(
         let crate_handle = asset_handles
             .get_board_handles(&asset_server, materials)
             .crate_handle;
-        for (_, timer) in &mut timer_query.iter() {
+        for (_, mut timer) in &mut timer_query.iter() {
             if timer.just_finished {
                 let mut rng = rand::thread_rng();
                 std::iter::repeat_with(|| {
@@ -119,6 +120,7 @@ pub fn spawn_obstacles(
                     commands.push_children(entity, &[obstacle]);
                     commands.insert_one(entity, ObstacleComponent(game.laser.obstacle_strength));
                 });
+                timer.duration = game.laser.spawn_obstacles_delay as f32 / 1000.;
             }
         }
     }

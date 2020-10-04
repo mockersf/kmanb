@@ -197,6 +197,7 @@ impl Default for Player {
     }
 }
 
+#[derive(Debug)]
 struct Laser {
     x: usize,
     speed: u64,
@@ -209,7 +210,7 @@ impl Default for Laser {
     fn default() -> Self {
         Laser {
             x: 0,
-            speed: 1000,
+            speed: 800,
             spawn_obstacles_delay: 10000,
             nb_obstacles: 2,
             obstacle_strength: 1,
