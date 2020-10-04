@@ -52,8 +52,7 @@ fn setup(
 ) {
     if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
-        let ratio =
-            dbg!(wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32);
+        let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
         let board_handles = asset_handles.get_board_handles(&asset_server, materials);
 
@@ -189,7 +188,6 @@ fn tear_down(
     }
 }
 
-struct CellComponent;
 struct PlayerComponent;
 struct PlayerMoving {
     timer: Timer,
@@ -220,6 +218,13 @@ struct Cell {
 struct Player {
     x: usize,
     y: usize,
+    direction: Direction,
+}
+
+#[derive(Clone, Copy)]
+enum Direction {
+    Left,
+    Right,
 }
 
 impl Default for Player {
@@ -227,6 +232,7 @@ impl Default for Player {
         Player {
             x: BOARD_X / 4,
             y: BOARD_Y / 2,
+            direction: Direction::Right,
         }
     }
 }
@@ -288,6 +294,7 @@ fn keyboard_event_system(
 
                     match event.key_code {
                         Some(KeyCode::Right) => {
+                            game.player.direction = Direction::Right;
                             if game.player.x == BOARD_X - 1 {
                                 game.player.x = 0;
                                 teleport_border = true;
@@ -297,6 +304,7 @@ fn keyboard_event_system(
                             }
                         }
                         Some(KeyCode::Left) => {
+                            game.player.direction = Direction::Left;
                             if game.player.x == 0 {
                                 game.player.x = BOARD_X - 1;
                                 teleport_border = true
@@ -327,7 +335,11 @@ fn keyboard_event_system(
                         commands.insert_one(
                             entity,
                             transform.ease_to(
-                                Transform::from_translation(Vec3::new(
+                                Transform::from_non_uniform_scale(match game.player.direction {
+                                    Direction::Right => Vec3::new(1., 1., 1.),
+                                    Direction::Left => Vec3::new(-1., 1., 1.),
+                                })
+                                .with_translation(Vec3::new(
                                     x_to(game.player.x as i32, ratio),
                                     y_to(game.player.y as i32, ratio),
                                     Z_PLAYER,
@@ -362,7 +374,13 @@ fn keyboard_event_system(
                                     },
                                 )
                                 .ease_to(
-                                    Transform::from_translation(Vec3::new(
+                                    Transform::from_non_uniform_scale(
+                                        match game.player.direction {
+                                            Direction::Right => Vec3::new(1., 1., 1.),
+                                            Direction::Left => Vec3::new(-1., 1., 1.),
+                                        },
+                                    )
+                                    .with_translation(Vec3::new(
                                         x_to(game.player.x as i32, ratio),
                                         y_to(game.player.y as i32, ratio),
                                         Z_PLAYER,
@@ -374,16 +392,70 @@ fn keyboard_event_system(
                                     },
                                 )
                                 .ease_to(
-                                    Transform::from_translation(Vec3::new(
-                                        x_to(game.player.x as i32, ratio),
-                                        y_to(game.player.y as i32, ratio),
-                                        Z_PLAYER,
-                                    )),
+                                    Transform::from_non_uniform_scale(
+                                        match game.player.direction {
+                                            Direction::Right => Vec3::new(1., 1., 1.),
+                                            Direction::Left => Vec3::new(-1., 1., 1.),
+                                        },
+                                    )
+                                    .with_translation(
+                                        Vec3::new(
+                                            x_to(game.player.x as i32, ratio),
+                                            y_to(game.player.y as i32, ratio),
+                                            Z_PLAYER,
+                                        ),
+                                    ),
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
                                         duration: std::time::Duration::from_millis(
                                             2 * move_delay / 5,
                                         ),
+                                    },
+                                ),
+                        );
+                        commands.insert_one(
+                            entity,
+                            PlayerMoving {
+                                timer: Timer::new(
+                                    std::time::Duration::from_millis(move_delay),
+                                    false,
+                                ),
+                            },
+                        );
+                    }
+                    if bump_border {
+                        let factor = match game.player.y {
+                            0 => -1.,
+                            _ => 1.,
+                        };
+                        commands.insert_one(
+                            entity,
+                            transform
+                                .ease_to(
+                                    Transform::from_non_uniform_scale(
+                                        match game.player.direction {
+                                            Direction::Right => Vec3::new(1., 1., 1.),
+                                            Direction::Left => Vec3::new(-1., 1., 1.),
+                                        },
+                                    )
+                                    .with_translation(
+                                        Vec3::new(
+                                            x_to(game.player.x as i32, ratio),
+                                            y_to(game.player.y as i32, ratio)
+                                                + factor * 0.75 * ratio * TILE_SIZE as f32 / 2.,
+                                            Z_PLAYER,
+                                        ),
+                                    ),
+                                    bevy_easings::EaseFunction::QuadraticInOut,
+                                    bevy_easings::EasingType::Once {
+                                        duration: std::time::Duration::from_millis(move_delay / 2),
+                                    },
+                                )
+                                .ease_to(
+                                    *transform,
+                                    bevy_easings::EaseFunction::QuadraticInOut,
+                                    bevy_easings::EasingType::Once {
+                                        duration: std::time::Duration::from_millis(move_delay / 2),
                                     },
                                 ),
                         );
