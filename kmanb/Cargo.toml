@@ -3,8 +3,7 @@ name = "kmanb"
 version = "0.2.0"
 authors = ["François Mockers <mockersf@gmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "MIT"
 
 [dependencies]
 bevy = { git = "https://github.com/mockersf/bevy", branch = "read_loading" }
