@@ -24,10 +24,10 @@ jobs:
       #   run: sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev
       - name: Build and release
         run: cargo build --release \
-          mkdir -p kmanb.app/Contents/MacOS \
-          cp target/release/kmanb kmanb.app/Contents/MacOS/
-          strip kmanb.app/Contents/MacOS/kmanb
-          hdiutil create -fs HFS+ -volname "kmanb" -srcfolder kmanb.app kmanb.dmg
+          && mkdir -p kmanb.app/Contents/MacOS \
+          && cp target/release/kmanb kmanb.app/Contents/MacOS/
+          && strip kmanb.app/Contents/MacOS/kmanb
+          && hdiutil create -fs HFS+ -volname "kmanb" -srcfolder kmanb.app kmanb.dmg
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
