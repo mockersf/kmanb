@@ -1,0 +1,38 @@
+name: release-flow
+
+# https://help.github.com/en/articles/events-that-trigger-workflows#release-event-release
+# on: release
+
+# on:
+#   push:
+#     tags:
+#       - "[0-9]+.[0-9]+.[0-9]+*"
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Install Dependencies
+        run: sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev
+      - name: Build and release
+        run: cargo build --release \
+          mkdir -p kmanb.app/Contents/MacOS \
+          cp target/release/kmanb kmanb.app/Contents/MacOS/
+          strip kmanb.app/Contents/MacOS/kmanb
+          hdiutil create -fs HFS+ -volname "kmanb" -srcfolder kmanb.app kmanb.dmg
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: kmanb.dmk
+          asset_name: macOS
+          tag: ${{ github.ref }}
+          overwrite: true
