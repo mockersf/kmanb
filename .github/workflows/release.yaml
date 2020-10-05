@@ -20,20 +20,69 @@ jobs:
         with:
           toolchain: stable
           override: true
-      # - name: Install Dependencies
-      #   run: sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev
       - name: Build and release
         run: |
           cargo build --release
-          && mkdir -p kmanb.app/Contents/MacOS
-          && cp target/release/kmanb kmanb.app/Contents/MacOS/
-          && strip kmanb.app/Contents/MacOS/kmanb
-          && hdiutil create -fs HFS+ -volname "kmanb" -srcfolder kmanb.app kmanb.dmg
+          mkdir -p kmanb.app/Contents/MacOS
+          cp target/release/kmanb kmanb.app/Contents/MacOS/
+          strip kmanb.app/Contents/MacOS/kmanb
+          hdiutil create -fs HFS+ -volname "kmanb" -srcfolder kmanb.app kmanb.dmg
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: kmanb.dmk
+          file: kmanb.dmg
           asset_name: macOS
+          tag: ${{ github.ref }}
+          overwrite: true
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Install Dependencies
+        run: sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev
+      - name: Build and release
+        run: |
+          cargo build --release
+          && strip target/release/kmanb
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/kmanb
+          asset_name: linux
+          tag: ${{ github.ref }}
+          overwrite: true
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: seanmiddleditch/gha-setup-ninja@master
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Build and release
+        run: |
+          cargo build --release
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/kmanb.exe
+          asset_name: windows
           tag: ${{ github.ref }}
           overwrite: true
