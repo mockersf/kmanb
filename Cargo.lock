@@ -190,7 +190,7 @@ checksum = "3441f0f7b02788e948e47f457ca01f1d7e6d92c693bc132c22b087d3141c03ff"
 [[package]]
 name = "bevy"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -220,19 +220,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy-glsl-to-spirv"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f36b150daa7006ccdaf896d9671a2b3630a2a9aa2c13174acf6493530efc3a3"
-dependencies = [
- "cmake",
- "tempfile",
-]
-
-[[package]]
 name = "bevy_app"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_derive",
  "bevy_ecs",
@@ -247,7 +237,7 @@ dependencies = [
 [[package]]
 name = "bevy_asset"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -273,7 +263,7 @@ dependencies = [
 [[package]]
 name = "bevy_audio"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "anyhow",
  "bevy_app",
@@ -286,7 +276,7 @@ dependencies = [
 [[package]]
 name = "bevy_core"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_derive",
@@ -303,7 +293,7 @@ dependencies = [
 [[package]]
 name = "bevy_derive"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "Inflector",
  "proc-macro-crate",
@@ -315,7 +305,7 @@ dependencies = [
 [[package]]
 name = "bevy_diagnostic"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_core",
@@ -337,7 +327,7 @@ dependencies = [
 [[package]]
 name = "bevy_dynamic_plugin"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "libloading 0.6.3",
@@ -357,7 +347,7 @@ dependencies = [
 [[package]]
 name = "bevy_ecs"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_hecs",
  "bevy_tasks",
@@ -372,7 +362,7 @@ dependencies = [
 [[package]]
 name = "bevy_gilrs"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -384,7 +374,7 @@ dependencies = [
 [[package]]
 name = "bevy_gltf"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "anyhow",
  "base64",
@@ -398,7 +388,7 @@ dependencies = [
 [[package]]
 name = "bevy_hecs"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_hecs_macros",
  "bevy_utils",
@@ -410,7 +400,7 @@ dependencies = [
 [[package]]
 name = "bevy_hecs_macros"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
@@ -421,7 +411,7 @@ dependencies = [
 [[package]]
 name = "bevy_input"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -442,7 +432,7 @@ dependencies = [
 [[package]]
 name = "bevy_math"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "glam",
 ]
@@ -460,7 +450,7 @@ dependencies = [
 [[package]]
 name = "bevy_pbr"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -478,7 +468,7 @@ dependencies = [
 [[package]]
 name = "bevy_property"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_ecs",
  "bevy_math",
@@ -493,7 +483,7 @@ dependencies = [
 [[package]]
 name = "bevy_property_derive"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
@@ -504,10 +494,9 @@ dependencies = [
 [[package]]
 name = "bevy_render"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "anyhow",
- "bevy-glsl-to-spirv",
  "bevy_app",
  "bevy_asset",
  "bevy_core",
@@ -538,7 +527,7 @@ dependencies = [
 [[package]]
 name = "bevy_scene"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "anyhow",
  "bevy_app",
@@ -557,7 +546,7 @@ dependencies = [
 [[package]]
 name = "bevy_sprite"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -576,7 +565,7 @@ dependencies = [
 [[package]]
 name = "bevy_tasks"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "async-channel",
  "async-executor",
@@ -589,7 +578,7 @@ dependencies = [
 [[package]]
 name = "bevy_text"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "ab_glyph",
  "anyhow",
@@ -605,7 +594,7 @@ dependencies = [
 [[package]]
 name = "bevy_transform"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -620,7 +609,7 @@ dependencies = [
 [[package]]
 name = "bevy_type_registry"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -633,7 +622,7 @@ dependencies = [
 [[package]]
 name = "bevy_ui"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -655,7 +644,7 @@ dependencies = [
 [[package]]
 name = "bevy_utils"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "ahash",
 ]
@@ -663,7 +652,7 @@ dependencies = [
 [[package]]
 name = "bevy_wgpu"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -685,7 +674,7 @@ dependencies = [
 [[package]]
 name = "bevy_window"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -698,7 +687,7 @@ dependencies = [
 [[package]]
 name = "bevy_winit"
 version = "0.2.1"
-source = "git+https://github.com/mockersf/bevy?branch=read_loading#79ffd641bf2f4c04b0f77e1904199fa990cc32bf"
+source = "git+https://github.com/mockersf/bevy?branch=ld#6dee2f4df4beed29278f3df2aafeab4e92faf00a"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
