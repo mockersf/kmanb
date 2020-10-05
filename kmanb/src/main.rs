@@ -32,10 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let settings: Settings = config::read_from("settings.conf")?;
 
     let _subscriber = tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
-        .with_env_filter(
-            "info,bevy_log_diagnostic=debug,corylus=debug,gfx_backend_metal=warn,wgpu_core=warn,bevy_render=warn",
-        )
+        .with_max_level(tracing::Level::WARN)
         .init();
 
     App::build()
@@ -57,9 +54,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_resource(ClearColor(Color::rgb(0., 0., 0.01)))
         // default plugins
         .add_default_plugins()
-        .add_plugin(::bevy::diagnostic::FrameTimeDiagnosticsPlugin)
-        .add_plugin(::bevy_diagnostic_entity_count::EntityCountDiagnosticsPlugin)
-        .add_plugin(::bevy_log_diagnostic::LogDiagnosticsPlugin::default())
+        // .add_plugin(::bevy::diagnostic::FrameTimeDiagnosticsPlugin)
+        // .add_plugin(::bevy_diagnostic_entity_count::EntityCountDiagnosticsPlugin)
+        // .add_plugin(::bevy_log_diagnostic::LogDiagnosticsPlugin::default())
         .add_plugin(::bevy_easings::EasingsPlugin)
         // game management
         .add_startup_system(general_setup.system())
