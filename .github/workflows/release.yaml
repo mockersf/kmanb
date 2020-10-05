@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-macOS:
     runs-on: macOS-latest
 
     steps:
@@ -23,8 +23,9 @@ jobs:
       # - name: Install Dependencies
       #   run: sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev
       - name: Build and release
-        run: cargo build --release \
-          && mkdir -p kmanb.app/Contents/MacOS \
+        run: |
+          cargo build --release
+          && mkdir -p kmanb.app/Contents/MacOS
           && cp target/release/kmanb kmanb.app/Contents/MacOS/
           && strip kmanb.app/Contents/MacOS/kmanb
           && hdiutil create -fs HFS+ -volname "kmanb" -srcfolder kmanb.app kmanb.dmg
