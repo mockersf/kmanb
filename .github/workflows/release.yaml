@@ -20,7 +20,7 @@ jobs:
           override: true
       - name: Build and release
         run: |
-          export CFLAGS = "-fno-stack-check"
+          export CFLAGS="-fno-stack-check"
           export MACOSX_DEPLOYMENT_TARGET="10.9"
           cargo build --release
           mkdir -p kmanb.app/Contents/MacOS
