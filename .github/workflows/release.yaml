@@ -36,7 +36,6 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
 
-jobs:
   build-linux:
     runs-on: ubuntu-latest
 
@@ -61,7 +60,6 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
 
-jobs:
   build-windows:
     runs-on: windows-latest
 
@@ -74,7 +72,7 @@ jobs:
       - uses: seanmiddleditch/gha-setup-ninja@master
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: "3.x"
       - name: Build and release
         run: |
           cargo build --release
