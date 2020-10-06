@@ -107,7 +107,11 @@ fn setup(
             .with(ScreenTag);
 
         commands.spawn((
-            Transform::from_translation(Vec3::new(x_to(game.laser.x as i32, ratio), 1., Z_FIRE)),
+            Transform::from_translation(Vec3::new(
+                x_to(game.laser.x as i32 - 1, ratio),
+                1.,
+                Z_FIRE,
+            )),
             GlobalTransform::identity(),
             LaserComponent,
             Timer::new(std::time::Duration::from_millis(game.laser.speed), true),
@@ -186,8 +190,8 @@ pub struct PlayerMoving {
     timer: Timer,
 }
 
-const BOARD_X: usize = 25;
-const BOARD_Y: usize = 13;
+const BOARD_X: usize = 21;
+const BOARD_Y: usize = 10;
 
 const Z_BACKGROUND: f32 = 0.0;
 const Z_PLAYER: f32 = 0.1;
@@ -262,9 +266,9 @@ impl Default for Laser {
     fn default() -> Self {
         Laser {
             x: 1,
-            speed: 800,
+            speed: 1000,
             spawn_obstacles_delay: 10000,
-            nb_obstacles: 10,
+            nb_obstacles: 5,
             obstacle_strength: 2,
         }
     }
