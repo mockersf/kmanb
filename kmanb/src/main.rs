@@ -31,11 +31,21 @@ impl Default for Settings {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let settings: Settings = config::read_from("settings.conf")?;
 
-    let _subscriber = tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::WARN)
-        .init();
+    let _subscriber = if cfg!(debug_assertions) {
+        tracing_subscriber::fmt()
+        .with_env_filter(
+             "info,bevy_log_diagnostic=debug,kmanb=debug,gfx_backend_metal=warn,wgpu_core=warn,bevy_render=warn",
+            )
+            .init();
+    } else {
+        tracing_subscriber::fmt()
+            .with_max_level(tracing::Level::WARN)
+            .init();
+    };
 
-    App::build()
+    let mut builder = App::build();
+
+    builder
         // resources
         .add_resource(WindowDescriptor {
             title: "kmanb".to_string(),
@@ -53,11 +63,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_resource(settings)
         .add_resource(ClearColor(Color::rgb(0., 0., 0.01)))
         // default plugins
-        .add_default_plugins()
-        // .add_plugin(::bevy::diagnostic::FrameTimeDiagnosticsPlugin)
-        // .add_plugin(::bevy_diagnostic_entity_count::EntityCountDiagnosticsPlugin)
-        // .add_plugin(::bevy_log_diagnostic::LogDiagnosticsPlugin::default())
-        .add_plugin(::bevy_easings::EasingsPlugin)
+        .add_default_plugins();
+
+    if cfg!(debug_assertions) {
+        builder
+            .add_plugin(::bevy::diagnostic::FrameTimeDiagnosticsPlugin)
+            .add_plugin(::bevy_diagnostic_entity_count::EntityCountDiagnosticsPlugin)
+            .add_plugin(::bevy_log_diagnostic::LogDiagnosticsPlugin::default())
+            .add_plugin(::bevy_easings::EasingsPlugin);
+    }
+
+    builder
         // game management
         .add_startup_system(general_setup.system())
         .add_system(handle_state.system())
