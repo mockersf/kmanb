@@ -49,7 +49,7 @@ pub fn event_system(
                         .spawn(SpriteComponents {
                             material: bomb_handle,
                             transform: Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
-                                .with_scale(ratio * 0.8),
+                                .with_scale(ratio * 0.6),
                             ..Default::default()
                         })
                         .with(BombSprite);
