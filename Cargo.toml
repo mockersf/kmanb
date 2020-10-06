@@ -18,12 +18,12 @@ bevy_log_diagnostic = "0.1"
 bevy_diagnostic_entity_count = { git = "https://github.com/mockersf/bevy_extra" }
 bevy_ninepatch = "0.1.2"
 
-config = { path = "config" }
+config = { path = "crates/config" }
 
 
 [workspace]
 members = [
-    "config",
+    "crates/*",
 ]
 
 
