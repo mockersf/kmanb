@@ -2067,7 +2067,7 @@ dependencies = [
 
 [[package]]
 name = "kmanb"
-version = "0.2.2"
+version = "0.3.0-dev"
 dependencies = [
  "bevy",
  "bevy_diagnostic_entity_count",

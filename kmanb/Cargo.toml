@@ -1,9 +1,10 @@
 [package]
 name = "kmanb"
-version = "0.2.2"
+version = "0.3.0-dev"
 authors = ["François Mockers <mockersf@gmail.com>"]
 edition = "2018"
 license = "MIT"
+publish = false
 
 [dependencies]
 bevy = { git = "https://github.com/mockersf/bevy", branch = "ld" }
