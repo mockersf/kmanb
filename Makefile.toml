@@ -1,0 +1,35 @@
+[tasks.build]
+workspace = false
+command = "cargo"
+args = ["build"]
+
+[tasks.build-mac-app]
+workspace = false
+dependencies = ["build"]
+script = [
+    """
+    #!/usr/bin/env bash
+    mkdir -p kmanb.app/Contents/MacOS/
+    cp target/debug/kmanb kmanb.app/Contents/MacOS/
+    """
+]
+
+[tasks.run-mac-app]
+workspace = false
+dependencies = ["build-mac-app"]
+script = [
+    """
+    #!/usr/bin/env bash
+    open kmanb.app
+    """
+]
+
+[tasks.run-in-mac-app]
+workspace = false
+dependencies = ["build-mac-app"]
+script = [
+    """
+    #!/usr/bin/env bash
+    ./kmanb.app/Contents/MacOS/kmanb
+    """
+]
