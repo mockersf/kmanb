@@ -24,6 +24,7 @@ pub struct GameBoardHandles {
     pub corner_bottom_left_handle: Handle<ColorMaterial>,
     pub corner_bottom_right_handle: Handle<ColorMaterial>,
     pub water_handle: Handle<ColorMaterial>,
+    pub grass_handle: Handle<ColorMaterial>,
     pub laser_handle: Handle<ColorMaterial>,
     pub crate_handle: Handle<ColorMaterial>,
     pub bomb_handle: Handle<ColorMaterial>,
@@ -225,6 +226,13 @@ impl AssetHandles {
                     .expect("was able to load texture")
                     .into(),
             );
+            let grass = include_bytes!("../assets/game/rpgTile019.png");
+            let grass_handle: Handle<ColorMaterial> = materials.add(
+                asset_server
+                    .load_from(Box::new(grass.as_ref()))
+                    .expect("was able to load texture")
+                    .into(),
+            );
 
             let laser = include_bytes!("../assets/game/spark_06.png");
             let laser_handle: Handle<ColorMaterial> = materials.add(ColorMaterial {
@@ -335,6 +343,7 @@ impl AssetHandles {
                 corner_top_left_handle,
                 corner_top_right_handle,
                 water_handle,
+                grass_handle,
                 laser_handle,
                 crate_handle,
                 bomb_handle,

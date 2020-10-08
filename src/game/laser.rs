@@ -138,7 +138,7 @@ pub fn spawn_obstacles(
                 let mut rng = rand::thread_rng();
 
                 std::iter::repeat_with(|| {
-                    let x = rng.gen_range(0, BOARD_X);
+                    let x = rng.gen_range(1, BOARD_X);
                     let y = rng.gen_range(0, BOARD_Y);
                     (x, y)
                 })

@@ -68,15 +68,16 @@ pub fn setup(
                     commands
                         .spawn(SpriteComponents {
                             material: match (x, y) {
-                                (0, 0) => board_handles.corner_bottom_left_handle,
+                                (0, _) => board_handles.grass_handle,
                                 (x, 0) if x == BOARD_X - 1 => {
                                     board_handles.corner_bottom_right_handle
                                 }
-                                (0, y) if y == BOARD_Y - 1 => board_handles.corner_top_left_handle,
+                                (1, 0) => board_handles.corner_bottom_left_handle,
+                                (1, y) if y == BOARD_Y - 1 => board_handles.corner_top_left_handle,
                                 (x, y) if x == BOARD_X - 1 && y == BOARD_Y - 1 => {
                                     board_handles.corner_top_right_handle
                                 }
-                                (0, _) => board_handles.ground_left_handle,
+                                (1, _) => board_handles.ground_left_handle,
                                 (x, _) if x == BOARD_X - 1 => board_handles.ground_right_handle,
                                 (_, 0) => board_handles.ground_bottom_handle,
                                 (_, y) if y == BOARD_Y - 1 => board_handles.ground_top_handle,
