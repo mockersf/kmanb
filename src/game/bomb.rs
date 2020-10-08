@@ -30,7 +30,27 @@ pub fn flash_bombs(
                 explode_now = true;
             }
         }
-            timer.reset();
+        if bomb.timer.just_finished && bomb.state == BombState::Fuse {
+            for child in children.iter() {
+                if bombs_sprite_query.get::<BombSprite>(*child).is_ok() {
+                    commands.insert_one(
+                        *child,
+                        bevy_easings::Ease::ease(
+                            Some(
+                                Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
+                                    .with_scale(ratio * 0.6),
+                            ),
+                            Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
+                                .with_scale(ratio * 0.7),
+                            bevy_easings::EaseFunction::QuarticInOut,
+                            bevy_easings::EasingType::PingPong {
+                                duration: std::time::Duration::from_millis(100),
+                                pause: std::time::Duration::from_millis(25),
+                            },
+                        ),
+                    );
+                }
+            }
             bomb.state = BombState::Flash;
             bomb.timer.reset();
         }
