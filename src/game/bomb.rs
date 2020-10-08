@@ -55,8 +55,7 @@ pub fn flash_bombs(
             bomb.timer.reset();
         }
         if bomb.timer.just_finished && bomb.state == BombState::Flash || explode_now {
-            commands.remove_one::<BombComponent>(entity);
-            commands.remove_one::<Timer>(entity);
+            commands.remove::<(Occupied, BombComponent)>(entity);
             let mut targets = vec![];
             for child in children.iter() {
                 if bombs_sprite_query.get::<BombSprite>(*child).is_ok() {
@@ -172,7 +171,7 @@ pub fn destroyed_obstacles(
 
     for (entity, obstacle, mut children) in &mut obstacle_query.iter() {
         if obstacle.0 == 0 {
-            commands.remove_one::<super::laser::ObstacleComponent>(entity);
+            commands.remove::<(Occupied, super::laser::ObstacleComponent)>(entity);
             let mut targets = vec![];
             for child in children.iter() {
                 if obstacle_sprite_query
@@ -187,12 +186,15 @@ pub fn destroyed_obstacles(
 
             if rng.gen_bool(0.2) {
                 let powerup = PlayerPowerUp::iter().choose(&mut rng).unwrap();
-                commands.insert_one(
+                commands.insert(
                     entity,
-                    PowerUpComponent {
-                        powerup,
-                        timer: Timer::from_seconds(20., false),
-                    },
+                    (
+                        PowerUpComponent {
+                            powerup,
+                            timer: Timer::from_seconds(20., false),
+                        },
+                        Occupied,
+                    ),
                 );
                 commands
                     .spawn(SpriteComponents {
@@ -240,7 +242,7 @@ pub fn player_powerups(
             consumed = true;
         }
         if powerup.timer.just_finished || consumed {
-            commands.remove_one::<PowerUpComponent>(entity);
+            commands.remove::<(Occupied, PowerUpComponent)>(entity);
             let mut targets = vec![];
             for child in children.iter() {
                 if powerup_sprite_query.get::<PowerUpSprite>(*child).is_ok() {

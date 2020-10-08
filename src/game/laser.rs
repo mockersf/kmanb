@@ -124,7 +124,7 @@ pub fn spawn_obstacles(
     materials: ResMut<Assets<ColorMaterial>>,
     wnds: Res<Windows>,
     mut spawner_query: Query<&mut ObstacleSpawner>,
-    occupied_tiles: Query<&ObstacleComponent>,
+    occupied_tiles: Query<&Occupied>,
 ) {
     if game_state.current_screen == CURRENT_SCREEN {
         let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
@@ -145,7 +145,7 @@ pub fn spawn_obstacles(
                 .filter(|(x, y)| *x != game.player.x || *y != game.player.y)
                 .take(game.laser.nb_obstacles * 2)
                 .map(|(x, y)| game.board.as_ref().unwrap()[y][x].entity)
-                .filter(|cell| occupied_tiles.get::<ObstacleComponent>(*cell).is_err())
+                .filter(|cell| occupied_tiles.get::<Occupied>(*cell).is_err())
                 .take(game.laser.nb_obstacles)
                 .for_each(|entity| {
                     commands
@@ -158,7 +158,10 @@ pub fn spawn_obstacles(
                         .with(ObstacleSprite);
                     let obstacle = commands.current_entity().unwrap();
                     commands.push_children(entity, &[obstacle]);
-                    commands.insert_one(entity, ObstacleComponent(game.laser.obstacle_strength));
+                    commands.insert(
+                        entity,
+                        (Occupied, ObstacleComponent(game.laser.obstacle_strength)),
+                    );
                 });
                 spawner.0.duration = game.laser.spawn_obstacles_delay as f32 / 1000.;
             }

@@ -193,6 +193,8 @@ pub struct PlayerMoving {
     timer: Timer,
 }
 
+pub struct Occupied;
+
 const BOARD_X: usize = 21;
 const BOARD_Y: usize = 10;
 
