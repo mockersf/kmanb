@@ -113,8 +113,10 @@ fn setup(
                 Z_FIRE,
             )),
             GlobalTransform::identity(),
-            LaserComponent,
-            Timer::new(std::time::Duration::from_millis(game.laser.speed), true),
+            LaserComponent(Timer::new(
+                std::time::Duration::from_millis(game.laser.speed),
+                true,
+            )),
         ));
         for y in 0..BOARD_Y + 5 {
             commands
@@ -159,7 +161,7 @@ fn tear_down(
     }
 }
 
-pub struct LaserComponent;
+pub struct LaserComponent(Timer);
 
 pub struct PlayerComponent;
 
@@ -184,6 +186,7 @@ pub struct BombComponent {
     state: BombState,
     x: usize,
     y: usize,
+    timer: Timer,
 }
 
 pub struct PlayerMoving {

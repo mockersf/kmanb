@@ -58,16 +58,17 @@ pub fn event_system(
                     commands.push_children(entity, &[bomb]);
                     commands.insert(
                         entity,
-                        (
-                            BombComponent {
-                                damage: game.player.bomb_damage,
-                                range: game.player.bomb_range,
-                                state: BombState::Fuse,
-                                x: game.player.x,
-                                y: game.player.y,
-                            },
-                            Timer::from_seconds(game.player.bomb_speed as f32 / 1000. / 2., false),
-                        ),
+                        (BombComponent {
+                            damage: game.player.bomb_damage,
+                            range: game.player.bomb_range,
+                            state: BombState::Fuse,
+                            x: game.player.x,
+                            y: game.player.y,
+                            timer: Timer::from_seconds(
+                                game.player.bomb_speed as f32 / 1000. / 2.,
+                                false,
+                            ),
+                        },),
                     );
                     continue;
                 }

@@ -6,10 +6,11 @@ pub fn flash_bombs(
     mut commands: Commands,
     game: Res<Game>,
     wnds: Res<Windows>,
+    time: Res<Time>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
     materials: ResMut<Assets<ColorMaterial>>,
-    mut bombs_query: Query<(Entity, &mut BombComponent, &mut Timer, &mut Children)>,
+    mut bombs_query: Query<(Entity, &mut BombComponent, &mut Children)>,
     bombs_sprite_query: Query<&BombSprite>,
     bomb_and_fire_sprites_query: Query<&FireSprite>,
 ) {
@@ -18,7 +19,8 @@ pub fn flash_bombs(
         .fire_handle;
     let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
-    for (entity, mut bomb, mut timer, mut children) in &mut bombs_query.iter() {
+    for (entity, mut bomb, mut children) in &mut bombs_query.iter() {
+        bomb.timer.tick(time.delta_seconds);
         let mut explode_now = false;
         for child in children.iter() {
             if bomb_and_fire_sprites_query
@@ -28,11 +30,11 @@ pub fn flash_bombs(
                 explode_now = true;
             }
         }
-        if timer.just_finished && bomb.state == BombState::Fuse {
             timer.reset();
             bomb.state = BombState::Flash;
+            bomb.timer.reset();
         }
-        if timer.just_finished && bomb.state == BombState::Flash || explode_now {
+        if bomb.timer.just_finished && bomb.state == BombState::Flash || explode_now {
             commands.remove_one::<BombComponent>(entity);
             commands.remove_one::<Timer>(entity);
             let mut targets = vec![];

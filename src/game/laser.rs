@@ -6,13 +6,13 @@ pub fn move_laser(
     mut commands: Commands,
     mut game: ResMut<Game>,
     wnds: Res<Windows>,
+    time: Res<Time>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
     materials: ResMut<Assets<ColorMaterial>>,
     mut game_events: ResMut<Events<GameEvents>>,
     fire_query: Query<&FireComponent>,
-
-    mut laser_query: Query<(Entity, &mut Timer, &mut Transform, &LaserComponent)>,
+    mut laser_query: Query<(Entity, &mut Transform, &mut LaserComponent)>,
 ) {
     if game.laser.x == game.player.x + 2 {
         game_events.send(GameEvents::Lost)
@@ -20,8 +20,9 @@ pub fn move_laser(
     let fire_handle = asset_handles
         .get_board_handles(&asset_server, materials)
         .fire_handle;
-    for (entity, mut timer, mut transform, _) in &mut laser_query.iter() {
-        if timer.just_finished {
+    for (entity, mut transform, mut laser) in &mut laser_query.iter() {
+        laser.0.tick(time.delta_seconds);
+        if laser.0.just_finished {
             let ratio =
                 wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
@@ -80,7 +81,7 @@ pub fn move_laser(
             if game.laser.x == BOARD_X / 2 {
                 game_events.send(GameEvents::NewRound)
             }
-            timer.duration = game.laser.speed as f32 / 1000.;
+            laser.0.duration = game.laser.speed as f32 / 1000.;
         }
     }
 }
@@ -90,7 +91,7 @@ pub fn jitter_laser(mut transform: Mut<Transform>, _: &LaserComponent) {
     transform.translate(Vec3::new(0., rng.gen_range(-5., 5.), 0.));
 }
 
-pub struct ObstacleSpawner;
+pub struct ObstacleSpawner(Timer);
 
 pub fn setup(
     mut commands: Commands,
@@ -102,13 +103,10 @@ pub fn setup(
         info!("Loading screen (laser)");
 
         commands
-            .spawn((
-                ObstacleSpawner,
-                Timer::new(
-                    std::time::Duration::from_millis(game.laser.spawn_obstacles_delay as u64),
-                    true,
-                ),
-            ))
+            .spawn((ObstacleSpawner(Timer::new(
+                std::time::Duration::from_millis(game.laser.spawn_obstacles_delay as u64),
+                true,
+            )),))
             .with(ScreenTag);
     }
 }
@@ -120,11 +118,12 @@ pub fn spawn_obstacles(
     mut commands: Commands,
     game_state: Res<crate::GameState>,
     game: Res<Game>,
+    time: Res<Time>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
     materials: ResMut<Assets<ColorMaterial>>,
     wnds: Res<Windows>,
-    mut timer_query: Query<(&ObstacleSpawner, &mut Timer)>,
+    mut spawner_query: Query<&mut ObstacleSpawner>,
     occupied_tiles: Query<&ObstacleComponent>,
 ) {
     if game_state.current_screen == CURRENT_SCREEN {
@@ -133,8 +132,9 @@ pub fn spawn_obstacles(
         let crate_handle = asset_handles
             .get_board_handles(&asset_server, materials)
             .crate_handle;
-        for (_, mut timer) in &mut timer_query.iter() {
-            if timer.just_finished {
+        for mut spawner in &mut spawner_query.iter() {
+            spawner.0.tick(time.delta_seconds);
+            if spawner.0.just_finished {
                 let mut rng = rand::thread_rng();
 
                 std::iter::repeat_with(|| {
@@ -160,7 +160,7 @@ pub fn spawn_obstacles(
                     commands.push_children(entity, &[obstacle]);
                     commands.insert_one(entity, ObstacleComponent(game.laser.obstacle_strength));
                 });
-                timer.duration = game.laser.spawn_obstacles_delay as f32 / 1000.;
+                spawner.0.duration = game.laser.spawn_obstacles_delay as f32 / 1000.;
             }
         }
     }
