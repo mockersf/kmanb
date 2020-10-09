@@ -14,85 +14,61 @@ pub fn flash_bombs(
     bombs_sprite_query: Query<&BombSprite>,
     bomb_and_fire_sprites_query: Query<&FireSprite>,
 ) {
-    let fire_handle = asset_handles
-        .get_board_handles(&asset_server, materials)
-        .fire_handle;
-    let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
+    if !game.died {
+        let fire_handle = asset_handles
+            .get_board_handles(&asset_server, materials)
+            .fire_handle;
+        let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
-    for (entity, mut bomb, mut children) in &mut bombs_query.iter() {
-        bomb.timer.tick(time.delta_seconds);
-        let mut explode_now = false;
-        for child in children.iter() {
-            if bomb_and_fire_sprites_query
-                .get::<FireSprite>(*child)
-                .is_ok()
-            {
-                explode_now = true;
-            }
-        }
-        if bomb.timer.just_finished && bomb.state == BombState::Fuse {
+        for (entity, mut bomb, mut children) in &mut bombs_query.iter() {
+            bomb.timer.tick(time.delta_seconds);
+            let mut explode_now = false;
             for child in children.iter() {
-                if bombs_sprite_query.get::<BombSprite>(*child).is_ok() {
-                    commands.insert_one(
-                        *child,
-                        bevy_easings::Ease::ease(
-                            Some(
+                if bomb_and_fire_sprites_query
+                    .get::<FireSprite>(*child)
+                    .is_ok()
+                {
+                    explode_now = true;
+                }
+            }
+            if bomb.timer.just_finished && bomb.state == BombState::Fuse {
+                for child in children.iter() {
+                    if bombs_sprite_query.get::<BombSprite>(*child).is_ok() {
+                        commands.insert_one(
+                            *child,
+                            bevy_easings::Ease::ease(
+                                Some(
+                                    Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
+                                        .with_scale(ratio * 0.6),
+                                ),
                                 Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
-                                    .with_scale(ratio * 0.6),
+                                    .with_scale(ratio * 0.7),
+                                bevy_easings::EaseFunction::QuarticInOut,
+                                bevy_easings::EasingType::PingPong {
+                                    duration: std::time::Duration::from_millis(100),
+                                    pause: std::time::Duration::from_millis(25),
+                                },
                             ),
-                            Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
-                                .with_scale(ratio * 0.7),
-                            bevy_easings::EaseFunction::QuarticInOut,
-                            bevy_easings::EasingType::PingPong {
-                                duration: std::time::Duration::from_millis(100),
-                                pause: std::time::Duration::from_millis(25),
-                            },
-                        ),
-                    );
+                        );
+                    }
                 }
+                bomb.state = BombState::Flash;
+                bomb.timer.reset();
             }
-            bomb.state = BombState::Flash;
-            bomb.timer.reset();
-        }
-        if bomb.timer.just_finished && bomb.state == BombState::Flash || explode_now {
-            commands.remove::<(Occupied, BombComponent)>(entity);
-            let mut targets = vec![];
-            for child in children.iter() {
-                if bombs_sprite_query.get::<BombSprite>(*child).is_ok() {
-                    commands.despawn(*child);
-                    targets.push(*child);
+            if bomb.timer.just_finished && bomb.state == BombState::Flash || explode_now {
+                commands.remove::<(Occupied, BombComponent)>(entity);
+                let mut targets = vec![];
+                for child in children.iter() {
+                    if bombs_sprite_query.get::<BombSprite>(*child).is_ok() {
+                        commands.despawn(*child);
+                        targets.push(*child);
+                    }
                 }
-            }
-            children.retain(|i| !targets.contains(i));
+                children.retain(|i| !targets.contains(i));
 
-            for x in (bomb.x as i32 - bomb.range as i32)..=(bomb.x as i32 + bomb.range as i32) {
-                if x >= 0 && x < BOARD_X as i32 {
-                    let entity = game.board.as_ref().unwrap()[bomb.y][x as usize].entity;
-                    commands
-                        .spawn(SpriteComponents {
-                            material: fire_handle,
-                            transform: Transform::from_translation(Vec3::new(0., 0., Z_FIRE))
-                                .with_scale(ratio * 1.3),
-                            ..Default::default()
-                        })
-                        .with(FireSprite);
-                    let fire = commands.current_entity().unwrap();
-                    commands.push_children(entity, &[fire]);
-                    commands.insert(
-                        entity,
-                        (FireComponent {
-                            damage: bomb.damage,
-                            x: x as usize,
-                            y: bomb.y,
-                            timer: Timer::from_seconds(250. / 1000., false),
-                        },),
-                    );
-                }
-            }
-            for y in (bomb.y as i32 - bomb.range as i32)..=(bomb.y as i32 + bomb.range as i32) {
-                if y >= 0 && y < BOARD_Y as i32 {
-                    if y as usize != bomb.y {
-                        let entity = game.board.as_ref().unwrap()[y as usize][bomb.x].entity;
+                for x in (bomb.x as i32 - bomb.range as i32)..=(bomb.x as i32 + bomb.range as i32) {
+                    if x >= 0 && x < BOARD_X as i32 {
+                        let entity = game.board.as_ref().unwrap()[bomb.y][x as usize].entity;
                         commands
                             .spawn(SpriteComponents {
                                 material: fire_handle,
@@ -107,11 +83,39 @@ pub fn flash_bombs(
                             entity,
                             (FireComponent {
                                 damage: bomb.damage,
-                                x: bomb.x,
-                                y: y as usize,
+                                x: x as usize,
+                                y: bomb.y,
                                 timer: Timer::from_seconds(250. / 1000., false),
                             },),
                         );
+                    }
+                }
+                for y in (bomb.y as i32 - bomb.range as i32)..=(bomb.y as i32 + bomb.range as i32) {
+                    if y >= 0 && y < BOARD_Y as i32 {
+                        if y as usize != bomb.y {
+                            let entity = game.board.as_ref().unwrap()[y as usize][bomb.x].entity;
+                            commands
+                                .spawn(SpriteComponents {
+                                    material: fire_handle,
+                                    transform: Transform::from_translation(Vec3::new(
+                                        0., 0., Z_FIRE,
+                                    ))
+                                    .with_scale(ratio * 1.3),
+                                    ..Default::default()
+                                })
+                                .with(FireSprite);
+                            let fire = commands.current_entity().unwrap();
+                            commands.push_children(entity, &[fire]);
+                            commands.insert(
+                                entity,
+                                (FireComponent {
+                                    damage: bomb.damage,
+                                    x: bomb.x,
+                                    y: y as usize,
+                                    timer: Timer::from_seconds(250. / 1000., false),
+                                },),
+                            );
+                        }
                     }
                 }
             }
@@ -128,29 +132,31 @@ pub fn fire(
     fire_sprite_query: Query<&FireSprite>,
     obstacle_query: Query<&mut super::laser::ObstacleComponent>,
 ) {
-    for (entity, mut fire, mut children) in &mut fire_query.iter() {
-        fire.timer.tick(time.delta_seconds);
-        if game.player.x == fire.x && game.player.y == fire.y {
-            game_events.send(GameEvents::Lost)
-        }
-        if fire.timer.just_finished {
-            commands.remove_one::<FireComponent>(entity);
-            let mut targets = vec![];
-            for child in children.iter() {
-                if fire_sprite_query.get::<FireSprite>(*child).is_ok() {
-                    commands.despawn(*child);
-                    targets.push(*child);
-                }
+    if !game.died {
+        for (entity, mut fire, mut children) in &mut fire_query.iter() {
+            fire.timer.tick(time.delta_seconds);
+            if game.player.x == fire.x && game.player.y == fire.y {
+                game_events.send(GameEvents::Lost)
             }
-            children.retain(|i| !targets.contains(i));
-            if let Ok(mut obstacle) =
-                obstacle_query.get_mut::<super::laser::ObstacleComponent>(entity)
-            {
-                obstacle.0 = if obstacle.0 < fire.damage {
-                    0
-                } else {
-                    obstacle.0 - fire.damage
-                };
+            if fire.timer.just_finished {
+                commands.remove_one::<FireComponent>(entity);
+                let mut targets = vec![];
+                for child in children.iter() {
+                    if fire_sprite_query.get::<FireSprite>(*child).is_ok() {
+                        commands.despawn(*child);
+                        targets.push(*child);
+                    }
+                }
+                children.retain(|i| !targets.contains(i));
+                if let Ok(mut obstacle) =
+                    obstacle_query.get_mut::<super::laser::ObstacleComponent>(entity)
+                {
+                    obstacle.0 = if obstacle.0 < fire.damage {
+                        0
+                    } else {
+                        obstacle.0 - fire.damage
+                    };
+                }
             }
         }
     }

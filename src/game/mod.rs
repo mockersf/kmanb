@@ -53,6 +53,7 @@ impl bevy::app::Plugin for Plugin {
             .add_system(ui::new_round.system())
             .add_system(ui::score.system())
             .add_system(ui::display_bombs_available.system())
+            .add_system(ui::death_animation.system())
             .add_system(bomb::fire.system())
             .add_system(bomb::flash_bombs.system())
             .add_system(bomb::destroyed_obstacles.system())
@@ -101,7 +102,7 @@ fn setup(
                         },
                         ..Default::default()
                     })
-                    .with(Timer::from_seconds(0.1, true));
+                    .with_bundle((Animation::Walk, Timer::from_seconds(0.1, true)));
             })
             .with(PlayerComponent)
             .with(ScreenTag);
@@ -286,17 +287,39 @@ pub struct Game {
     laser: Laser,
     pub round: u16,
     pub score: u16,
+    died: bool,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Animation {
+    Walk,
+    Die,
 }
 
 fn walk_animate_sprite_system(
     game_state: Res<crate::GameState>,
-    mut query: Query<(&mut Timer, &mut TextureAtlasSprite)>,
+    timer: &Timer,
+    mut sprite: Mut<TextureAtlasSprite>,
+    animation: &Animation,
 ) {
     if game_state.current_screen == CURRENT_SCREEN {
-        for (timer, mut sprite) in &mut query.iter() {
-            if timer.finished {
-                sprite.index = ((sprite.index as usize + 1) % 8 + 36) as u32;
-            }
+        if timer.just_finished {
+            sprite.index = match animation {
+                Animation::Walk => {
+                    if sprite.index < 36 || sprite.index > 44 {
+                        36
+                    } else {
+                        ((sprite.index as usize + 1) % 8 + 36) as u32
+                    }
+                }
+                Animation::Die => {
+                    if sprite.index == 0 {
+                        4
+                    } else {
+                        0
+                    }
+                }
+            };
         }
     }
 }

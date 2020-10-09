@@ -18,7 +18,8 @@ pub struct GameEventsListenerState {
 }
 
 pub fn new_round(
-    mut game_state: ResMut<crate::GameState>,
+    mut commands: Commands,
+    // mut game_state: ResMut<crate::GameState>,
     mut game: ResMut<Game>,
     mut state: ResMut<GameEventsListenerState>,
     events: Res<Events<GameEvents>>,
@@ -47,7 +48,30 @@ pub fn new_round(
                 }
             }
             GameEvents::Lost => {
-                game_state.current_screen = crate::Screen::Lost;
+                commands.spawn((DeathAnimation(Timer::from_seconds(2., false)), ScreenTag));
+                game.died = true;
+            }
+        }
+    }
+}
+
+pub struct DeathAnimation(Timer);
+
+pub fn death_animation(
+    mut game_state: ResMut<crate::GameState>,
+    time: Res<Time>,
+    mut animation_query: Query<&mut Animation>,
+    mut death_query: Query<&mut DeathAnimation>,
+) {
+    for mut death in &mut death_query.iter() {
+        death.0.tick(time.delta_seconds);
+        if death.0.just_finished {
+            game_state.current_screen = crate::Screen::Lost;
+        } else {
+            for mut animation in &mut animation_query.iter() {
+                if *animation != Animation::Die {
+                    *animation = Animation::Die;
+                }
             }
         }
     }
