@@ -32,7 +32,7 @@ pub fn remove_indications(
 
 pub fn setup(
     mut commands: Commands,
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     mut game: ResMut<Game>,
     screen: Res<Screen>,
     mut asset_handles: ResMut<crate::AssetHandles>,
@@ -40,7 +40,7 @@ pub fn setup(
     materials: ResMut<Assets<ColorMaterial>>,
     wnds: Res<Windows>,
 ) {
-    if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
+    if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen (board)");
         let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 

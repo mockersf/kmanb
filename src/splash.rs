@@ -36,13 +36,13 @@ impl bevy::app::Plugin for Plugin {
 
 fn setup(
     mut commands: Commands,
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
     asset_server: Res<AssetServer>,
     mut textures: ResMut<Assets<Texture>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
+    if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
         screen.loaded = true;
 
@@ -65,11 +65,11 @@ fn setup(
 
 fn tear_down(
     mut commands: Commands,
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
     mut query: Query<(Entity, &ScreenTag)>,
 ) {
-    if game_state.current_screen != CURRENT_SCREEN && screen.loaded {
+    if game_screen.current_screen != CURRENT_SCREEN && screen.loaded {
         info!("tear down");
 
         for (entity, _tag) in &mut query.iter() {
@@ -80,7 +80,7 @@ fn tear_down(
     }
 }
 
-fn done(time: Res<Time>, mut screen: ResMut<Screen>, mut state: ResMut<crate::GameState>) {
+fn done(time: Res<Time>, mut screen: ResMut<Screen>, mut state: ResMut<crate::GameScreen>) {
     if let Some(ref mut timer) = screen.done {
         timer.tick(time.delta_seconds);
         if timer.just_finished {

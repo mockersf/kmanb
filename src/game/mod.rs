@@ -45,7 +45,6 @@ impl bevy::app::Plugin for Plugin {
             .add_system(setup.system())
             .add_system(walk_animate_sprite_system.system())
             .add_system(board_setup::remove_indications.system())
-            .add_system(keyboard_systems::input_system.system())
             .add_system(clear_moving_marker.system())
             .add_system(laser::jitter_laser.system())
             .add_system(laser::move_laser.system())
@@ -54,6 +53,7 @@ impl bevy::app::Plugin for Plugin {
             .add_system(ui::score.system())
             .add_system(ui::display_bombs_available.system())
             .add_system(ui::death_animation.system())
+            .add_system(ui::button_system.system())
             .add_system(bomb::fire.system())
             .add_system(bomb::flash_bombs.system())
             .add_system(bomb::destroyed_obstacles.system())
@@ -64,7 +64,7 @@ impl bevy::app::Plugin for Plugin {
 
 fn setup(
     mut commands: Commands,
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     game: Res<Game>,
     mut screen: ResMut<Screen>,
     mut asset_handles: ResMut<crate::AssetHandles>,
@@ -74,7 +74,7 @@ fn setup(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     wnds: Res<Windows>,
 ) {
-    if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
+    if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
         let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
@@ -147,11 +147,11 @@ fn setup(
 
 fn tear_down(
     mut commands: Commands,
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
     mut query: Query<(Entity, &ScreenTag)>,
 ) {
-    if game_state.current_screen != CURRENT_SCREEN && screen.loaded {
+    if game_screen.current_screen != CURRENT_SCREEN && screen.loaded {
         info!("tear down");
 
         for (entity, _tag) in &mut query.iter() {
@@ -280,6 +280,19 @@ impl Default for Laser {
     }
 }
 
+#[derive(PartialEq, Eq, Clone, Copy)]
+pub enum GameState {
+    Play,
+    Pause(Entity),
+    Death,
+}
+
+impl Default for GameState {
+    fn default() -> Self {
+        GameState::Play
+    }
+}
+
 #[derive(Default)]
 pub struct Game {
     board: Option<Vec<Vec<Cell>>>,
@@ -287,7 +300,7 @@ pub struct Game {
     laser: Laser,
     pub round: u16,
     pub score: u16,
-    died: bool,
+    state: GameState,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -297,12 +310,15 @@ pub enum Animation {
 }
 
 fn walk_animate_sprite_system(
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
+    game: Res<Game>,
     timer: &Timer,
     mut sprite: Mut<TextureAtlasSprite>,
     animation: &Animation,
 ) {
-    if game_state.current_screen == CURRENT_SCREEN {
+    if game_screen.current_screen == CURRENT_SCREEN
+        && (game.state == GameState::Play || game.state == GameState::Death)
+    {
         if timer.just_finished {
             sprite.index = match animation {
                 Animation::Walk => {
@@ -340,4 +356,5 @@ fn clear_moving_marker(
 pub enum GameEvents {
     NewRound,
     Lost,
+    Pause,
 }

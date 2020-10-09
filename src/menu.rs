@@ -53,7 +53,7 @@ impl Into<String> for MenuButton {
 
 fn setup(
     mut commands: Commands,
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
@@ -63,7 +63,7 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
+    if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
 
         let panel_handle = asset_handles.get_panel_handle(
@@ -302,11 +302,11 @@ fn setup(
 
 fn tear_down(
     mut commands: Commands,
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
     mut query: Query<(Entity, &ScreenTag)>,
 ) {
-    if game_state.current_screen != CURRENT_SCREEN && screen.loaded {
+    if game_screen.current_screen != CURRENT_SCREEN && screen.loaded {
         info!("tear down");
 
         for (entity, _tag) in &mut query.iter() {
@@ -317,17 +317,17 @@ fn tear_down(
     }
 }
 fn keyboard_input_system(
-    mut game_state: ResMut<crate::GameState>,
+    mut game_screen: ResMut<crate::GameScreen>,
     keyboard_input: Res<Input<KeyCode>>,
 ) {
-    if game_state.current_screen == CURRENT_SCREEN && keyboard_input.just_released(KeyCode::Escape)
+    if game_screen.current_screen == CURRENT_SCREEN && keyboard_input.just_released(KeyCode::Escape)
     {
-        game_state.current_screen = crate::Screen::Exit;
+        game_screen.current_screen = crate::Screen::Exit;
     }
 }
 
 fn button_system(
-    mut game_state: ResMut<crate::GameState>,
+    mut game_screen: ResMut<crate::GameScreen>,
     mut interaction_query: Query<(
         &Button,
         Mutated<Interaction>,
@@ -337,9 +337,9 @@ fn button_system(
     for (_button, interaction, button_id) in &mut interaction_query.iter() {
         match *interaction {
             Interaction::Clicked => match button_id.0 {
-                MenuButton::Quit => game_state.current_screen = crate::Screen::Exit,
-                MenuButton::About => game_state.current_screen = crate::Screen::About,
-                MenuButton::NewGame => game_state.current_screen = crate::Screen::Game,
+                MenuButton::Quit => game_screen.current_screen = crate::Screen::Exit,
+                MenuButton::About => game_screen.current_screen = crate::Screen::About,
+                MenuButton::NewGame => game_screen.current_screen = crate::Screen::Game,
             },
             Interaction::Hovered => (),
             Interaction::None => (),
@@ -348,10 +348,10 @@ fn button_system(
 }
 
 fn walk_animate_sprite_system(
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     mut query: Query<(&mut Timer, &mut TextureAtlasSprite)>,
 ) {
-    if game_state.current_screen == CURRENT_SCREEN {
+    if game_screen.current_screen == CURRENT_SCREEN {
         for (timer, mut sprite) in &mut query.iter() {
             if timer.finished {
                 sprite.index = ((sprite.index as usize + 1) % 8 + 36) as u32;

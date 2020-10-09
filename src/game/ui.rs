@@ -2,14 +2,27 @@ use super::*;
 use enum_utils::IterVariants;
 use rand::prelude::IteratorRandom;
 
-// use rand::Rng;
-
 #[derive(Debug, Clone, PartialEq, Eq, IterVariants)]
 enum LaserPowerUp {
     Speed,
     ObstacleSpawnDelay,
     ObstacleSpawnCount,
     ObstacleStrengh,
+}
+
+#[derive(Clone, Copy)]
+pub enum PauseButton {
+    Continue,
+    ToMenu,
+}
+
+impl Into<String> for PauseButton {
+    fn into(self) -> String {
+        match self {
+            PauseButton::Continue => "continue".to_string(),
+            PauseButton::ToMenu => "exit to menu".to_string(),
+        }
+    }
 }
 
 #[derive(Default)]
@@ -19,10 +32,14 @@ pub struct GameEventsListenerState {
 
 pub fn new_round(
     mut commands: Commands,
-    // mut game_state: ResMut<crate::GameState>,
     mut game: ResMut<Game>,
     mut state: ResMut<GameEventsListenerState>,
     events: Res<Events<GameEvents>>,
+    mut asset_handles: ResMut<crate::AssetHandles>,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut textures: ResMut<Assets<Texture>>,
+    mut buttons: ResMut<Assets<crate::ui::button::Button>>,
     mut round_text: Query<(&mut Text, &UiComponent)>,
 ) {
     for event in state.event_reader.iter(&events) {
@@ -49,7 +66,110 @@ pub fn new_round(
             }
             GameEvents::Lost => {
                 commands.spawn((DeathAnimation(Timer::from_seconds(2., false)), ScreenTag));
-                game.died = true;
+                game.state = GameState::Death;
+            }
+            GameEvents::Pause => {
+                let dim_background = materials.add(Color::rgba_linear(0.3, 0.3, 0.3, 0.8).into());
+                let font = asset_handles.get_font_main_handle(&asset_server);
+                let font_sub = asset_handles.get_font_sub_handle(&asset_server);
+
+                let button_handle = asset_handles.get_button_handle(
+                    &asset_server,
+                    &mut textures,
+                    &mut materials,
+                    &mut buttons,
+                );
+                let button = buttons.get(&button_handle).unwrap();
+
+                // number of NodeComponents to trick around z-system for UI nodes, that increase with the length of
+                // the hierarchy to the root node
+                commands
+                    .spawn(NodeComponents {
+                        style: Style {
+                            size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                            margin: Rect::all(Val::Auto),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            flex_direction: FlexDirection::RowReverse,
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    })
+                    .with_children(|parent| {
+                        parent
+                            .spawn(NodeComponents {
+                                style: Style {
+                                    size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                    margin: Rect::all(Val::Auto),
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    flex_direction: FlexDirection::RowReverse,
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            })
+                            .with_children(|parent| {
+                                parent
+                                    .spawn(NodeComponents {
+                                        style: Style {
+                                            size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                            margin: Rect::all(Val::Auto),
+                                            justify_content: JustifyContent::Center,
+                                            align_items: AlignItems::Center,
+                                            flex_direction: FlexDirection::ColumnReverse,
+                                            ..Default::default()
+                                        },
+                                        material: dim_background,
+                                        ..Default::default()
+                                    })
+                                    .with_children(|pause_parent| {
+                                        pause_parent.spawn(TextComponents {
+                                            style: Style {
+                                                size: Size {
+                                                    height: Val::Px(100.),
+                                                    ..Default::default()
+                                                },
+                                                ..Default::default()
+                                            },
+                                            text: Text {
+                                                value: "Paused".to_string(),
+                                                font,
+                                                style: TextStyle {
+                                                    color: crate::ui::ColorScheme::TEXT,
+                                                    font_size: 100.,
+                                                },
+                                            },
+                                            ..Default::default()
+                                        });
+                                        pause_parent
+                                            .spawn(NodeComponents {
+                                                material: dim_background,
+                                                ..Default::default()
+                                            })
+                                            .with_children(|buttons_parent| {
+                                                button.add(
+                                                    buttons_parent,
+                                                    300.,
+                                                    75.,
+                                                    Rect::all(Val::Px(50.)),
+                                                    font_sub,
+                                                    PauseButton::ToMenu,
+                                                    50.,
+                                                );
+                                                button.add(
+                                                    buttons_parent,
+                                                    300.,
+                                                    75.,
+                                                    Rect::all(Val::Px(50.)),
+                                                    font_sub,
+                                                    PauseButton::Continue,
+                                                    50.,
+                                                );
+                                            });
+                                    });
+                            });
+                    });
+                game.state = GameState::Pause(commands.current_entity().unwrap());
             }
         }
     }
@@ -58,7 +178,7 @@ pub fn new_round(
 pub struct DeathAnimation(Timer);
 
 pub fn death_animation(
-    mut game_state: ResMut<crate::GameState>,
+    mut game_screen: ResMut<crate::GameScreen>,
     time: Res<Time>,
     mut animation_query: Query<&mut Animation>,
     mut death_query: Query<&mut DeathAnimation>,
@@ -66,7 +186,7 @@ pub fn death_animation(
     for mut death in &mut death_query.iter() {
         death.0.tick(time.delta_seconds);
         if death.0.just_finished {
-            game_state.current_screen = crate::Screen::Lost;
+            game_screen.current_screen = crate::Screen::Lost;
         } else {
             for mut animation in &mut animation_query.iter() {
                 if *animation != Animation::Die {
@@ -78,7 +198,7 @@ pub fn death_animation(
 }
 
 pub fn score(mut game: ResMut<Game>, mut score: Mut<Text>, ui: &UiComponent, timer: &Timer) {
-    if *ui == UiComponent::Score && timer.just_finished {
+    if game.state == GameState::Play && *ui == UiComponent::Score && timer.just_finished {
         score.value = format!("{}", game.score);
         game.score += game.round;
     }
@@ -93,13 +213,13 @@ pub enum UiComponent {
 
 pub fn setup(
     mut commands: Commands,
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     screen: Res<Screen>,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
+    if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen (ui)");
         let font: Handle<Font> = asset_handles.get_font_main_handle(&asset_server);
         let bomb_background = materials.add(Color::NONE.into());
@@ -246,6 +366,39 @@ pub fn display_bombs_available(
                     commands.push_children(entity, &[bomb_entity]);
                 }
             }
+        }
+    }
+}
+
+pub fn button_system(
+    mut commands: Commands,
+    mut game_screen: ResMut<crate::GameScreen>,
+    mut game: ResMut<Game>,
+    mut interaction_query: Query<(
+        &Button,
+        Mutated<Interaction>,
+        &crate::ui::button::ButtonId<PauseButton>,
+    )>,
+) {
+    for (_button, interaction, button_id) in &mut interaction_query.iter() {
+        match *interaction {
+            Interaction::Clicked => match button_id.0 {
+                PauseButton::Continue => {
+                    if let GameState::Pause(entity) = game.state {
+                        commands.despawn_recursive(entity);
+                        game.state = GameState::Play
+                    }
+                }
+                PauseButton::ToMenu => {
+                    if let GameState::Pause(entity) = game.state {
+                        commands.despawn_recursive(entity);
+                        *game = Game::default();
+                        game_screen.current_screen = crate::Screen::Menu;
+                    }
+                }
+            },
+            Interaction::Hovered => (),
+            Interaction::None => (),
         }
     }
 }

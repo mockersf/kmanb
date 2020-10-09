@@ -14,7 +14,7 @@ pub fn move_laser(
     fire_query: Query<&FireComponent>,
     mut laser_query: Query<(Entity, &mut Transform, &mut LaserComponent)>,
 ) {
-    if !game.died {
+    if game.state == GameState::Play {
         if game.laser.x == game.player.x + 2 {
             game_events.send(GameEvents::Lost)
         }
@@ -100,11 +100,11 @@ pub struct ObstacleSpawner(Timer);
 
 pub fn setup(
     mut commands: Commands,
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     screen: Res<Screen>,
     game: Res<Game>,
 ) {
-    if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
+    if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen (laser)");
 
         commands
@@ -121,7 +121,7 @@ pub struct ObstacleComponent(pub usize);
 
 pub fn spawn_obstacles(
     mut commands: Commands,
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     game: Res<Game>,
     time: Res<Time>,
     mut asset_handles: ResMut<crate::AssetHandles>,
@@ -131,8 +131,8 @@ pub fn spawn_obstacles(
     mut spawner_query: Query<&mut ObstacleSpawner>,
     occupied_tiles: Query<&Occupied>,
 ) {
-    if !game.died {
-        if game_state.current_screen == CURRENT_SCREEN {
+    if game.state == GameState::Play {
+        if game_screen.current_screen == CURRENT_SCREEN {
             let ratio =
                 wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 

@@ -75,6 +75,13 @@ impl Button {
                             .with_children(|centered_inside| {
                                 centered_inside
                                     .spawn(TextComponents {
+                                        style: Style {
+                                            size: Size {
+                                                height: Val::Px(font_size),
+                                                ..Default::default()
+                                            },
+                                            ..Default::default()
+                                        },
                                         text: Text {
                                             value: button.into(),
                                             font,

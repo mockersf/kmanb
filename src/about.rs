@@ -27,13 +27,13 @@ impl bevy::app::Plugin for Plugin {
 
 fn setup(
     mut commands: Commands,
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut asset_handles: ResMut<crate::AssetHandles>,
 ) {
-    if game_state.current_screen == CURRENT_SCREEN && !screen.loaded {
+    if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
 
         let color_none = materials.add(Color::NONE.into());
@@ -533,11 +533,11 @@ fn setup(
 
 fn tear_down(
     mut commands: Commands,
-    game_state: Res<crate::GameState>,
+    game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
     mut query: Query<(Entity, &ScreenTag)>,
 ) {
-    if game_state.current_screen != CURRENT_SCREEN && screen.loaded {
+    if game_screen.current_screen != CURRENT_SCREEN && screen.loaded {
         info!("tear down");
 
         for (entity, _tag) in &mut query.iter() {
@@ -549,24 +549,24 @@ fn tear_down(
 }
 
 fn keyboard_input_system(
-    mut game_state: ResMut<crate::GameState>,
+    mut game_screen: ResMut<crate::GameScreen>,
     keyboard_input: Res<Input<KeyCode>>,
 ) {
-    if game_state.current_screen == CURRENT_SCREEN && keyboard_input.just_released(KeyCode::Escape)
+    if game_screen.current_screen == CURRENT_SCREEN && keyboard_input.just_released(KeyCode::Escape)
     {
-        game_state.current_screen = crate::Screen::Menu;
+        game_screen.current_screen = crate::Screen::Menu;
     }
 }
 
 fn mouse_input_system(
-    mut game_state: ResMut<crate::GameState>,
+    mut game_screen: ResMut<crate::GameScreen>,
     screen: Res<Screen>,
     mouse_button_input: Res<Input<MouseButton>>,
 ) {
-    if game_state.current_screen == CURRENT_SCREEN
+    if game_screen.current_screen == CURRENT_SCREEN
         && screen.loaded
         && mouse_button_input.just_pressed(MouseButton::Left)
     {
-        game_state.current_screen = crate::Screen::Menu;
+        game_screen.current_screen = crate::Screen::Menu;
     }
 }

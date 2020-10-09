@@ -14,7 +14,7 @@ pub fn flash_bombs(
     bombs_sprite_query: Query<&BombSprite>,
     bomb_and_fire_sprites_query: Query<&FireSprite>,
 ) {
-    if !game.died {
+    if game.state == GameState::Play {
         let fire_handle = asset_handles
             .get_board_handles(&asset_server, materials)
             .fire_handle;
@@ -132,7 +132,7 @@ pub fn fire(
     fire_sprite_query: Query<&FireSprite>,
     obstacle_query: Query<&mut super::laser::ObstacleComponent>,
 ) {
-    if !game.died {
+    if game.state == GameState::Play {
         for (entity, mut fire, mut children) in &mut fire_query.iter() {
             fire.timer.tick(time.delta_seconds);
             if game.player.x == fire.x && game.player.y == fire.y {
@@ -230,33 +230,35 @@ pub fn player_powerups(
     mut powerup_query: Query<(Entity, &mut PowerUpComponent, &mut Children)>,
     powerup_sprite_query: Query<&PowerUpSprite>,
 ) {
-    for (entity, mut powerup, mut children) in &mut powerup_query.iter() {
-        powerup.timer.tick(time.delta_seconds);
+    if game.state == GameState::Play {
+        for (entity, mut powerup, mut children) in &mut powerup_query.iter() {
+            powerup.timer.tick(time.delta_seconds);
 
-        let cell = game.board.as_ref().unwrap()[game.player.y][game.player.x].entity;
-        let mut consumed = false;
-        if entity == cell {
-            match powerup.powerup {
-                PlayerPowerUp::Score => game.score += game.round * 200,
-                PlayerPowerUp::BombCount => game.player.nb_bombs += 1,
-                PlayerPowerUp::BombDamage => game.player.bomb_damage += 1,
-                PlayerPowerUp::BombRange => game.player.bomb_range += 1,
-                PlayerPowerUp::BombSpeed => {
-                    game.player.bomb_speed = (game.player.bomb_speed as f64 * 0.9) as u64
+            let cell = game.board.as_ref().unwrap()[game.player.y][game.player.x].entity;
+            let mut consumed = false;
+            if entity == cell {
+                match powerup.powerup {
+                    PlayerPowerUp::Score => game.score += game.round * 200,
+                    PlayerPowerUp::BombCount => game.player.nb_bombs += 1,
+                    PlayerPowerUp::BombDamage => game.player.bomb_damage += 1,
+                    PlayerPowerUp::BombRange => game.player.bomb_range += 1,
+                    PlayerPowerUp::BombSpeed => {
+                        game.player.bomb_speed = (game.player.bomb_speed as f64 * 0.9) as u64
+                    }
                 }
+                consumed = true;
             }
-            consumed = true;
-        }
-        if powerup.timer.just_finished || consumed {
-            commands.remove::<(Occupied, PowerUpComponent)>(entity);
-            let mut targets = vec![];
-            for child in children.iter() {
-                if powerup_sprite_query.get::<PowerUpSprite>(*child).is_ok() {
-                    commands.despawn(*child);
-                    targets.push(*child);
+            if powerup.timer.just_finished || consumed {
+                commands.remove::<(Occupied, PowerUpComponent)>(entity);
+                let mut targets = vec![];
+                for child in children.iter() {
+                    if powerup_sprite_query.get::<PowerUpSprite>(*child).is_ok() {
+                        commands.despawn(*child);
+                        targets.push(*child);
+                    }
                 }
+                children.retain(|i| !targets.contains(i));
             }
-            children.retain(|i| !targets.contains(i));
         }
     }
 }

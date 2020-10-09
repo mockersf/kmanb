@@ -77,7 +77,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // game management
         .add_startup_system(general_setup.system())
         .add_system(handle_state.system())
-        .add_resource(GameState::default())
+        .add_resource(GameScreen::default())
         .add_stage_after(bevy::app::stage::UPDATE, custom_stage::TEAR_DOWN)
         // ui
         .add_plugin(crate::ui::button::Plugin)
@@ -108,12 +108,12 @@ pub enum Screen {
 }
 
 #[derive(Debug)]
-pub struct GameState {
+pub struct GameScreen {
     pub current_screen: Screen,
 }
-impl Default for GameState {
+impl Default for GameScreen {
     fn default() -> Self {
-        GameState {
+        GameScreen {
             current_screen: Screen::Splash,
         }
     }
@@ -124,11 +124,8 @@ fn general_setup(mut commands: Commands) {
     commands.spawn(UiCameraComponents::default());
 }
 
-fn handle_state(
-    game_state: ResMut<crate::GameState>,
-    mut app_exit_events: ResMut<Events<AppExit>>,
-) {
-    if game_state.current_screen == Screen::Exit {
+fn handle_state(game_screen: Res<crate::GameScreen>, mut app_exit_events: ResMut<Events<AppExit>>) {
+    if game_screen.current_screen == Screen::Exit {
         app_exit_events.send(AppExit);
     }
 }
