@@ -28,6 +28,7 @@ pub fn event_system(
     mut used_bomb: Query<&BombComponent>,
 ) {
     let move_delay = game.player.speed;
+    let buffer_delay = u64::min(game.player.speed * 7 / 10, game.player.speed - 50);
     if game_screen.current_screen == CURRENT_SCREEN {
         let bomb_handle = asset_handles
             .get_board_handles(&asset_server, materials)
@@ -198,7 +199,7 @@ pub fn event_system(
                             entity,
                             PlayerMoving {
                                 timer: Timer::new(
-                                    std::time::Duration::from_millis(move_delay),
+                                    std::time::Duration::from_millis(buffer_delay),
                                     false,
                                 ),
                             },
@@ -212,9 +213,7 @@ pub fn event_system(
                                     transform.with_scale(0.),
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(
-                                            2 * move_delay / 5,
-                                        ),
+                                        duration: std::time::Duration::from_millis(move_delay / 5),
                                     },
                                 )
                                 .ease_to(
@@ -232,7 +231,7 @@ pub fn event_system(
                                     .with_scale(0.),
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(move_delay / 5),
+                                        duration: std::time::Duration::from_millis(move_delay / 10),
                                     },
                                 )
                                 .ease_to(
@@ -251,9 +250,7 @@ pub fn event_system(
                                     ),
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(
-                                            2 * move_delay / 5,
-                                        ),
+                                        duration: std::time::Duration::from_millis(move_delay / 5),
                                     },
                                 ),
                         );
@@ -261,7 +258,7 @@ pub fn event_system(
                             entity,
                             PlayerMoving {
                                 timer: Timer::new(
-                                    std::time::Duration::from_millis(move_delay),
+                                    std::time::Duration::from_millis(buffer_delay / 2),
                                     false,
                                 ),
                             },
@@ -287,22 +284,22 @@ pub fn event_system(
                                     .with_translation(
                                         Vec3::new(
                                             x_to(game.player.x as i32, ratio)
-                                                + x_factor * 0.75 * ratio * TILE_SIZE as f32 / 2.,
+                                                + x_factor * 0.65 * ratio * TILE_SIZE as f32 / 2.,
                                             y_to(game.player.y as i32, ratio)
-                                                + y_factor * 0.75 * ratio * TILE_SIZE as f32 / 2.,
+                                                + y_factor * 0.65 * ratio * TILE_SIZE as f32 / 2.,
                                             Z_PLAYER,
                                         ),
                                     ),
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(move_delay / 2),
+                                        duration: std::time::Duration::from_millis(move_delay / 4),
                                     },
                                 )
                                 .ease_to(
                                     *transform,
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(move_delay / 2),
+                                        duration: std::time::Duration::from_millis(move_delay / 4),
                                     },
                                 ),
                         );
@@ -310,7 +307,7 @@ pub fn event_system(
                             entity,
                             PlayerMoving {
                                 timer: Timer::new(
-                                    std::time::Duration::from_millis(move_delay),
+                                    std::time::Duration::from_millis(buffer_delay / 2),
                                     false,
                                 ),
                             },
