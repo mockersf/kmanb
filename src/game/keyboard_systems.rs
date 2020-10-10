@@ -25,6 +25,12 @@ pub fn event_system(
     materials: ResMut<Assets<ColorMaterial>>,
     mut player_query: Query<Without<PlayerMoving, (Entity, &PlayerComponent, &Transform)>>,
     occupied_tiles: Query<(Entity, &super::laser::ObstacleComponent)>,
+    eased_query: Query<
+        Or<(
+            &bevy_easings::EasingComponent<Transform>,
+            &bevy_easings::EasingChainComponent<Transform>,
+        )>,
+    >,
     mut used_bomb: Query<&BombComponent>,
 ) {
     let move_delay = game.player.speed;
@@ -175,6 +181,22 @@ pub fn event_system(
                             }
                         }
                         _ => (),
+                    }
+                    if moved || teleport_border || bump.is_some() {
+                        if eased_query
+                            .get::<bevy_easings::EasingComponent<Transform>>(entity)
+                            .is_ok()
+                        {
+                            commands.remove_one::<bevy_easings::EasingComponent<Transform>>(entity);
+                        }
+                        if eased_query
+                            .get::<bevy_easings::EasingChainComponent<Transform>>(entity)
+                            .is_ok()
+                        {
+                            commands.remove_one::<bevy_easings::EasingChainComponent<Transform>>(
+                                entity,
+                            );
+                        }
                     }
                     if moved {
                         commands.insert_one(
