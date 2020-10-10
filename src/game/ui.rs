@@ -1,8 +1,7 @@
 use super::*;
-use enum_utils::IterVariants;
 use rand::prelude::IteratorRandom;
 
-#[derive(Debug, Clone, PartialEq, Eq, IterVariants)]
+#[derive(Debug, Clone, PartialEq, Eq, enum_utils::IterVariants)]
 enum LaserPowerUp {
     Speed,
     ObstacleSpawnDelay,

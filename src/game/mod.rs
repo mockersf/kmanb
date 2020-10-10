@@ -2,7 +2,6 @@ use bevy::{
     input::keyboard::{ElementState, KeyboardInput},
     prelude::*,
 };
-use enum_utils::IterVariants;
 use tracing::info;
 
 mod board_setup;
@@ -218,7 +217,7 @@ struct Cell {
     entity: Entity,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, IterVariants)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, enum_utils::IterVariants)]
 enum PlayerPowerUp {
     Score,
     BombCount,
