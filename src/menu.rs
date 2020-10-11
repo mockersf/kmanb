@@ -346,7 +346,7 @@ fn button_system(
     }
 }
 
-struct Emote(Timer);
+pub struct Emote(pub Timer);
 
 fn walk_animate_sprite_system(
     mut commands: Commands,

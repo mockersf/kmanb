@@ -6,6 +6,7 @@ use tracing::info;
 
 mod board_setup;
 mod bomb;
+mod emote;
 mod keyboard_systems;
 mod laser;
 mod ui;
@@ -36,6 +37,7 @@ impl bevy::app::Plugin for Plugin {
             .add_resource(Game::default())
             .init_resource::<keyboard_systems::KeyboardState>()
             .init_resource::<ui::GameEventsListenerState>()
+            .init_resource::<emote::GameEventsListenerState>()
             .add_event::<GameEvents>()
             .add_system(keyboard_systems::event_system.system())
             .add_system(board_setup::setup.system())
@@ -57,9 +59,12 @@ impl bevy::app::Plugin for Plugin {
             .add_system(bomb::flash_bombs.system())
             .add_system(bomb::destroyed_obstacles.system())
             .add_system(bomb::player_powerups.system())
+            .add_system(emote::emote_setter.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
     }
 }
+
+pub struct EmoteHolder;
 
 fn setup(
     mut commands: Commands,
@@ -78,6 +83,7 @@ fn setup(
         let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
         let board_handles = asset_handles.get_board_handles(&asset_server, &mut materials);
+        let emotes = asset_handles.get_emote_handles_unsafe();
 
         let character_handle =
             asset_handles.get_character_handle(&asset_server, &mut textures, &mut texture_atlases);
@@ -102,6 +108,25 @@ fn setup(
                         ..Default::default()
                     })
                     .with_bundle((Animation::Walk, Timer::from_seconds(0.1, true)));
+                placed_player
+                    .spawn((
+                        Transform::from_translation(Vec3::new(
+                            0.,
+                            ratio * (TILE_SIZE / 2.) * 1.1,
+                            10.,
+                        )),
+                        GlobalTransform::default(),
+                        EmoteHolder,
+                    ))
+                    .with_children(|emote| {
+                        emote
+                            .spawn(SpriteComponents {
+                                transform: Transform::from_scale(ratio * 0.7),
+                                material: emotes.exclamation,
+                                ..Default::default()
+                            })
+                            .with(crate::menu::Emote(Timer::from_seconds(1., false)));
+                    });
             })
             .with(PlayerComponent)
             .with(ScreenTag);
