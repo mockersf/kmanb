@@ -103,7 +103,7 @@ pub fn setup(
                                     board_handles.arrow_right
                                 },
                                 transform: Transform::from_translation(Vec3::new(0., 0., Z_FIRE))
-                                    .with_scale(ratio),
+                                    .with_scale(ratio * 0.6),
                                 ..Default::default()
                             })
                             .with(TeleportIndicationSprite);
