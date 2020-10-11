@@ -42,7 +42,7 @@ fn setup(
 
         let font_sub: Handle<Font> = asset_handles.get_font_sub_handle(&asset_server);
 
-        let board_assets = asset_handles.get_board_handles(&asset_server, materials);
+        let board_assets = asset_handles.get_board_handles(&asset_server, &mut materials);
 
         commands
             .spawn(NodeComponents {
@@ -342,7 +342,7 @@ fn setup(
                                         },
                                         ..Default::default()
                                     },
-                                    material: board_assets.powerup_score_handle,
+                                    material: board_assets.powerup_score,
                                     ..Default::default()
                                 });
                                 this_bonus_parent.spawn(TextComponents {
@@ -382,7 +382,7 @@ fn setup(
                                         },
                                         ..Default::default()
                                     },
-                                    material: board_assets.powerup_bomb_damage_handle,
+                                    material: board_assets.powerup_bomb_damage,
                                     ..Default::default()
                                 });
                                 this_bonus_parent.spawn(TextComponents {
@@ -422,7 +422,7 @@ fn setup(
                                         },
                                         ..Default::default()
                                     },
-                                    material: board_assets.powerup_bomb_range_handle,
+                                    material: board_assets.powerup_bomb_range,
                                     ..Default::default()
                                 });
                                 this_bonus_parent.spawn(TextComponents {
@@ -462,7 +462,7 @@ fn setup(
                                         },
                                         ..Default::default()
                                     },
-                                    material: board_assets.powerup_bomb_count_handle,
+                                    material: board_assets.powerup_bomb_count,
                                     ..Default::default()
                                 });
                                 this_bonus_parent.spawn(TextComponents {
@@ -502,7 +502,7 @@ fn setup(
                                         },
                                         ..Default::default()
                                     },
-                                    material: board_assets.powerup_bomb_speed_handle,
+                                    material: board_assets.powerup_bomb_speed,
                                     ..Default::default()
                                 });
                                 this_bonus_parent.spawn(TextComponents {

@@ -9,15 +9,15 @@ pub fn flash_bombs(
     time: Res<Time>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     mut bombs_query: Query<(Entity, &mut BombComponent, &mut Children)>,
     bombs_sprite_query: Query<&BombSprite>,
     bomb_and_fire_sprites_query: Query<&FireSprite>,
 ) {
     if game.state == GameState::Play {
         let fire_handle = asset_handles
-            .get_board_handles(&asset_server, materials)
-            .fire_handle;
+            .get_board_handles(&asset_server, &mut materials)
+            .fire;
         let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
         for (entity, mut bomb, mut children) in &mut bombs_query.iter() {
@@ -166,13 +166,13 @@ pub fn destroyed_obstacles(
     mut commands: Commands,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     wnds: Res<Windows>,
     mut obstacle_query: Query<(Entity, &super::laser::ObstacleComponent, &mut Children)>,
     obstacle_sprite_query: Query<&super::laser::ObstacleSprite>,
 ) {
     let mut rng = rand::thread_rng();
-    let assets = asset_handles.get_board_handles(&asset_server, materials);
+    let assets = asset_handles.get_board_handles(&asset_server, &mut materials);
     let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
     for (entity, obstacle, mut children) in &mut obstacle_query.iter() {
@@ -205,11 +205,11 @@ pub fn destroyed_obstacles(
                 commands
                     .spawn(SpriteComponents {
                         material: match powerup {
-                            PlayerPowerUp::Score => assets.powerup_score_handle,
-                            PlayerPowerUp::BombCount => assets.powerup_bomb_count_handle,
-                            PlayerPowerUp::BombDamage => assets.powerup_bomb_damage_handle,
-                            PlayerPowerUp::BombRange => assets.powerup_bomb_range_handle,
-                            PlayerPowerUp::BombSpeed => assets.powerup_bomb_speed_handle,
+                            PlayerPowerUp::Score => assets.powerup_score,
+                            PlayerPowerUp::BombCount => assets.powerup_bomb_count,
+                            PlayerPowerUp::BombDamage => assets.powerup_bomb_damage,
+                            PlayerPowerUp::BombRange => assets.powerup_bomb_range,
+                            PlayerPowerUp::BombSpeed => assets.powerup_bomb_speed,
                         },
                         transform: Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
                             .with_scale(ratio * 0.5),

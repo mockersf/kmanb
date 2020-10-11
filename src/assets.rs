@@ -1,5 +1,34 @@
 use bevy::prelude::*;
 
+macro_rules! load {
+    ($assets:ident, $path:expr) => {
+        $assets
+            .load_from(Box::new(include_bytes!($path).as_ref()))
+            .expect("was able to load font");
+    };
+}
+
+macro_rules! colormaterial {
+    ($mats:ident, $assets:ident, $path:expr) => {
+        $mats.add(
+            $assets
+                .load_from(Box::new(include_bytes!($path).as_ref()))
+                .expect("was able to load texture")
+                .into(),
+        )
+    };
+    ($mats:ident, $assets:ident, $path:expr, $color:ident) => {
+        $mats.add(ColorMaterial {
+            texture: Some(
+                $assets
+                    .load_from(Box::new(include_bytes!($path).as_ref()))
+                    .expect("was able to load texture"),
+            ),
+            color: $color,
+        });
+    };
+}
+
 #[derive(Default, Clone)]
 pub struct AssetHandles {
     panel_handle: Option<Handle<bevy_ninepatch::NinePatch<()>>>,
@@ -12,51 +41,51 @@ pub struct AssetHandles {
 
 #[derive(Clone)]
 pub struct GameBoardHandles {
-    pub ground_handle: Handle<ColorMaterial>,
-    pub ground_top_handle: Handle<ColorMaterial>,
-    pub border_top_handle: Handle<ColorMaterial>,
-    pub ground_bottom_handle: Handle<ColorMaterial>,
-    pub border_bottom_handle: Handle<ColorMaterial>,
-    pub ground_left_handle: Handle<ColorMaterial>,
-    pub ground_right_handle: Handle<ColorMaterial>,
-    pub corner_top_left_handle: Handle<ColorMaterial>,
-    pub corner_top_right_handle: Handle<ColorMaterial>,
-    pub corner_bottom_left_handle: Handle<ColorMaterial>,
-    pub corner_bottom_right_handle: Handle<ColorMaterial>,
-    pub water_handle: Handle<ColorMaterial>,
-    pub grass_handle: Handle<ColorMaterial>,
-    pub laser_handle: Handle<ColorMaterial>,
-    pub crate_handle: Handle<ColorMaterial>,
-    pub bomb_handle: Handle<ColorMaterial>,
-    pub bomb_icon_handle: Handle<ColorMaterial>,
-    pub fire_handle: Handle<ColorMaterial>,
-    pub powerup_score_handle: Handle<ColorMaterial>,
-    pub powerup_bomb_count_handle: Handle<ColorMaterial>,
-    pub powerup_bomb_range_handle: Handle<ColorMaterial>,
-    pub powerup_bomb_damage_handle: Handle<ColorMaterial>,
-    pub powerup_bomb_speed_handle: Handle<ColorMaterial>,
-    pub arrow_left_handle: Handle<ColorMaterial>,
-    pub arrow_right_handle: Handle<ColorMaterial>,
+    pub ground: Handle<ColorMaterial>,
+    pub ground_top: Handle<ColorMaterial>,
+    pub border_top: Handle<ColorMaterial>,
+    pub ground_bottom: Handle<ColorMaterial>,
+    pub border_bottom: Handle<ColorMaterial>,
+    pub ground_left: Handle<ColorMaterial>,
+    pub ground_right: Handle<ColorMaterial>,
+    pub corner_top_left: Handle<ColorMaterial>,
+    pub corner_top_right: Handle<ColorMaterial>,
+    pub corner_bottom_left: Handle<ColorMaterial>,
+    pub corner_bottom_right: Handle<ColorMaterial>,
+    pub water: Handle<ColorMaterial>,
+    pub grass: Handle<ColorMaterial>,
+    pub laser: Handle<ColorMaterial>,
+    pub obstacle: Handle<ColorMaterial>,
+    pub bomb: Handle<ColorMaterial>,
+    pub bomb_icon: Handle<ColorMaterial>,
+    pub fire: Handle<ColorMaterial>,
+    pub powerup_score: Handle<ColorMaterial>,
+    pub powerup_bomb_count: Handle<ColorMaterial>,
+    pub powerup_bomb_range: Handle<ColorMaterial>,
+    pub powerup_bomb_damage: Handle<ColorMaterial>,
+    pub powerup_bomb_speed: Handle<ColorMaterial>,
+    pub arrow_left: Handle<ColorMaterial>,
+    pub arrow_right: Handle<ColorMaterial>,
 }
 
 impl AssetHandles {
     pub fn get_panel_handle(
         &mut self,
-        asset_server: &Res<AssetServer>,
+        assets: &AssetServer,
         mut textures: &mut ResMut<Assets<Texture>>,
-        nine_patches: &mut ResMut<Assets<bevy_ninepatch::NinePatch<()>>>,
-        mut materials: &mut ResMut<Assets<ColorMaterial>>,
+        nine_patches: &mut Assets<bevy_ninepatch::NinePatch<()>>,
+        mut mats: &mut ResMut<Assets<ColorMaterial>>,
     ) -> Handle<bevy_ninepatch::NinePatch<()>> {
         if self.panel_handle.is_none() {
             let panel = include_bytes!("../assets/ui/panel_blue.png");
 
-            let panel_texture_handle = asset_server
+            let panel_texture_handle = assets
                 .load_sync_from(&mut textures, &mut panel.as_ref())
                 .unwrap();
             let np = bevy_ninepatch::NinePatchBuilder::by_margins(10., 10., 10., 10., ()).apply(
                 panel_texture_handle,
                 &mut textures,
-                &mut materials,
+                &mut mats,
             );
             self.panel_handle = Some(nine_patches.add(np));
         };
@@ -65,22 +94,19 @@ impl AssetHandles {
 
     pub fn get_button_handle(
         &mut self,
-        asset_server: &Res<AssetServer>,
+        assets: &AssetServer,
         mut textures: &mut ResMut<Assets<Texture>>,
-        mut materials: &mut ResMut<Assets<ColorMaterial>>,
-        buttons: &mut ResMut<Assets<crate::ui::button::Button>>,
+        mut mats: &mut ResMut<Assets<ColorMaterial>>,
+        buttons: &mut Assets<crate::ui::button::Button>,
     ) -> Handle<crate::ui::button::Button> {
         if self.button_handle.is_none() {
             let button = include_bytes!("../assets/ui/buttonLong_beige.png");
 
-            let button_texture_handle = asset_server
+            let button_texture_handle = assets
                 .load_sync_from(&mut textures, &mut button.as_ref())
                 .unwrap();
-            let button = crate::ui::button::Button::setup(
-                &mut materials,
-                &mut textures,
-                button_texture_handle,
-            );
+            let button =
+                crate::ui::button::Button::setup(&mut mats, &mut textures, button_texture_handle);
             self.button_handle = Some(buttons.add(button));
         };
         self.button_handle.unwrap()
@@ -88,13 +114,13 @@ impl AssetHandles {
 
     pub fn get_character_handle(
         &mut self,
-        asset_server: &Res<AssetServer>,
-        mut textures: &mut ResMut<Assets<Texture>>,
-        texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
+        assets: &AssetServer,
+        mut textures: &mut Assets<Texture>,
+        texture_atlases: &mut Assets<TextureAtlas>,
     ) -> Handle<TextureAtlas> {
         if self.character_handle.is_none() {
             let character = include_bytes!("../assets/game/character_femalePerson_sheetHD.png");
-            let character_texture_handle = asset_server
+            let character_texture_handle = assets
                 .load_sync_from(&mut textures, &mut character.as_ref())
                 .unwrap();
 
@@ -107,255 +133,54 @@ impl AssetHandles {
         self.character_handle.unwrap()
     }
 
-    pub fn get_font_main_handle(&mut self, asset_server: &Res<AssetServer>) -> Handle<Font> {
+    pub fn get_font_main_handle(&mut self, assets: &AssetServer) -> Handle<Font> {
         if self.font_main_handle.is_none() {
-            let font = include_bytes!("../assets/fonts/kenvector_future.ttf");
-
-            let font: Handle<Font> = asset_server
-                .load_from(Box::new(font.as_ref()))
-                .expect("was able to load font");
-            self.font_main_handle = Some(font);
+            self.font_main_handle = Some(load!(assets, "../assets/fonts/kenvector_future.ttf"));
         }
         self.font_main_handle.unwrap()
     }
 
-    pub fn get_font_sub_handle(&mut self, asset_server: &Res<AssetServer>) -> Handle<Font> {
+    pub fn get_font_sub_handle(&mut self, assets: &AssetServer) -> Handle<Font> {
         if self.font_sub_handle.is_none() {
-            let font = include_bytes!("../assets/fonts/mandrill.ttf");
-
-            let font: Handle<Font> = asset_server
-                .load_from(Box::new(font.as_ref()))
-                .expect("was able to load font");
-            self.font_sub_handle = Some(font);
+            self.font_sub_handle = Some(load!(assets, "../assets/fonts/mandrill.ttf"));
         }
         self.font_sub_handle.unwrap()
     }
 
     pub fn get_board_handles(
         &mut self,
-        asset_server: &Res<AssetServer>,
-        mut materials: ResMut<Assets<ColorMaterial>>,
+        assets: &AssetServer,
+        mats: &mut Assets<ColorMaterial>,
     ) -> GameBoardHandles {
         if self.board.is_none() {
-            let ground = include_bytes!("../assets/game/rpgTile024.png");
-            let ground_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(ground.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-
-            let ground_top = include_bytes!("../assets/game/rpgTile006.png");
-            let ground_top_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(ground_top.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let border_top = include_bytes!("../assets/game/rpgTile045.png");
-            let border_top_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(border_top.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-
-            let ground_bottom = include_bytes!("../assets/game/rpgTile042.png");
-            let ground_bottom_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(ground_bottom.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let border_bottom = include_bytes!("../assets/game/rpgTile011.png");
-            let border_bottom_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(border_bottom.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-
-            let ground_left = include_bytes!("../assets/game/rpgTile023.png");
-            let ground_left_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(ground_left.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let ground_right = include_bytes!("../assets/game/rpgTile025.png");
-            let ground_right_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(ground_right.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-
-            let corner_top_left = include_bytes!("../assets/game/rpgTile005.png");
-            let corner_top_left_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(corner_top_left.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let corner_top_right = include_bytes!("../assets/game/rpgTile007.png");
-            let corner_top_right_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(corner_top_right.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let corner_bottom_left = include_bytes!("../assets/game/rpgTile041.png");
-            let corner_bottom_left_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(corner_bottom_left.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let corner_bottom_right = include_bytes!("../assets/game/rpgTile043.png");
-            let corner_bottom_right_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(corner_bottom_right.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-
-            let water = include_bytes!("../assets/game/rpgTile029.png");
-            let water_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(water.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let grass = include_bytes!("../assets/game/rpgTile019.png");
-            let grass_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(grass.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-
-            let laser = include_bytes!("../assets/game/spark_06.png");
-            let laser_handle: Handle<ColorMaterial> = materials.add(ColorMaterial {
-                texture: Some(
-                    asset_server
-                        .load_from(Box::new(laser.as_ref()))
-                        .expect("was able to load texture"),
-                ),
-                color: Color::rgb(0.9, 0.3, 0.3),
-            });
-
-            let crate_png = include_bytes!("../assets/game/rpgTile163.png");
-            let crate_handle: Handle<ColorMaterial> = materials.add(ColorMaterial {
-                texture: Some(
-                    asset_server
-                        .load_from(Box::new(crate_png.as_ref()))
-                        .expect("was able to load texture"),
-                ),
-                color: Color::rgb(0.9, 0.3, 0.3),
-            });
-
-            let bomb = include_bytes!("../assets/game/bomb.png");
-            let bomb_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(bomb.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let bomb_icon_handle: Handle<ColorMaterial> = materials.add(ColorMaterial {
-                texture: Some(
-                    asset_server
-                        .load_from(Box::new(bomb.as_ref()))
-                        .expect("was able to load texture"),
-                ),
-                color: Color::rgb(0.9, 0.3, 0.3),
-            });
-            let fire = include_bytes!("../assets/game/fire_01.png");
-            let fire_handle: Handle<ColorMaterial> = materials.add(ColorMaterial {
-                texture: Some(
-                    asset_server
-                        .load_from(Box::new(fire.as_ref()))
-                        .expect("was able to load texture"),
-                ),
-                color: Color::rgb(0.9, 0.3, 0.3),
-            });
-
-            let coin = include_bytes!("../assets/game/coinGold.png");
-            let powerup_score_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(coin.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let gem_blue = include_bytes!("../assets/game/gemBlue.png");
-            let powerup_bomb_count_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(gem_blue.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let gem_green = include_bytes!("../assets/game/gemGreen.png");
-            let powerup_bomb_range_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(gem_green.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let gem_red = include_bytes!("../assets/game/gemRed.png");
-            let powerup_bomb_damage_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(gem_red.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let gem_yellow = include_bytes!("../assets/game/gemYellow.png");
-            let powerup_bomb_speed_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(gem_yellow.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-
-            let arrow_left = include_bytes!("../assets/game/arrowLeft.png");
-            let arrow_left_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(arrow_left.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
-            let arrow_right = include_bytes!("../assets/game/arrowRight.png");
-            let arrow_right_handle: Handle<ColorMaterial> = materials.add(
-                asset_server
-                    .load_from(Box::new(arrow_right.as_ref()))
-                    .expect("was able to load texture")
-                    .into(),
-            );
+            let red_fire = Color::rgb(0.9, 0.3, 0.3);
 
             self.board = Some(GameBoardHandles {
-                ground_handle,
-                ground_bottom_handle,
-                border_bottom_handle,
-                ground_top_handle,
-                border_top_handle,
-                ground_left_handle,
-                ground_right_handle,
-                corner_bottom_left_handle,
-                corner_bottom_right_handle,
-                corner_top_left_handle,
-                corner_top_right_handle,
-                water_handle,
-                grass_handle,
-                laser_handle,
-                crate_handle,
-                bomb_handle,
-                bomb_icon_handle,
-                fire_handle,
-                powerup_score_handle,
-                powerup_bomb_count_handle,
-                powerup_bomb_damage_handle,
-                powerup_bomb_range_handle,
-                powerup_bomb_speed_handle,
-                arrow_left_handle,
-                arrow_right_handle,
+                ground: colormaterial!(mats, assets, "../assets/game/rpgTile024.png"),
+                ground_bottom: colormaterial!(mats, assets, "../assets/game/rpgTile042.png"),
+                border_bottom: colormaterial!(mats, assets, "../assets/game/rpgTile011.png"),
+                ground_top: colormaterial!(mats, assets, "../assets/game/rpgTile006.png"),
+                border_top: colormaterial!(mats, assets, "../assets/game/rpgTile045.png"),
+                ground_left: colormaterial!(mats, assets, "../assets/game/rpgTile023.png"),
+                ground_right: colormaterial!(mats, assets, "../assets/game/rpgTile025.png"),
+                corner_bottom_left: colormaterial!(mats, assets, "../assets/game/rpgTile041.png"),
+                corner_bottom_right: colormaterial!(mats, assets, "../assets/game/rpgTile043.png"),
+                corner_top_left: colormaterial!(mats, assets, "../assets/game/rpgTile005.png"),
+                corner_top_right: colormaterial!(mats, assets, "../assets/game/rpgTile007.png"),
+                water: colormaterial!(mats, assets, "../assets/game/rpgTile029.png"),
+                grass: colormaterial!(mats, assets, "../assets/game/rpgTile019.png"),
+                laser: colormaterial!(mats, assets, "../assets/game/spark_06.png", red_fire),
+                obstacle: colormaterial!(mats, assets, "../assets/game/rpgTile163.png", red_fire),
+                bomb: colormaterial!(mats, assets, "../assets/game/bomb.png"),
+                bomb_icon: colormaterial!(mats, assets, "../assets/game/bomb.png", red_fire),
+                fire: colormaterial!(mats, assets, "../assets/game/fire_01.png", red_fire),
+                powerup_score: colormaterial!(mats, assets, "../assets/game/coinGold.png"),
+                powerup_bomb_count: colormaterial!(mats, assets, "../assets/game/gemBlue.png"),
+                powerup_bomb_damage: colormaterial!(mats, assets, "../assets/game/gemGreen.png"),
+                powerup_bomb_range: colormaterial!(mats, assets, "../assets/game/gemRed.png"),
+                powerup_bomb_speed: colormaterial!(mats, assets, "../assets/game/gemYellow.png"),
+                arrow_left: colormaterial!(mats, assets, "../assets/game/arrowLeft.png"),
+                arrow_right: colormaterial!(mats, assets, "../assets/game/arrowRight.png"),
             })
         }
         self.board.as_ref().unwrap().clone()

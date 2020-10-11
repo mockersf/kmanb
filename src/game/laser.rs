@@ -9,7 +9,7 @@ pub fn move_laser(
     time: Res<Time>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     mut game_events: ResMut<Events<GameEvents>>,
     fire_query: Query<&FireComponent>,
     mut laser_query: Query<(Entity, &mut Transform, &mut LaserComponent)>,
@@ -19,8 +19,8 @@ pub fn move_laser(
             game_events.send(GameEvents::Lost)
         }
         let fire_handle = asset_handles
-            .get_board_handles(&asset_server, materials)
-            .fire_handle;
+            .get_board_handles(&asset_server, &mut materials)
+            .fire;
         for (entity, mut transform, mut laser) in &mut laser_query.iter() {
             laser.0.tick(time.delta_seconds);
             if laser.0.just_finished {
@@ -126,7 +126,7 @@ pub fn spawn_obstacles(
     time: Res<Time>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     wnds: Res<Windows>,
     mut spawner_query: Query<&mut ObstacleSpawner>,
     occupied_tiles: Query<&Occupied>,
@@ -137,8 +137,8 @@ pub fn spawn_obstacles(
                 wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
             let crate_handle = asset_handles
-                .get_board_handles(&asset_server, materials)
-                .crate_handle;
+                .get_board_handles(&asset_server, &mut materials)
+                .obstacle;
             for mut spawner in &mut spawner_query.iter() {
                 spawner.0.tick(time.delta_seconds);
                 if spawner.0.just_finished {

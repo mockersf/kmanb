@@ -68,7 +68,7 @@ fn setup(
     mut screen: ResMut<Screen>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     mut textures: ResMut<Assets<Texture>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     wnds: Res<Windows>,
@@ -77,7 +77,7 @@ fn setup(
         info!("Loading screen");
         let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
-        let board_handles = asset_handles.get_board_handles(&asset_server, materials);
+        let board_handles = asset_handles.get_board_handles(&asset_server, &mut materials);
 
         let character_handle =
             asset_handles.get_character_handle(&asset_server, &mut textures, &mut texture_atlases);
@@ -122,7 +122,7 @@ fn setup(
             commands
                 .with_children(|laser_parent| {
                     laser_parent.spawn(SpriteComponents {
-                        material: board_handles.laser_handle,
+                        material: board_handles.laser,
                         transform: Transform::from_translation(Vec3::new(
                             1.,
                             y_to(y as i32 - 2, ratio),

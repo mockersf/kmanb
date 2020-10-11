@@ -37,20 +37,20 @@ pub fn setup(
     screen: Res<Screen>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     wnds: Res<Windows>,
 ) {
     if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen (board)");
         let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
-        let board_handles = asset_handles.get_board_handles(&asset_server, materials);
+        let board_handles = asset_handles.get_board_handles(&asset_server, &mut materials);
 
         if game.board.is_none() {
             for x in 0..BOARD_X {
                 commands
                     .spawn(SpriteComponents {
-                        material: board_handles.border_bottom_handle,
+                        material: board_handles.border_bottom,
                         transform: Transform::from_translation(Vec3::new(
                             x_to(x as i32, ratio),
                             y_to(-1, ratio),
@@ -68,20 +68,18 @@ pub fn setup(
                     commands
                         .spawn(SpriteComponents {
                             material: match (x, y) {
-                                (0, _) => board_handles.grass_handle,
-                                (x, 0) if x == BOARD_X - 1 => {
-                                    board_handles.corner_bottom_right_handle
-                                }
-                                (1, 0) => board_handles.corner_bottom_left_handle,
-                                (1, y) if y == BOARD_Y - 1 => board_handles.corner_top_left_handle,
+                                (0, _) => board_handles.grass,
+                                (x, 0) if x == BOARD_X - 1 => board_handles.corner_bottom_right,
+                                (1, 0) => board_handles.corner_bottom_left,
+                                (1, y) if y == BOARD_Y - 1 => board_handles.corner_top_left,
                                 (x, y) if x == BOARD_X - 1 && y == BOARD_Y - 1 => {
-                                    board_handles.corner_top_right_handle
+                                    board_handles.corner_top_right
                                 }
-                                (1, _) => board_handles.ground_left_handle,
-                                (x, _) if x == BOARD_X - 1 => board_handles.ground_right_handle,
-                                (_, 0) => board_handles.ground_bottom_handle,
-                                (_, y) if y == BOARD_Y - 1 => board_handles.ground_top_handle,
-                                _ => board_handles.ground_handle,
+                                (1, _) => board_handles.ground_left,
+                                (x, _) if x == BOARD_X - 1 => board_handles.ground_right,
+                                (_, 0) => board_handles.ground_bottom,
+                                (_, y) if y == BOARD_Y - 1 => board_handles.ground_top,
+                                _ => board_handles.ground,
                             },
                             transform: Transform::from_translation(Vec3::new(
                                 x_to(x as i32, ratio),
@@ -100,9 +98,9 @@ pub fn setup(
                         commands.with_children(|cell| {
                             cell.spawn(SpriteComponents {
                                 material: if x == 0 {
-                                    board_handles.arrow_left_handle
+                                    board_handles.arrow_left
                                 } else {
-                                    board_handles.arrow_right_handle
+                                    board_handles.arrow_right
                                 },
                                 transform: Transform::from_translation(Vec3::new(0., 0., Z_FIRE))
                                     .with_scale(ratio),
@@ -119,7 +117,7 @@ pub fn setup(
             for x in 0..BOARD_X {
                 commands
                     .spawn(SpriteComponents {
-                        material: board_handles.border_top_handle,
+                        material: board_handles.border_top,
                         transform: Transform::from_translation(Vec3::new(
                             x_to(x as i32, ratio),
                             y_to(BOARD_Y as i32, ratio),
@@ -134,7 +132,7 @@ pub fn setup(
                 for x in 0..BOARD_X {
                     commands
                         .spawn(SpriteComponents {
-                            material: board_handles.water_handle,
+                            material: board_handles.water,
                             transform: Transform::from_translation(Vec3::new(
                                 x_to(x as i32, ratio),
                                 y_to(y as i32, ratio),

@@ -223,8 +223,8 @@ pub fn setup(
         let font: Handle<Font> = asset_handles.get_font_main_handle(&asset_server);
         let bomb_background = materials.add(Color::NONE.into());
         let bomb_icon_handle = asset_handles
-            .get_board_handles(&asset_server, materials)
-            .bomb_icon_handle;
+            .get_board_handles(&asset_server, &mut materials)
+            .bomb_icon;
         commands
             .spawn(TextComponents {
                 style: Style {
@@ -329,14 +329,14 @@ pub fn display_bombs_available(
     game: Res<Game>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     mut used_bombs: Query<&BombComponent>,
     mut parent_component: Query<(Entity, &mut Children, &UiComponent)>,
 ) {
     let used_bombs = used_bombs.iter().iter().count();
     let bomb_icon_handle = asset_handles
-        .get_board_handles(&asset_server, materials)
-        .bomb_icon_handle;
+        .get_board_handles(&asset_server, &mut materials)
+        .bomb_icon;
     for (entity, mut children, component) in &mut parent_component.iter() {
         if *component == UiComponent::BombsAvailable {
             if children.0.len() != game.player.nb_bombs - used_bombs {

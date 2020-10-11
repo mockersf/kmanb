@@ -22,7 +22,7 @@ pub fn event_system(
     wnds: Res<Windows>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     mut player_query: Query<Without<PlayerMoving, (Entity, &PlayerComponent, &Transform)>>,
     occupied_tiles: Query<(Entity, &super::laser::ObstacleComponent)>,
     eased_query: Query<
@@ -37,8 +37,8 @@ pub fn event_system(
     let buffer_delay = u64::min(game.player.speed * 7 / 10, game.player.speed - 50);
     if game_screen.current_screen == CURRENT_SCREEN {
         let bomb_handle = asset_handles
-            .get_board_handles(&asset_server, materials)
-            .bomb_handle;
+            .get_board_handles(&asset_server, &mut materials)
+            .bomb;
         for event in state.event_reader.iter(&keyboard_input_events) {
             if (event.key_code == Some(KeyCode::P) || event.key_code == Some(KeyCode::Escape))
                 && event.state == ElementState::Pressed
