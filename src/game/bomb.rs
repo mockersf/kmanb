@@ -7,17 +7,13 @@ pub fn flash_bombs(
     game: Res<Game>,
     wnds: Res<Windows>,
     time: Res<Time>,
-    mut asset_handles: ResMut<crate::AssetHandles>,
-    asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    asset_handles: Res<crate::AssetHandles>,
     mut bombs_query: Query<(Entity, &mut BombComponent, &mut Children)>,
     bombs_sprite_query: Query<&BombSprite>,
     bomb_and_fire_sprites_query: Query<&FireSprite>,
 ) {
     if game.state == GameState::Play {
-        let fire_handle = asset_handles
-            .get_board_handles(&asset_server, &mut materials)
-            .fire;
+        let fire_handle = asset_handles.get_board_handles_unsafe().fire;
         let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
         for (entity, mut bomb, mut children) in &mut bombs_query.iter() {
@@ -164,15 +160,13 @@ pub fn fire(
 
 pub fn destroyed_obstacles(
     mut commands: Commands,
-    mut asset_handles: ResMut<crate::AssetHandles>,
-    asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    asset_handles: Res<crate::AssetHandles>,
     wnds: Res<Windows>,
     mut obstacle_query: Query<(Entity, &super::laser::ObstacleComponent, &mut Children)>,
     obstacle_sprite_query: Query<&super::laser::ObstacleSprite>,
 ) {
     let mut rng = rand::thread_rng();
-    let assets = asset_handles.get_board_handles(&asset_server, &mut materials);
+    let assets = asset_handles.get_board_handles_unsafe();
     let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
     for (entity, obstacle, mut children) in &mut obstacle_query.iter() {

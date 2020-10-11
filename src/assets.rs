@@ -185,4 +185,8 @@ impl AssetHandles {
         }
         self.board.as_ref().unwrap().clone()
     }
+
+    pub fn get_board_handles_unsafe(&self) -> GameBoardHandles {
+        self.board.as_ref().unwrap().clone()
+    }
 }
