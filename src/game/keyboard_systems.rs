@@ -14,14 +14,11 @@ pub enum BumpDirection {
 
 pub fn event_system(
     mut commands: Commands,
-    game_screen: Res<crate::GameScreen>,
-    mut state: ResMut<KeyboardState>,
-    mut game: ResMut<Game>,
-    keyboard_input_events: Res<Events<KeyboardInput>>,
+    (game_screen, mut game): (Res<crate::GameScreen>, ResMut<Game>),
+    (mut state, keyboard_input_events): (ResMut<KeyboardState>, Res<Events<KeyboardInput>>),
     mut game_events: ResMut<Events<GameEvents>>,
-    wnds: Res<Windows>,
+    (wnds, time): (Res<Windows>, Res<Time>),
     asset_handles: Res<crate::AssetHandles>,
-    time: Res<Time>,
     mut player_query: Query<Without<PlayerMoving, (Entity, &PlayerComponent, &Transform)>>,
     occupied_tiles: Query<(Entity, &super::laser::ObstacleComponent)>,
     eased_query: Query<

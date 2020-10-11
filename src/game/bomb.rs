@@ -5,8 +5,7 @@ use rand::{prelude::*, Rng};
 pub fn flash_bombs(
     mut commands: Commands,
     game: Res<Game>,
-    wnds: Res<Windows>,
-    time: Res<Time>,
+    (wnds, time): (Res<Windows>, Res<Time>),
     asset_handles: Res<crate::AssetHandles>,
     mut bombs_query: Query<(Entity, &mut BombComponent, &mut Children)>,
     bombs_sprite_query: Query<&BombSprite>,

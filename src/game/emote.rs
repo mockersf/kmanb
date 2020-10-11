@@ -10,12 +10,10 @@ pub struct GameEventsListenerState {
 
 pub fn emote_setter(
     mut commands: Commands,
-    game: Res<Game>,
-    mut state: ResMut<GameEventsListenerState>,
-    events: Res<Events<GameEvents>>,
+    (mut state, events): (ResMut<GameEventsListenerState>, Res<Events<GameEvents>>),
     asset_handles: Res<crate::AssetHandles>,
-    wnds: Res<Windows>,
-    time: Res<Time>,
+    game: Res<Game>,
+    (wnds, time): (Res<Windows>, Res<Time>),
     _emote_holder: &super::EmoteHolder,
     entity: Entity,
 ) {

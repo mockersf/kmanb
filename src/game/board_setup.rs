@@ -32,12 +32,9 @@ pub fn remove_indications(
 
 pub fn setup(
     mut commands: Commands,
-    game_screen: Res<crate::GameScreen>,
-    mut game: ResMut<Game>,
-    screen: Res<Screen>,
+    (game_screen, mut game, screen): (Res<crate::GameScreen>, ResMut<Game>, Res<Screen>),
     mut asset_handles: ResMut<crate::AssetHandles>,
-    asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    (asset_server, mut materials): (Res<AssetServer>, ResMut<Assets<ColorMaterial>>),
     wnds: Res<Windows>,
 ) {
     if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {

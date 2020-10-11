@@ -6,8 +6,7 @@ pub fn move_laser(
     mut commands: Commands,
     game_screen: Res<crate::GameScreen>,
     mut game: ResMut<Game>,
-    wnds: Res<Windows>,
-    time: Res<Time>,
+    (wnds, time): (Res<Windows>, Res<Time>),
     asset_handles: Res<crate::AssetHandles>,
     mut game_events: ResMut<Events<GameEvents>>,
     fire_query: Query<&FireComponent>,
@@ -118,11 +117,9 @@ pub struct ObstacleComponent(pub usize);
 
 pub fn spawn_obstacles(
     mut commands: Commands,
-    game_screen: Res<crate::GameScreen>,
-    game: Res<Game>,
-    time: Res<Time>,
+    (game_screen, game): (Res<crate::GameScreen>, Res<Game>),
     asset_handles: Res<crate::AssetHandles>,
-    wnds: Res<Windows>,
+    (wnds, time): (Res<Windows>, Res<Time>),
     mut spawner_query: Query<&mut ObstacleSpawner>,
     occupied_tiles: Query<&Occupied>,
 ) {
