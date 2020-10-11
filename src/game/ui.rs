@@ -488,7 +488,7 @@ pub fn button_system(
                 PauseButton::ToMenu => {
                     if let GameState::Pause(entity) = game.state {
                         commands.despawn_recursive(entity);
-                        *game = Game::default();
+                        game.state = GameState::Death;
                         game_screen.current_screen = crate::Screen::Menu;
                     }
                 }
