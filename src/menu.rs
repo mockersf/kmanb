@@ -1,4 +1,6 @@
 use bevy::prelude::*;
+use rand::seq::SliceRandom;
+use rand::Rng;
 use tracing::info;
 
 use bevy_easings::Ease;
@@ -30,6 +32,7 @@ impl bevy::app::Plugin for Plugin {
             .add_system(button_system.system())
             .add_system(keyboard_input_system.system())
             .add_system(walk_animate_sprite_system.system())
+            .add_system(remove_emote.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
     }
 }
@@ -84,6 +87,7 @@ fn setup(
 
         let character_handle =
             asset_handles.get_character_handle(&asset_server, &mut textures, &mut texture_atlases);
+        let _ = asset_handles.get_emote_handles(&asset_server, &mut materials);
 
         let font: Handle<Font> = asset_handles.get_font_main_handle(&asset_server);
 
@@ -92,7 +96,7 @@ fn setup(
         commands
             .spawn(SpriteSheetComponents {
                 texture_atlas: character_handle,
-                transform: Transform::from_translation(Vec3::new(-400. / 2., -150. / 2., 0.)),
+                transform: Transform::from_translation(Vec3::new(-200., -75., 0.)),
                 sprite: TextureAtlasSprite {
                     index: 36,
                     ..Default::default()
@@ -113,7 +117,7 @@ fn setup(
                         top: Val::Percent(25.),
                     },
                     size: Size::<Val> {
-                        height: Val::Px(190. / 2.),
+                        height: Val::Px(95.),
                         width: Val::Auto,
                     },
                     flex_direction: FlexDirection::ColumnReverse,
@@ -126,7 +130,7 @@ fn setup(
                 title_parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(150. / 2.),
+                            height: Val::Px(75.),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -136,7 +140,7 @@ fn setup(
                         font,
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
-                            font_size: 150.0 / 2.,
+                            font_size: 75.,
                         },
                     },
                     ..Default::default()
@@ -144,7 +148,7 @@ fn setup(
                 title_parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(40. / 2.),
+                            height: Val::Px(20.),
                             ..Default::default()
                         },
                         margin: Rect {
@@ -159,7 +163,7 @@ fn setup(
                         font,
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT_DIM,
-                            font_size: 40.0 / 2.,
+                            font_size: 20.,
                         },
                     },
                     ..Default::default()
@@ -224,74 +228,69 @@ fn setup(
         }
         commands
             .with_children(|global_parent| {
-                np_panel.add(
-                    global_parent,
-                    (30. + 450. + 3. * 75. + 70.) / 2.,
-                    300.,
-                    |inside, _| {
-                        inside
-                            .spawn(NodeComponents {
-                                material: color_none,
-                                style: Style {
-                                    flex_direction: FlexDirection::ColumnReverse,
-                                    ..Default::default()
-                                },
-                                draw: Draw {
-                                    is_transparent: true,
-                                    ..Default::default()
-                                },
+                np_panel.add(global_parent, 400., 300., |inside, _| {
+                    inside
+                        .spawn(NodeComponents {
+                            material: color_none,
+                            style: Style {
+                                flex_direction: FlexDirection::ColumnReverse,
                                 ..Default::default()
-                            })
-                            .with_children(|commands| {
-                                let mut current_button_shift = 30.;
-                                let button_shift = 90. / 2.;
-                                button.add(
-                                    commands,
-                                    450. / 2.,
-                                    100. / 2.,
-                                    Rect {
-                                        left: Val::Px(current_button_shift),
-                                        right: Val::Auto,
-                                        top: Val::Auto,
-                                        bottom: Val::Auto,
-                                    },
-                                    font,
-                                    MenuButton::NewGame,
-                                    40. / 2.,
-                                );
-                                current_button_shift += button_shift;
-                                button.add(
-                                    commands,
-                                    450. / 2.,
-                                    100. / 2.,
-                                    Rect {
-                                        left: Val::Px(current_button_shift),
-                                        right: Val::Auto,
-                                        top: Val::Auto,
-                                        bottom: Val::Auto,
-                                    },
-                                    font,
-                                    MenuButton::About,
-                                    40. / 2.,
-                                );
-                                current_button_shift += button_shift;
-                                button.add(
-                                    commands,
-                                    450. / 2.,
-                                    100. / 2.,
-                                    Rect {
-                                        left: Val::Px(current_button_shift),
-                                        right: Val::Auto,
-                                        top: Val::Auto,
-                                        bottom: Val::Auto,
-                                    },
-                                    font,
-                                    MenuButton::Quit,
-                                    40. / 2.,
-                                );
-                            });
-                    },
-                );
+                            },
+                            draw: Draw {
+                                is_transparent: true,
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|commands| {
+                            let mut current_button_shift = 30.;
+                            let button_shift = 45.;
+                            button.add(
+                                commands,
+                                225.,
+                                50.,
+                                Rect {
+                                    left: Val::Px(current_button_shift),
+                                    right: Val::Auto,
+                                    top: Val::Auto,
+                                    bottom: Val::Auto,
+                                },
+                                font,
+                                MenuButton::NewGame,
+                                20.,
+                            );
+                            current_button_shift += button_shift;
+                            button.add(
+                                commands,
+                                225.,
+                                50.,
+                                Rect {
+                                    left: Val::Px(current_button_shift),
+                                    right: Val::Auto,
+                                    top: Val::Auto,
+                                    bottom: Val::Auto,
+                                },
+                                font,
+                                MenuButton::About,
+                                20.,
+                            );
+                            current_button_shift += button_shift;
+                            button.add(
+                                commands,
+                                225.,
+                                50.,
+                                Rect {
+                                    left: Val::Px(current_button_shift),
+                                    right: Val::Auto,
+                                    top: Val::Auto,
+                                    bottom: Val::Auto,
+                                },
+                                font,
+                                MenuButton::Quit,
+                                20.,
+                            );
+                        });
+                });
             })
             .with(ScreenTag);
 
@@ -347,15 +346,55 @@ fn button_system(
     }
 }
 
+struct Emote(Timer);
+
 fn walk_animate_sprite_system(
+    mut commands: Commands,
     game_screen: Res<crate::GameScreen>,
+    asset_handles: Res<crate::AssetHandles>,
     mut query: Query<(&mut Timer, &mut TextureAtlasSprite)>,
 ) {
     if game_screen.current_screen == CURRENT_SCREEN {
         for (timer, mut sprite) in &mut query.iter() {
             if timer.finished {
                 sprite.index = ((sprite.index as usize + 1) % 8 + 36) as u32;
+                let mut rng = rand::thread_rng();
+                if rng.gen_bool(0.005) {
+                    let emotes = asset_handles.get_emote_handles_unsafe();
+                    commands
+                        .spawn(SpriteComponents {
+                            material: [
+                                emotes.exclamation,
+                                emotes.face_happy,
+                                emotes.heart,
+                                emotes.idea,
+                                emotes.laugh,
+                                emotes.sleep,
+                                emotes.sleeps,
+                                emotes.star,
+                            ]
+                            .choose(&mut rng)
+                            .unwrap()
+                            .clone(),
+                            transform: Transform::from_translation(Vec3::new(
+                                -200.,
+                                -75. + 192. / 2.,
+                                0.,
+                            ))
+                            .with_scale(1.2),
+                            ..Default::default()
+                        })
+                        .with(Emote(Timer::from_seconds(2., false)))
+                        .with(ScreenTag);
+                }
             }
         }
+    }
+}
+
+fn remove_emote(mut commands: Commands, time: Res<Time>, mut emote: Mut<Emote>, entity: Entity) {
+    emote.0.tick(time.delta_seconds);
+    if emote.0.just_finished {
+        commands.despawn(entity);
     }
 }

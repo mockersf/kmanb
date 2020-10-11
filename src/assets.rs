@@ -37,6 +37,7 @@ pub struct AssetHandles {
     font_main_handle: Option<Handle<Font>>,
     font_sub_handle: Option<Handle<Font>>,
     board: Option<GameBoardHandles>,
+    emotes: Option<EmoteHandles>,
 }
 
 #[derive(Clone)]
@@ -66,6 +67,25 @@ pub struct GameBoardHandles {
     pub powerup_bomb_speed: Handle<ColorMaterial>,
     pub arrow_left: Handle<ColorMaterial>,
     pub arrow_right: Handle<ColorMaterial>,
+    pub star: Handle<ColorMaterial>,
+}
+
+#[derive(Clone)]
+pub struct EmoteHandles {
+    pub alert: Handle<ColorMaterial>,
+    pub anger: Handle<ColorMaterial>,
+    pub exclamation: Handle<ColorMaterial>,
+    pub exclamations: Handle<ColorMaterial>,
+    pub face_angry: Handle<ColorMaterial>,
+    pub face_happy: Handle<ColorMaterial>,
+    pub face_sad: Handle<ColorMaterial>,
+    pub heart: Handle<ColorMaterial>,
+    pub heart_broken: Handle<ColorMaterial>,
+    pub hearts: Handle<ColorMaterial>,
+    pub idea: Handle<ColorMaterial>,
+    pub laugh: Handle<ColorMaterial>,
+    pub sleep: Handle<ColorMaterial>,
+    pub sleeps: Handle<ColorMaterial>,
     pub star: Handle<ColorMaterial>,
 }
 
@@ -191,5 +211,40 @@ impl AssetHandles {
 
     pub fn get_board_handles_unsafe(&self) -> GameBoardHandles {
         self.board.as_ref().unwrap().clone()
+    }
+
+    pub fn get_emote_handles(
+        &mut self,
+        assets: &AssetServer,
+        mats: &mut Assets<ColorMaterial>,
+    ) -> EmoteHandles {
+        if self.emotes.is_none() {
+            self.emotes = Some(EmoteHandles {
+                alert: colormaterial!(mats, assets, "../assets/emote/emote_alert.png"),
+                anger: colormaterial!(mats, assets, "../assets/emote/emote_anger.png"),
+                exclamation: colormaterial!(mats, assets, "../assets/emote/emote_exclamation.png"),
+                exclamations: colormaterial!(
+                    mats,
+                    assets,
+                    "../assets/emote/emote_exclamations.png"
+                ),
+                face_angry: colormaterial!(mats, assets, "../assets/emote/emote_faceAngry.png"),
+                face_happy: colormaterial!(mats, assets, "../assets/emote/emote_faceHappy.png"),
+                face_sad: colormaterial!(mats, assets, "../assets/emote/emote_faceSad.png"),
+                heart: colormaterial!(mats, assets, "../assets/emote/emote_heart.png"),
+                heart_broken: colormaterial!(mats, assets, "../assets/emote/emote_heartBroken.png"),
+                hearts: colormaterial!(mats, assets, "../assets/emote/emote_hearts.png"),
+                idea: colormaterial!(mats, assets, "../assets/emote/emote_idea.png"),
+                laugh: colormaterial!(mats, assets, "../assets/emote/emote_laugh.png"),
+                sleep: colormaterial!(mats, assets, "../assets/emote/emote_sleep.png"),
+                sleeps: colormaterial!(mats, assets, "../assets/emote/emote_sleeps.png"),
+                star: colormaterial!(mats, assets, "../assets/emote/emote_star.png"),
+            });
+        }
+        self.emotes.as_ref().unwrap().clone()
+    }
+
+    pub fn get_emote_handles_unsafe(&self) -> EmoteHandles {
+        self.emotes.as_ref().unwrap().clone()
     }
 }
