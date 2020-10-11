@@ -21,6 +21,7 @@ pub fn event_system(
     mut game_events: ResMut<Events<GameEvents>>,
     wnds: Res<Windows>,
     asset_handles: Res<crate::AssetHandles>,
+    time: Res<Time>,
     mut player_query: Query<Without<PlayerMoving, (Entity, &PlayerComponent, &Transform)>>,
     occupied_tiles: Query<(Entity, &super::laser::ObstacleComponent)>,
     eased_query: Query<
@@ -330,6 +331,9 @@ pub fn event_system(
                                 ),
                             },
                         );
+                    }
+                    if moved || teleport_border || bump.is_some() {
+                        game.time_last_move = time.seconds_since_startup;
                     }
                 }
             }

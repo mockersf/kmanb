@@ -205,6 +205,7 @@ pub fn ui_event_update(
             }
             GameEvents::NewHighround => {}
             GameEvents::NewHighscore => {}
+            GameEvents::PlayerBonus => {}
         }
     }
 }

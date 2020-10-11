@@ -122,7 +122,7 @@ fn setup(
                         emote
                             .spawn(SpriteComponents {
                                 transform: Transform::from_scale(ratio * 0.7),
-                                material: emotes.exclamation,
+                                material: emotes.exclamations,
                                 ..Default::default()
                             })
                             .with(crate::menu::Emote(Timer::from_seconds(1., false)));
@@ -324,6 +324,7 @@ pub struct Game {
     laser: Laser,
     pub round: u16,
     pub score: u16,
+    time_last_move: f64,
     state: GameState,
 }
 
@@ -383,4 +384,5 @@ pub enum GameEvents {
     Pause,
     NewHighscore,
     NewHighround,
+    PlayerBonus,
 }

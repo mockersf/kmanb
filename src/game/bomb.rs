@@ -222,6 +222,7 @@ pub fn player_powerups(
     mut commands: Commands,
     mut game: ResMut<Game>,
     time: Res<Time>,
+    mut game_events: ResMut<Events<GameEvents>>,
     mut powerup_query: Query<(Entity, &mut PowerUpComponent, &mut Children)>,
     powerup_sprite_query: Query<&PowerUpSprite>,
 ) {
@@ -244,6 +245,7 @@ pub fn player_powerups(
                     powerup.timer.duration = (game.player.speed as f32 / 1000.) * 3. / 4.;
                     powerup.timer.reset();
                     powerup.used = true;
+                    game_events.send(GameEvents::PlayerBonus);
                 }
             }
             if powerup.timer.just_finished {
