@@ -110,7 +110,7 @@ fn setup(
                         value: format!("{} points", game.score),
                         font: font_sub,
                         style: TextStyle {
-                            color: if game.score > game_screen.highscore {
+                            color: if game_screen.is_new_highscore(game.score) {
                                 crate::ui::ColorScheme::TEXT_HIGHLIGHT
                             } else {
                                 crate::ui::ColorScheme::TEXT
@@ -132,7 +132,7 @@ fn setup(
                         value: format!("at round {}", game.round),
                         font: font_sub,
                         style: TextStyle {
-                            color: if game.round > game_screen.highround {
+                            color: if game_screen.is_new_highround(game.round) {
                                 crate::ui::ColorScheme::TEXT_HIGHLIGHT
                             } else {
                                 crate::ui::ColorScheme::TEXT

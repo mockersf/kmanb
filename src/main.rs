@@ -113,6 +113,7 @@ pub struct GameScreen {
     pub highscore: u16,
     pub highround: u16,
 }
+
 impl Default for GameScreen {
     fn default() -> Self {
         GameScreen {
@@ -120,6 +121,15 @@ impl Default for GameScreen {
             highscore: 0,
             highround: 0,
         }
+    }
+}
+
+impl GameScreen {
+    pub fn is_new_highscore(&self, score: u16) -> bool {
+        self.highscore != 0 && score > self.highscore
+    }
+    pub fn is_new_highround(&self, round: u16) -> bool {
+        self.highround != 0 && round > self.highround
     }
 }
 
