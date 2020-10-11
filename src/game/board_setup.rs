@@ -106,6 +106,18 @@ pub fn setup(
                                     .with_scale(ratio * 0.6),
                                 ..Default::default()
                             })
+                            .with(
+                                Transform::from_translation(Vec3::new(0., 0., Z_FIRE))
+                                    .with_scale(ratio * 0.6)
+                                    .ease_to(
+                                        Transform::from_translation(Vec3::new(0., 0., Z_FIRE))
+                                            .with_scale(0.),
+                                        bevy_easings::EaseFunction::BounceIn,
+                                        bevy_easings::EasingType::Once {
+                                            duration: std::time::Duration::from_secs(5),
+                                        },
+                                    ),
+                            )
                             .with(TeleportIndicationSprite);
                         });
                     }
