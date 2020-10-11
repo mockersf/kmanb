@@ -110,11 +110,15 @@ pub enum Screen {
 #[derive(Debug)]
 pub struct GameScreen {
     pub current_screen: Screen,
+    pub highscore: u16,
+    pub highround: u16,
 }
 impl Default for GameScreen {
     fn default() -> Self {
         GameScreen {
             current_screen: Screen::Splash,
+            highscore: 0,
+            highround: 0,
         }
     }
 }

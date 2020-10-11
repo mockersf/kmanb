@@ -28,7 +28,7 @@ impl bevy::app::Plugin for Plugin {
 
 fn setup(
     mut commands: Commands,
-    game_screen: Res<crate::GameScreen>,
+    mut game_screen: ResMut<crate::GameScreen>,
     mut screen: ResMut<Screen>,
     mut game: ResMut<crate::game::Game>,
     asset_server: Res<AssetServer>,
@@ -110,7 +110,11 @@ fn setup(
                         value: format!("{} points", game.score),
                         font: font_sub,
                         style: TextStyle {
-                            color: crate::ui::ColorScheme::TEXT,
+                            color: if game.score > game_screen.highscore {
+                                crate::ui::ColorScheme::TEXT_HIGHLIGHT
+                            } else {
+                                crate::ui::ColorScheme::TEXT
+                            },
                             font_size: 200.0 / 2.,
                         },
                     },
@@ -128,7 +132,11 @@ fn setup(
                         value: format!("at round {}", game.round),
                         font: font_sub,
                         style: TextStyle {
-                            color: crate::ui::ColorScheme::TEXT,
+                            color: if game.round > game_screen.highround {
+                                crate::ui::ColorScheme::TEXT_HIGHLIGHT
+                            } else {
+                                crate::ui::ColorScheme::TEXT
+                            },
                             font_size: 100.0 / 2.,
                         },
                     },
@@ -136,6 +144,12 @@ fn setup(
                 });
             });
 
+        if game.score > game_screen.highscore {
+            game_screen.highscore = game.score;
+        }
+        if game.round > game_screen.highround {
+            game_screen.highround = game.round;
+        }
         *game = crate::game::Game::default();
 
         screen.loaded = true;

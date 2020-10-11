@@ -66,6 +66,7 @@ pub struct GameBoardHandles {
     pub powerup_bomb_speed: Handle<ColorMaterial>,
     pub arrow_left: Handle<ColorMaterial>,
     pub arrow_right: Handle<ColorMaterial>,
+    pub star: Handle<ColorMaterial>,
 }
 
 impl AssetHandles {
@@ -154,6 +155,7 @@ impl AssetHandles {
     ) -> GameBoardHandles {
         if self.board.is_none() {
             let red_fire = Color::rgb(0.9, 0.3, 0.3);
+            let yellow = crate::ui::ColorScheme::TEXT_HIGHLIGHT;
 
             self.board = Some(GameBoardHandles {
                 ground: colormaterial!(mats, assets, "../assets/game/rpgTile024.png"),
@@ -181,6 +183,7 @@ impl AssetHandles {
                 powerup_bomb_speed: colormaterial!(mats, assets, "../assets/game/gemYellow.png"),
                 arrow_left: colormaterial!(mats, assets, "../assets/game/arrowLeft.png"),
                 arrow_right: colormaterial!(mats, assets, "../assets/game/arrowRight.png"),
+                star: colormaterial!(mats, assets, "../assets/game/star.png", yellow),
             })
         }
         self.board.as_ref().unwrap().clone()

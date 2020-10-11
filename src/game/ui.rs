@@ -29,8 +29,11 @@ pub struct GameEventsListenerState {
     event_reader: EventReader<GameEvents>,
 }
 
-pub fn new_round(
+pub struct Stared;
+
+pub fn ui_event_update(
     mut commands: Commands,
+    screen: Res<crate::GameScreen>,
     mut game: ResMut<Game>,
     mut state: ResMut<GameEventsListenerState>,
     events: Res<Events<GameEvents>>,
@@ -38,16 +41,38 @@ pub fn new_round(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut textures: ResMut<Assets<Texture>>,
+    mut game_events: ResMut<Events<GameEvents>>,
     mut buttons: ResMut<Assets<crate::ui::button::Button>>,
-    mut round_text: Query<(&mut Text, &UiComponent)>,
+    mut round_text: Query<(&mut Text, &UiComponent, &Parent)>,
+    is_new_best: Query<&Stared>,
 ) {
     for event in state.event_reader.iter(&events) {
         match event {
             GameEvents::NewRound => {
                 game.round += 1;
-                for (mut text, component) in &mut round_text.iter() {
+                for (mut text, component, parent) in &mut round_text.iter() {
                     if *component == UiComponent::Round {
                         text.value = format!("Round {}", game.round);
+                        if game.round > screen.highround {
+                            if is_new_best.get::<Stared>(parent.0).is_err() {
+                                text.style.color = crate::ui::ColorScheme::TEXT_HIGHLIGHT;
+                                commands.spawn(ImageComponents {
+                                    style: Style {
+                                        size: Size {
+                                            height: Val::Px(50.),
+                                            width: Val::Px(50.),
+                                        },
+                                        ..Default::default()
+                                    },
+                                    material: asset_handles.get_board_handles_unsafe().star,
+                                    ..Default::default()
+                                });
+                                let entity = commands.current_entity().unwrap();
+                                commands.push_children(parent.0, &[entity]);
+                                commands.insert_one(parent.0, Stared);
+                                game_events.send(GameEvents::NewHighround);
+                            }
+                        }
                     }
                 }
                 let mut rng = rand::thread_rng();
@@ -170,6 +195,8 @@ pub fn new_round(
                     });
                 game.state = GameState::Pause(commands.current_entity().unwrap());
             }
+            GameEvents::NewHighround => {}
+            GameEvents::NewHighscore => {}
         }
     }
 }
@@ -196,10 +223,42 @@ pub fn death_animation(
     }
 }
 
-pub fn score(mut game: ResMut<Game>, mut score: Mut<Text>, ui: &UiComponent, timer: &Timer) {
-    if game.state == GameState::Play && *ui == UiComponent::Score && timer.just_finished {
-        score.value = format!("{}", game.score);
-        game.score += game.round;
+pub fn score(
+    mut commands: Commands,
+    screen: Res<crate::GameScreen>,
+    mut game: ResMut<Game>,
+    mut game_events: ResMut<Events<GameEvents>>,
+    asset_handles: Res<crate::AssetHandles>,
+    mut score_text: Query<(&mut Text, &UiComponent, &Timer, &Parent)>,
+    is_new_best: Query<&Stared>,
+) {
+    if game.state == GameState::Play {
+        for (mut score, ui, timer, parent) in &mut score_text.iter() {
+            if *ui == UiComponent::Score && timer.just_finished {
+                score.value = format!("{}", game.score);
+                game.score += game.round;
+                if game.score > screen.highscore {
+                    if is_new_best.get::<Stared>(parent.0).is_err() {
+                        score.style.color = crate::ui::ColorScheme::TEXT_HIGHLIGHT;
+                        commands.spawn(ImageComponents {
+                            style: Style {
+                                size: Size {
+                                    height: Val::Px(30.),
+                                    width: Val::Px(30.),
+                                },
+                                ..Default::default()
+                            },
+                            material: asset_handles.get_board_handles_unsafe().star,
+                            ..Default::default()
+                        });
+                        let entity = commands.current_entity().unwrap();
+                        commands.push_children(parent.0, &[entity]);
+                        commands.insert_one(parent.0, Stared);
+                        game_events.send(GameEvents::NewHighscore);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -221,66 +280,95 @@ pub fn setup(
     if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen (ui)");
         let font: Handle<Font> = asset_handles.get_font_main_handle(&asset_server);
-        let bomb_background = materials.add(Color::NONE.into());
+        let transparent_background = materials.add(Color::NONE.into());
         let bomb_icon_handle = asset_handles
             .get_board_handles(&asset_server, &mut materials)
             .bomb_icon;
         commands
-            .spawn(TextComponents {
+            .spawn(NodeComponents {
                 style: Style {
                     size: Size {
-                        height: Val::Px(150. / 3.),
+                        height: Val::Px(50.),
                         ..Default::default()
                     },
                     position_type: PositionType::Absolute,
                     position: Rect {
-                        left: Val::Px(10. / 3.),
-                        top: Val::Px(10. / 3.),
+                        left: Val::Px(4.),
+                        top: Val::Px(4.),
                         ..Default::default()
                     },
                     ..Default::default()
                 },
-                text: Text {
-                    value: "Prepare yourself!".to_string(),
-                    font,
-                    style: TextStyle {
-                        color: crate::ui::ColorScheme::TEXT,
-                        font_size: 150.0 / 3.,
-                    },
-                },
+                material: transparent_background,
                 ..Default::default()
             })
-            .with(UiComponent::Round)
-            .with(ScreenTag);
+            .with(ScreenTag)
+            .with_children(|round_parent| {
+                round_parent
+                    .spawn(TextComponents {
+                        style: Style {
+                            size: Size {
+                                height: Val::Px(50.),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        },
+                        text: Text {
+                            value: "Prepare yourself!".to_string(),
+                            font,
+                            style: TextStyle {
+                                color: crate::ui::ColorScheme::TEXT,
+                                font_size: 50.,
+                            },
+                        },
+                        ..Default::default()
+                    })
+                    .with(UiComponent::Round);
+            });
 
         commands
-            .spawn(TextComponents {
+            .spawn(NodeComponents {
                 style: Style {
                     size: Size {
-                        height: Val::Px(120. / 4.),
+                        height: Val::Px(30.),
                         ..Default::default()
                     },
                     position_type: PositionType::Absolute,
                     position: Rect {
-                        right: Val::Px(10. / 4.),
-                        top: Val::Px(10. / 4.),
+                        right: Val::Px(3.),
+                        top: Val::Px(3.),
                         ..Default::default()
                     },
+                    flex_direction: FlexDirection::RowReverse,
                     ..Default::default()
                 },
-                text: Text {
-                    value: "0".to_string(),
-                    font,
-                    style: TextStyle {
-                        color: crate::ui::ColorScheme::TEXT,
-                        font_size: 120.0 / 4.,
-                    },
-                },
+                material: transparent_background,
                 ..Default::default()
             })
-            .with(UiComponent::Score)
-            .with(Timer::from_seconds(0.1, true))
-            .with(ScreenTag);
+            .with(ScreenTag)
+            .with_children(|score_parent| {
+                score_parent
+                    .spawn(TextComponents {
+                        style: Style {
+                            size: Size {
+                                height: Val::Px(30.),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        },
+                        text: Text {
+                            value: "0".to_string(),
+                            font,
+                            style: TextStyle {
+                                color: crate::ui::ColorScheme::TEXT,
+                                font_size: 30.,
+                            },
+                        },
+                        ..Default::default()
+                    })
+                    .with(UiComponent::Score)
+                    .with(Timer::from_seconds(0.1, true));
+            });
 
         commands
             .spawn(NodeComponents {
@@ -298,7 +386,7 @@ pub fn setup(
                     flex_direction: FlexDirection::RowReverse,
                     ..Default::default()
                 },
-                material: bomb_background,
+                material: transparent_background,
                 ..Default::default()
             })
             .with(UiComponent::BombsAvailable)
