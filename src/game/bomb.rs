@@ -192,6 +192,7 @@ pub fn destroyed_obstacles(
                         PowerUpComponent {
                             powerup,
                             timer: Timer::from_seconds(20., false),
+                            used: false,
                         },
                         Occupied,
                     ),
@@ -228,21 +229,24 @@ pub fn player_powerups(
         for (entity, mut powerup, mut children) in &mut powerup_query.iter() {
             powerup.timer.tick(time.delta_seconds);
 
-            let cell = game.board.as_ref().unwrap()[game.player.y][game.player.x].entity;
-            let mut consumed = false;
-            if entity == cell {
-                match powerup.powerup {
-                    PlayerPowerUp::Score => game.score += game.round * 200,
-                    PlayerPowerUp::BombCount => game.player.nb_bombs += 1,
-                    PlayerPowerUp::BombDamage => game.player.bomb_damage += 1,
-                    PlayerPowerUp::BombRange => game.player.bomb_range += 1,
-                    PlayerPowerUp::BombSpeed => {
-                        game.player.bomb_speed = (game.player.bomb_speed as f64 * 0.9) as u64
+            if !powerup.used {
+                let cell = game.board.as_ref().unwrap()[game.player.y][game.player.x].entity;
+                if entity == cell {
+                    match powerup.powerup {
+                        PlayerPowerUp::Score => game.score += game.round * 200,
+                        PlayerPowerUp::BombCount => game.player.nb_bombs += 1,
+                        PlayerPowerUp::BombDamage => game.player.bomb_damage += 1,
+                        PlayerPowerUp::BombRange => game.player.bomb_range += 1,
+                        PlayerPowerUp::BombSpeed => {
+                            game.player.bomb_speed = (game.player.bomb_speed as f64 * 0.9) as u64
+                        }
                     }
+                    powerup.timer.duration = (game.player.speed as f32 / 1000.) * 3. / 4.;
+                    powerup.timer.reset();
+                    powerup.used = true;
                 }
-                consumed = true;
             }
-            if powerup.timer.just_finished || consumed {
+            if powerup.timer.just_finished {
                 commands.remove::<(Occupied, PowerUpComponent)>(entity);
                 let mut targets = vec![];
                 for child in children.iter() {
@@ -260,4 +264,5 @@ pub struct PowerUpSprite;
 pub struct PowerUpComponent {
     timer: Timer,
     powerup: PlayerPowerUp,
+    used: bool,
 }
