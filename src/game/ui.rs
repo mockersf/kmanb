@@ -76,7 +76,15 @@ pub fn ui_event_update(
                     }
                 }
                 let mut rng = rand::thread_rng();
-                match LaserPowerUp::iter().choose(&mut rng).unwrap() {
+                match if game.round == 1 {
+                    // avoid power up ObstacleStrengh on first round
+                    LaserPowerUp::iter()
+                        .filter(|bonus| *bonus != LaserPowerUp::ObstacleStrengh)
+                        .choose(&mut rng)
+                        .unwrap()
+                } else {
+                    LaserPowerUp::iter().choose(&mut rng).unwrap()
+                } {
                     LaserPowerUp::Speed => {
                         game.laser.speed = (game.laser.speed as f64 * 0.9) as u64
                     }
