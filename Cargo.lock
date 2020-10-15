@@ -319,7 +319,7 @@ dependencies = [
 [[package]]
 name = "bevy_diagnostic_entity_count"
 version = "0.1.0"
-source = "git+https://github.com/mockersf/bevy_extra#facf719c57bf50778b745b9cd4fa16ad04e86c4a"
+source = "git+https://github.com/mockersf/bevy_extra#92841fd494fbbda6df7661be12da0fdacbfa895f"
 dependencies = [
  "bevy",
 ]
