@@ -128,10 +128,7 @@ pub fn spawn_obstacles(
             let ratio =
                 wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
-            let crate_handle = asset_handles
-                .get_board_handles_unsafe()
-                // .get_board_handles(&asset_server, &mut materials)
-                .obstacle;
+            let crate_handle = asset_handles.get_board_handles_unsafe().obstacle;
             for mut spawner in &mut spawner_query.iter() {
                 spawner.0.tick(time.delta_seconds);
                 if spawner.0.just_finished {
