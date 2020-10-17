@@ -65,12 +65,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // default plugins
         .add_default_plugins();
 
+    builder
+        .add_plugin(::bevy_easings::EasingsPlugin)
+        .add_plugin(bevy_ninepatch::NinePatchPlugin::<()>::default());
+
     if cfg!(debug_assertions) {
         builder
             .add_plugin(::bevy::diagnostic::FrameTimeDiagnosticsPlugin)
             .add_plugin(::bevy_diagnostic_entity_count::EntityCountDiagnosticsPlugin)
-            .add_plugin(::bevy_log_diagnostic::LogDiagnosticsPlugin::default())
-            .add_plugin(::bevy_easings::EasingsPlugin);
+            .add_plugin(::bevy_log_diagnostic::LogDiagnosticsPlugin::default());
     }
 
     builder
