@@ -51,7 +51,8 @@ pub fn flash_bombs(
                 bomb.timer.reset();
             }
             if bomb.timer.just_finished && bomb.state == BombState::Flash || explode_now {
-                commands.remove::<(Occupied, BombComponent)>(entity);
+                commands.remove_one::<Occupied>(entity);
+                commands.remove_one::<BombComponent>(entity);
                 let mut targets = vec![];
                 for child in children.iter() {
                     if bombs_sprite_query.get::<BombSprite>(*child).is_ok() {
@@ -170,7 +171,8 @@ pub fn destroyed_obstacles(
 
     for (entity, obstacle, mut children) in &mut obstacle_query.iter() {
         if obstacle.0 == 0 {
-            commands.remove::<(Occupied, super::laser::ObstacleComponent)>(entity);
+            commands.remove_one::<Occupied>(entity);
+            commands.remove_one::<super::laser::ObstacleComponent>(entity);
             let mut targets = vec![];
             for child in children.iter() {
                 if obstacle_sprite_query
@@ -248,7 +250,8 @@ pub fn player_powerups(
                 }
             }
             if powerup.timer.just_finished {
-                commands.remove::<(Occupied, PowerUpComponent)>(entity);
+                commands.remove_one::<Occupied>(entity);
+                commands.remove_one::<PowerUpComponent>(entity);
                 let mut targets = vec![];
                 for child in children.iter() {
                     if powerup_sprite_query.get::<PowerUpSprite>(*child).is_ok() {
