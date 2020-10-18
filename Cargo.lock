@@ -313,7 +313,7 @@ dependencies = [
 [[package]]
 name = "bevy_diagnostic_entity_count"
 version = "0.1.0"
-source = "git+https://github.com/mockersf/bevy_extra#c71ff724995e375ea03cbfd6aee6c1e7c9a64448"
+source = "git+https://github.com/mockersf/bevy_extra#1f3f3b3aff9773aa476c447c3e55f791683a9110"
 dependencies = [
  "bevy",
 ]
@@ -331,7 +331,7 @@ dependencies = [
 [[package]]
 name = "bevy_easings"
 version = "0.1.1"
-source = "git+https://github.com/mockersf/bevy_extra#c71ff724995e375ea03cbfd6aee6c1e7c9a64448"
+source = "git+https://github.com/mockersf/bevy_extra#1f3f3b3aff9773aa476c447c3e55f791683a9110"
 dependencies = [
  "bevy",
  "interpolation",
@@ -433,7 +433,7 @@ dependencies = [
 [[package]]
 name = "bevy_ninepatch"
 version = "0.2.0"
-source = "git+https://github.com/mockersf/bevy_extra#c71ff724995e375ea03cbfd6aee6c1e7c9a64448"
+source = "git+https://github.com/mockersf/bevy_extra#1f3f3b3aff9773aa476c447c3e55f791683a9110"
 dependencies = [
  "bevy",
 ]
