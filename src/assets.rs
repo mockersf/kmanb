@@ -114,7 +114,6 @@ impl AssetHandles {
     pub fn get_button_handle(
         &mut self,
         assets: &AssetServer,
-        mut textures: &mut ResMut<Assets<Texture>>,
         mut mats: &mut ResMut<Assets<ColorMaterial>>,
         mut nine_patches: &mut Assets<bevy_ninepatch::NinePatchBuilder<()>>,
 
@@ -123,9 +122,7 @@ impl AssetHandles {
         if self.button_handle.is_none() {
             let button = include_bytes!("../assets/ui/buttonLong_beige.png");
 
-            let button_texture_handle = assets
-                .load_sync_from(&mut textures, &mut button.as_ref())
-                .unwrap();
+            let button_texture_handle = assets.load_from(Box::new(button.as_ref())).unwrap();
             let button = crate::ui::button::Button::setup(
                 &mut mats,
                 &mut nine_patches,
@@ -139,14 +136,11 @@ impl AssetHandles {
     pub fn get_character_handle(
         &mut self,
         assets: &AssetServer,
-        mut textures: &mut Assets<Texture>,
         texture_atlases: &mut Assets<TextureAtlas>,
     ) -> Handle<TextureAtlas> {
         if self.character_handle.is_none() {
             let character = include_bytes!("../assets/game/character_femalePerson_sheetHD.png");
-            let character_texture_handle = assets
-                .load_sync_from(&mut textures, &mut character.as_ref())
-                .unwrap();
+            let character_texture_handle = assets.load_from(Box::new(character.as_ref())).unwrap();
 
             let texture_atlas =
                 TextureAtlas::from_grid(character_texture_handle, Vec2::new(192., 256.), 9, 5);

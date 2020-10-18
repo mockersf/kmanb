@@ -59,7 +59,6 @@ fn setup(
     mut screen: ResMut<Screen>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
-    mut textures: ResMut<Assets<Texture>>,
     mut nine_patches: ResMut<Assets<bevy_ninepatch::NinePatchBuilder<()>>>,
     mut buttons: ResMut<Assets<crate::ui::button::Button>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -72,7 +71,6 @@ fn setup(
 
         let button_handle = asset_handles.get_button_handle(
             &asset_server,
-            &mut textures,
             &mut materials,
             &mut nine_patches,
             &mut buttons,
@@ -80,7 +78,7 @@ fn setup(
         let button = buttons.get(&button_handle).unwrap();
 
         let character_handle =
-            asset_handles.get_character_handle(&asset_server, &mut textures, &mut texture_atlases);
+            asset_handles.get_character_handle(&asset_server, &mut texture_atlases);
         let _ = asset_handles.get_emote_handles(&asset_server, &mut materials);
 
         let font: Handle<Font> = asset_handles.get_font_main_handle(&asset_server);

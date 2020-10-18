@@ -1,6 +1,6 @@
 use bevy::prelude::{
     AppBuilder, AssetServer, Assets, ColorMaterial, Commands, DespawnRecursiveExt, Entity,
-    IntoQuerySystem, Query, Res, ResMut, SpriteComponents, Texture, Time, Timer, Transform, Vec3,
+    IntoQuerySystem, Query, Res, ResMut, SpriteComponents, Time, Timer, Transform, Vec3,
 };
 use rand::Rng;
 
@@ -39,7 +39,6 @@ fn setup(
     game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
     asset_server: Res<AssetServer>,
-    mut textures: ResMut<Assets<Texture>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
@@ -47,9 +46,7 @@ fn setup(
         screen.loaded = true;
 
         let logo = include_bytes!("../assets/logo.png");
-        let texture_handle = asset_server
-            .load_sync_from(&mut textures, &mut logo.as_ref())
-            .unwrap();
+        let texture_handle = asset_server.load_from(Box::new(logo.as_ref())).unwrap();
 
         commands
             .spawn(SpriteComponents {

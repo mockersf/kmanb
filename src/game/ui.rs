@@ -39,7 +39,6 @@ pub fn ui_event_update(
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut textures: ResMut<Assets<Texture>>,
     mut nine_patches: ResMut<Assets<bevy_ninepatch::NinePatchBuilder>>,
     mut game_events: ResMut<Events<GameEvents>>,
     mut buttons: ResMut<Assets<crate::ui::button::Button>>,
@@ -107,7 +106,6 @@ pub fn ui_event_update(
 
                 let button_handle = asset_handles.get_button_handle(
                     &asset_server,
-                    &mut textures,
                     &mut materials,
                     &mut nine_patches,
                     &mut buttons,

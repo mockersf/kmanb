@@ -34,14 +34,13 @@ fn setup(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut asset_handles: ResMut<crate::AssetHandles>,
-    mut textures: ResMut<Assets<Texture>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
 
         let character_handle =
-            asset_handles.get_character_handle(&asset_server, &mut textures, &mut texture_atlases);
+            asset_handles.get_character_handle(&asset_server, &mut texture_atlases);
 
         let font: Handle<Font> = asset_handles.get_font_main_handle(&asset_server);
 

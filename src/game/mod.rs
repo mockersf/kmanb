@@ -72,7 +72,6 @@ fn setup(
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut textures: ResMut<Assets<Texture>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     wnds: Res<Windows>,
 ) {
@@ -85,7 +84,7 @@ fn setup(
         let emotes = asset_handles.get_emote_handles_unsafe();
 
         let character_handle =
-            asset_handles.get_character_handle(&asset_server, &mut textures, &mut texture_atlases);
+            asset_handles.get_character_handle(&asset_server, &mut texture_atlases);
         commands
             .spawn((
                 Transform::from_translation(Vec3::new(
