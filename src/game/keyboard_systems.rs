@@ -145,7 +145,7 @@ pub fn event_system(
                                 bump = Some(BumpDirection::Bottom);
                             } else {
                                 if game.player.y == BOARD_Y - 1 {
-                                    bump = Some(BumpDirection::Top);
+                                    bump = Some(BumpDirection::Bottom);
                                 } else {
                                     game.player.y += 1;
                                     moved = true;
@@ -167,7 +167,7 @@ pub fn event_system(
                                 bump = Some(BumpDirection::Top);
                             } else {
                                 if game.player.y == 0 {
-                                    bump = Some(BumpDirection::Bottom);
+                                    bump = Some(BumpDirection::Top);
                                 } else {
                                     game.player.y -= 1;
                                     moved = true;
