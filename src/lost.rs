@@ -7,15 +7,21 @@ struct ScreenTag;
 
 struct Screen {
     loaded: bool,
-    last_seen_cause_of_death: Option<crate::game::CauseOfDeath>,
 }
 impl Default for Screen {
     fn default() -> Self {
-        Screen {
-            loaded: false,
-            last_seen_cause_of_death: None,
-        }
+        Screen { loaded: false }
     }
+}
+
+#[derive(Default)]
+struct GameStats {
+    last_seen_cause_of_death: Option<crate::game::CauseOfDeath>,
+    bomb_placed: u16,
+    obstacle_destroyed_by_player: u16,
+    obstacle_destroyed_by_lazer: u16,
+    bomb_chained: u16,
+    score_first_bomb: u32,
 }
 
 pub struct Plugin;
@@ -23,8 +29,12 @@ impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_resource(Screen::default())
             .init_resource::<GameEventsListenerState>()
+            .init_resource::<GameStats>()
+            .init_resource::<InterestingEventsListenerState>()
             .add_system(mouse_input_system.system())
             .add_system(setup.system())
+            .add_system(update_cause_of_death.system())
+            .add_system(update_stats.system())
             .add_system(keyboard_input_system.system())
             .add_system(hurt_animate_sprite_system.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
@@ -36,15 +46,13 @@ pub struct GameEventsListenerState {
     event_reader: EventReader<crate::game::GameEvents>,
 }
 
-fn setup(
-    mut commands: Commands,
-    mut game_screen: ResMut<crate::GameScreen>,
-    mut screen: ResMut<Screen>,
-    mut game: ResMut<crate::game::Game>,
-    asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    mut asset_handles: ResMut<crate::AssetHandles>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+#[derive(Default)]
+pub struct InterestingEventsListenerState {
+    event_reader: EventReader<crate::game::InterestingEvent>,
+}
+
+fn update_cause_of_death(
+    mut stats: ResMut<GameStats>,
     (mut state, events): (
         ResMut<GameEventsListenerState>,
         ResMut<Events<crate::game::GameEvents>>,
@@ -57,7 +65,47 @@ fn setup(
             crate::game::GameEvents::Lost(c) => Some(c),
             _ => None,
         })
-        .for_each(|cause| screen.last_seen_cause_of_death = Some(*cause));
+        .for_each(|cause| stats.last_seen_cause_of_death = Some(*cause));
+}
+
+fn update_stats(
+    mut stats: ResMut<GameStats>,
+    game: Res<crate::game::Game>,
+    (mut state, events): (
+        ResMut<InterestingEventsListenerState>,
+        ResMut<Events<crate::game::InterestingEvent>>,
+    ),
+) {
+    for event in state.event_reader.iter(&events) {
+        match event {
+            crate::game::InterestingEvent::BombChainDetonated => stats.bomb_chained += 1,
+            crate::game::InterestingEvent::BombPlaced => {
+                stats.bomb_placed += 1;
+                if stats.score_first_bomb == 0 {
+                    stats.score_first_bomb = game.score;
+                }
+            }
+            crate::game::InterestingEvent::ObstacleDestroyedByLaser => {
+                stats.obstacle_destroyed_by_lazer += 1
+            }
+            crate::game::InterestingEvent::ObstacleDestroyedByPlayer => {
+                stats.obstacle_destroyed_by_player += 1
+            }
+        }
+    }
+}
+
+fn setup(
+    mut commands: Commands,
+    mut game_screen: ResMut<crate::GameScreen>,
+    mut screen: ResMut<Screen>,
+    stats: Res<GameStats>,
+    mut game: ResMut<crate::game::Game>,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut asset_handles: ResMut<crate::AssetHandles>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
     if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
 
@@ -186,7 +234,7 @@ fn setup(
                         ..Default::default()
                     });
                 }
-                if let Some(cause_of_death) = screen.last_seen_cause_of_death.as_ref() {
+                if let Some(cause_of_death) = stats.last_seen_cause_of_death.as_ref() {
                     parent.spawn(TextComponents {
                         style: Style {
                             size: Size {
@@ -210,6 +258,52 @@ fn setup(
                         ..Default::default()
                     });
                 }
+                parent.spawn(TextComponents {
+                    style: Style {
+                        size: Size {
+                            height: Val::Px(30.),
+                            ..Default::default()
+                        },
+                        margin: Rect {
+                            top: Val::Px(30.),
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                    text: Text {
+                        value: format!(
+                            "placed {} bombs, {} chained exploded",
+                            stats.bomb_placed, stats.bomb_chained
+                        ),
+                        font: font_sub,
+                        style: TextStyle {
+                            color: crate::ui::ColorScheme::TEXT,
+                            font_size: 30.,
+                        },
+                    },
+                    ..Default::default()
+                });
+                parent.spawn(TextComponents {
+                    style: Style {
+                        size: Size {
+                            height: Val::Px(30.),
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                    text: Text {
+                        value: format!(
+                            "destroyed {} obstacles, {} by the laser",
+                            stats.obstacle_destroyed_by_player, stats.obstacle_destroyed_by_lazer
+                        ),
+                        font: font_sub,
+                        style: TextStyle {
+                            color: crate::ui::ColorScheme::TEXT,
+                            font_size: 30.,
+                        },
+                    },
+                    ..Default::default()
+                });
             });
 
         if game.score > game_screen.highscore {

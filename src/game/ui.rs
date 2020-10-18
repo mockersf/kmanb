@@ -249,7 +249,7 @@ pub fn score(
         for (mut score, ui, timer, parent) in &mut score_text.iter() {
             if *ui == UiComponent::Score && timer.just_finished {
                 score.value = format!("{}", game.score);
-                game.score += game.round;
+                game.score += game.round as u32;
                 if screen.is_new_highscore(game.score) {
                     if is_new_best.get::<Stared>(parent.0).is_err() {
                         score.style.color = crate::ui::ColorScheme::TEXT_HIGHLIGHT;

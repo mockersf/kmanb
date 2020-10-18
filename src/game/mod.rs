@@ -39,6 +39,7 @@ impl bevy::app::Plugin for Plugin {
             .init_resource::<ui::GameEventsListenerState>()
             .init_resource::<emote::GameEventsListenerState>()
             .add_event::<GameEvents>()
+            .add_event::<InterestingEvent>()
             .add_system(keyboard_systems::event_system.system())
             .add_system(board_setup::setup.system())
             .add_system(ui::setup.system())
@@ -322,7 +323,7 @@ pub struct Game {
     player: Player,
     laser: Laser,
     pub round: u16,
-    pub score: u16,
+    pub score: u32,
     time_last_move: f64,
     state: GameState,
 }
@@ -401,4 +402,11 @@ pub enum GameEvents {
     NewHighscore,
     NewHighround,
     PlayerBonus,
+}
+
+pub enum InterestingEvent {
+    BombPlaced,
+    ObstacleDestroyedByPlayer,
+    ObstacleDestroyedByLaser,
+    BombChainDetonated,
 }

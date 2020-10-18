@@ -7,6 +7,7 @@ pub fn flash_bombs(
     game: Res<Game>,
     (wnds, time): (Res<Windows>, Res<Time>),
     asset_handles: Res<crate::AssetHandles>,
+    mut interesting_event: ResMut<Events<InterestingEvent>>,
     mut bombs_query: Query<(Entity, &mut BombComponent, &mut Children)>,
     bombs_sprite_query: Query<&BombSprite>,
     bomb_and_fire_sprites_query: Query<&FireSprite>,
@@ -23,6 +24,7 @@ pub fn flash_bombs(
                     .get::<FireSprite>(*child)
                     .is_ok()
                 {
+                    interesting_event.send(InterestingEvent::BombChainDetonated);
                     explode_now = true;
                 }
             }
@@ -126,6 +128,7 @@ pub fn fire(
     game: Res<Game>,
     time: Res<Time>,
     mut game_events: ResMut<Events<GameEvents>>,
+    mut interesting_events: ResMut<Events<InterestingEvent>>,
     mut fire_query: Query<(Entity, &mut FireComponent, &mut Children)>,
     fire_sprite_query: Query<&FireSprite>,
     obstacle_query: Query<&mut super::laser::ObstacleComponent>,
@@ -158,6 +161,13 @@ pub fn fire(
                     } else {
                         obstacle.0 - fire.damage
                     };
+                    if obstacle.0 == 0 {
+                        interesting_events.send(if fire.from_player {
+                            InterestingEvent::ObstacleDestroyedByPlayer
+                        } else {
+                            InterestingEvent::ObstacleDestroyedByLaser
+                        })
+                    }
                 }
             }
         }
@@ -241,7 +251,7 @@ pub fn player_powerups(
                 let cell = game.board.as_ref().unwrap()[game.player.y][game.player.x].entity;
                 if entity == cell {
                     match powerup.powerup {
-                        PlayerPowerUp::Score => game.score += game.round * 200,
+                        PlayerPowerUp::Score => game.score += game.round as u32 * 200,
                         PlayerPowerUp::BombCount => game.player.nb_bombs += 1,
                         PlayerPowerUp::BombDamage => game.player.bomb_damage += 2,
                         PlayerPowerUp::BombRange => game.player.bomb_range += 1,

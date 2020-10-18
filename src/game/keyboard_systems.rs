@@ -17,6 +17,7 @@ pub fn event_system(
     (game_screen, mut game): (Res<crate::GameScreen>, ResMut<Game>),
     (mut state, keyboard_input_events): (ResMut<KeyboardState>, Res<Events<KeyboardInput>>),
     mut game_events: ResMut<Events<GameEvents>>,
+    mut interesting_events: ResMut<Events<InterestingEvent>>,
     (wnds, time): (Res<Windows>, Res<Time>),
     asset_handles: Res<crate::AssetHandles>,
     mut player_query: Query<Without<PlayerMoving, (Entity, &PlayerComponent, &Transform)>>,
@@ -79,6 +80,7 @@ pub fn event_system(
                             },
                         ),
                     );
+                    interesting_events.send(InterestingEvent::BombPlaced);
                     continue;
                 }
                 let mut moved = false;

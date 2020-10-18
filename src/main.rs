@@ -116,7 +116,7 @@ pub enum Screen {
 #[derive(Debug)]
 pub struct GameScreen {
     pub current_screen: Screen,
-    pub highscore: u16,
+    pub highscore: u32,
     pub highround: u16,
 }
 
@@ -131,7 +131,7 @@ impl Default for GameScreen {
 }
 
 impl GameScreen {
-    pub fn is_new_highscore(&self, score: u16) -> bool {
+    pub fn is_new_highscore(&self, score: u32) -> bool {
         self.highscore != 0 && score > self.highscore
     }
     pub fn is_new_highround(&self, round: u16) -> bool {
