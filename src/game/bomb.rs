@@ -243,7 +243,7 @@ pub fn player_powerups(
                     match powerup.powerup {
                         PlayerPowerUp::Score => game.score += game.round * 200,
                         PlayerPowerUp::BombCount => game.player.nb_bombs += 1,
-                        PlayerPowerUp::BombDamage => game.player.bomb_damage += 1,
+                        PlayerPowerUp::BombDamage => game.player.bomb_damage += 2,
                         PlayerPowerUp::BombRange => game.player.bomb_range += 1,
                         PlayerPowerUp::BombSpeed => {
                             game.player.bomb_speed = (game.player.bomb_speed as f64 * 0.9) as u64
