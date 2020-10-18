@@ -73,7 +73,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         builder
             .add_plugin(::bevy::diagnostic::FrameTimeDiagnosticsPlugin)
             .add_plugin(::bevy_diagnostic_entity_count::EntityCountDiagnosticsPlugin)
-            .add_plugin(::bevy_log_diagnostic::LogDiagnosticsPlugin::default());
+            .add_plugin(::bevy_log_diagnostic::LogDiagnosticsPlugin::filtered(vec![
+                ::bevy::diagnostic::FrameTimeDiagnosticsPlugin::FPS,
+                ::bevy_diagnostic_entity_count::EntityCountDiagnosticsPlugin::ENTITY_COUNT,
+            ]));
     }
 
     builder
