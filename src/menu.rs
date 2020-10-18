@@ -280,10 +280,20 @@ fn tear_down(
 fn keyboard_input_system(
     mut game_screen: ResMut<crate::GameScreen>,
     keyboard_input: Res<Input<KeyCode>>,
+    mut wnds: ResMut<Windows>,
 ) {
-    if game_screen.current_screen == CURRENT_SCREEN && keyboard_input.just_released(KeyCode::Escape)
-    {
-        game_screen.current_screen = crate::Screen::Exit;
+    if game_screen.current_screen == CURRENT_SCREEN {
+        if keyboard_input.just_released(KeyCode::Escape) {
+            game_screen.current_screen = crate::Screen::Exit;
+        } else if keyboard_input.just_released(KeyCode::F) {
+            let window = wnds.get_primary_mut().unwrap();
+            match window.mode() {
+                bevy::window::WindowMode::Windowed => {
+                    window.set_mode(bevy::window::WindowMode::BorderlessFullscreen)
+                }
+                _ => window.set_mode(bevy::window::WindowMode::Windowed),
+            }
+        }
     }
 }
 
