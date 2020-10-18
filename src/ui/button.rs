@@ -2,41 +2,40 @@ use bevy::prelude::*;
 
 pub struct Button {
     background: Handle<ColorMaterial>,
-    nine_patch: bevy_ninepatch::NinePatch<()>,
+    nine_patch: Handle<bevy_ninepatch::NinePatchBuilder<()>>,
+    texture: Handle<Texture>,
 }
 
 pub struct ButtonId<T: Into<String>>(pub T);
 
 impl Button {
     pub fn setup(
-        materials: &mut ResMut<Assets<ColorMaterial>>,
-        textures: &mut ResMut<Assets<Texture>>,
+        materials: &mut Assets<ColorMaterial>,
+        nine_patches: &mut Assets<bevy_ninepatch::NinePatchBuilder>,
         texture_handle: Handle<Texture>,
     ) -> Button {
-        let nine_patch = bevy_ninepatch::NinePatchBuilder::by_margins(7., 7., 7., 7., ()).apply(
-            texture_handle,
-            textures,
-            materials,
-        );
+        let nine_patch = bevy_ninepatch::NinePatchBuilder::by_margins(7, 7, 7, 7);
         Button {
             background: materials.add(Color::NONE.into()),
-            nine_patch,
+            nine_patch: nine_patches.add(nine_patch),
+            texture: texture_handle,
         }
     }
 
     pub fn add<T>(
         &self,
-        parent: &mut ChildBuilder,
+        commands: &mut Commands,
         width: f32,
         height: f32,
         margin: Rect<Val>,
         font: Handle<Font>,
         button: T,
         font_size: f32,
-    ) where
+    ) -> Entity
+    where
         T: Into<String> + Send + Sync + Copy + 'static,
     {
-        parent
+        let button_entity = commands
             .spawn(ButtonComponents {
                 style: Style {
                     size: Size::new(Val::Px(width), Val::Px(height)),
@@ -53,69 +52,79 @@ impl Button {
                 ..Default::default()
             })
             .with(ButtonId(button))
-            .with_children(|button_parent| {
-                self.nine_patch
-                    .add(button_parent, width, height, |inside, _| {
-                        inside
-                            .spawn(NodeComponents {
-                                style: Style {
-                                    margin: Rect::all(Val::Auto),
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    ..Default::default()
-                                },
-                                material: self.background,
-                                draw: Draw {
-                                    is_transparent: true,
-                                    ..Default::default()
-                                },
-                                ..Default::default()
-                            })
-                            .with(bevy::ui::FocusPolicy::Pass)
-                            .with_children(|centered_inside| {
-                                centered_inside
-                                    .spawn(TextComponents {
-                                        style: Style {
-                                            size: Size {
-                                                height: Val::Px(font_size),
-                                                ..Default::default()
-                                            },
-                                            ..Default::default()
-                                        },
-                                        text: Text {
-                                            value: button.into(),
-                                            font,
-                                            style: TextStyle {
-                                                font_size,
-                                                color: crate::ui::ColorScheme::TEXT_DARK,
-                                            },
-                                        },
-                                        focus_policy: bevy::ui::FocusPolicy::Pass,
-                                        ..Default::default()
-                                    })
-                                    .with(bevy::ui::FocusPolicy::Pass);
-                            });
-                    });
-                button_parent
-                    .spawn(ImageComponents {
-                        style: Style {
-                            position_type: PositionType::Absolute,
-                            margin: Rect::all(Val::Auto),
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            size: Size::new(Val::Px(width), Val::Px(height)),
+            .current_entity()
+            .unwrap();
 
-                            ..Default::default()
-                        },
-                        draw: Draw {
-                            is_transparent: true,
-                            ..Default::default()
-                        },
-                        material: self.background,
+        let button_content = commands
+            .spawn(TextComponents {
+                style: Style {
+                    size: Size {
+                        height: Val::Px(font_size),
                         ..Default::default()
-                    })
-                    .with(bevy::ui::FocusPolicy::Pass);
-            });
+                    },
+                    margin: Rect::all(Val::Auto),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                text: Text {
+                    value: button.into(),
+                    font,
+                    style: TextStyle {
+                        font_size,
+                        color: crate::ui::ColorScheme::TEXT_DARK,
+                    },
+                },
+                focus_policy: bevy::ui::FocusPolicy::Pass,
+                ..Default::default()
+            })
+            .with(bevy::ui::FocusPolicy::Pass)
+            .current_entity()
+            .unwrap();
+
+        let patch_entity = commands
+            .spawn(bevy_ninepatch::NinePatchComponents::<()> {
+                style: Style {
+                    margin: Rect::all(Val::Auto),
+                    size: Size::new(Val::Px(width), Val::Px(height)),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                nine_patch_data: bevy_ninepatch::NinePatchData::with_single_content(
+                    self.texture,
+                    self.nine_patch,
+                    button_content,
+                ),
+                ..Default::default()
+            })
+            .current_entity()
+            .unwrap();
+
+        let interaction_overlay = commands
+            .spawn(ImageComponents {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    margin: Rect::all(Val::Auto),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    size: Size::new(Val::Px(width), Val::Px(height)),
+                    ..Default::default()
+                },
+                draw: Draw {
+                    is_transparent: true,
+                    ..Default::default()
+                },
+                material: self.background,
+                ..Default::default()
+            })
+            .with(bevy::ui::FocusPolicy::Pass)
+            .current_entity()
+            .unwrap();
+
+        commands.push_children(button_entity, &[patch_entity, interaction_overlay]);
+
+        button_entity
     }
 }
 
@@ -163,6 +172,7 @@ pub struct Plugin;
 impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut AppBuilder) {
         app.init_resource::<ButtonMaterials>()
+            .init_resource::<Assets<Button>>()
             .add_system(button_effect.system());
     }
 }

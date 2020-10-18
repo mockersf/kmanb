@@ -27,7 +27,6 @@ impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_resource(Screen::default())
             .init_resource::<Assets<bevy_ninepatch::NinePatch<()>>>()
-            .init_resource::<Assets<crate::ui::button::Button>>()
             .add_system(setup.system())
             .add_system(button_system.system())
             .add_system(keyboard_input_system.system())
@@ -61,7 +60,7 @@ fn setup(
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
     mut textures: ResMut<Assets<Texture>>,
-    mut nine_patches: ResMut<Assets<bevy_ninepatch::NinePatch<()>>>,
+    mut nine_patches: ResMut<Assets<bevy_ninepatch::NinePatchBuilder<()>>>,
     mut buttons: ResMut<Assets<crate::ui::button::Button>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
@@ -69,18 +68,13 @@ fn setup(
     if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
 
-        let panel_handle = asset_handles.get_panel_handle(
-            &asset_server,
-            &mut textures,
-            &mut nine_patches,
-            &mut materials,
-        );
-        let np_panel = nine_patches.get(&panel_handle).unwrap();
+        let panel_handles = asset_handles.get_panel_handle(&asset_server, &mut nine_patches);
 
         let button_handle = asset_handles.get_button_handle(
             &asset_server,
             &mut textures,
             &mut materials,
+            &mut nine_patches,
             &mut buttons,
         );
         let button = buttons.get(&button_handle).unwrap();
@@ -171,43 +165,89 @@ fn setup(
             })
             .with(ScreenTag);
 
-        commands.spawn(NodeComponents {
-            style: Style {
-                position_type: PositionType::Absolute,
-                position: Rect::<Val> {
-                    left: Val::Percent(120.),
-                    right: Val::Undefined,
-                    bottom: Val::Percent(15.),
-                    top: Val::Undefined,
+        let panel_style = Style {
+            position_type: PositionType::Absolute,
+            position: Rect::<Val> {
+                left: Val::Percent(53.),
+                right: Val::Undefined,
+                bottom: Val::Percent(15.),
+                top: Val::Undefined,
+            },
+            margin: Rect::all(Val::Px(0.)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            size: Size::new(Val::Px(400.), Val::Px(300.)),
+            align_content: AlignContent::Stretch,
+            flex_direction: FlexDirection::ColumnReverse,
+            ..Default::default()
+        };
+
+        let mut current_button_shift = 30.;
+        let button_shift = 45.;
+        let buttons = &[MenuButton::NewGame, MenuButton::About, MenuButton::Quit]
+            .iter()
+            .map(|button_item| {
+                let entity = button.add(
+                    &mut commands,
+                    225.,
+                    50.,
+                    Rect {
+                        left: Val::Px(current_button_shift),
+                        right: Val::Auto,
+                        top: Val::Auto,
+                        bottom: Val::Auto,
+                    },
+                    font,
+                    *button_item,
+                    25.,
+                );
+                current_button_shift += button_shift;
+                entity
+            })
+            .collect::<Vec<_>>();
+        let inner_content = commands
+            .spawn(NodeComponents {
+                material: color_none,
+                style: Style {
+                    flex_direction: FlexDirection::ColumnReverse,
+                    ..Default::default()
+                },
+                draw: Draw {
+                    is_transparent: true,
+                    ..Default::default()
                 },
                 ..Default::default()
-            },
-            material: materials.add(Color::NONE.into()),
-            ..Default::default()
-        });
+            })
+            .current_entity()
+            .unwrap();
+        commands.push_children(inner_content, buttons.as_slice());
+
+        commands
+            .spawn(bevy_ninepatch::NinePatchComponents {
+                style: panel_style.clone(),
+                nine_patch_data: bevy_ninepatch::NinePatchData::with_single_content(
+                    panel_handles.1,
+                    panel_handles.0,
+                    inner_content,
+                ),
+                ..Default::default()
+            })
+            .with(ScreenTag)
+            .current_entity()
+            .unwrap();
         if screen.first_load {
             commands.with(
                 Style {
-                    position_type: PositionType::Absolute,
                     position: Rect::<Val> {
                         left: Val::Percent(120.),
                         right: Val::Undefined,
                         bottom: Val::Percent(15.),
                         top: Val::Undefined,
                     },
-                    ..Default::default()
+                    ..panel_style
                 }
                 .ease_to(
-                    Style {
-                        position_type: PositionType::Absolute,
-                        position: Rect::<Val> {
-                            left: Val::Percent(53.),
-                            right: Val::Undefined,
-                            bottom: Val::Percent(15.),
-                            top: Val::Undefined,
-                        },
-                        ..Default::default()
-                    },
+                    panel_style,
                     bevy_easings::EaseFunction::BounceOut,
                     bevy_easings::EasingType::Once {
                         duration: std::time::Duration::from_millis(800),
@@ -215,84 +255,8 @@ fn setup(
                 ),
             );
         } else {
-            commands.with(Style {
-                position_type: PositionType::Absolute,
-                position: Rect::<Val> {
-                    left: Val::Percent(53.),
-                    right: Val::Undefined,
-                    bottom: Val::Percent(15.),
-                    top: Val::Undefined,
-                },
-                ..Default::default()
-            });
+            commands.with(panel_style);
         }
-        commands
-            .with_children(|global_parent| {
-                np_panel.add(global_parent, 400., 300., |inside, _| {
-                    inside
-                        .spawn(NodeComponents {
-                            material: color_none,
-                            style: Style {
-                                flex_direction: FlexDirection::ColumnReverse,
-                                ..Default::default()
-                            },
-                            draw: Draw {
-                                is_transparent: true,
-                                ..Default::default()
-                            },
-                            ..Default::default()
-                        })
-                        .with_children(|commands| {
-                            let mut current_button_shift = 30.;
-                            let button_shift = 45.;
-                            button.add(
-                                commands,
-                                225.,
-                                50.,
-                                Rect {
-                                    left: Val::Px(current_button_shift),
-                                    right: Val::Auto,
-                                    top: Val::Auto,
-                                    bottom: Val::Auto,
-                                },
-                                font,
-                                MenuButton::NewGame,
-                                20.,
-                            );
-                            current_button_shift += button_shift;
-                            button.add(
-                                commands,
-                                225.,
-                                50.,
-                                Rect {
-                                    left: Val::Px(current_button_shift),
-                                    right: Val::Auto,
-                                    top: Val::Auto,
-                                    bottom: Val::Auto,
-                                },
-                                font,
-                                MenuButton::About,
-                                20.,
-                            );
-                            current_button_shift += button_shift;
-                            button.add(
-                                commands,
-                                225.,
-                                50.,
-                                Rect {
-                                    left: Val::Px(current_button_shift),
-                                    right: Val::Auto,
-                                    top: Val::Auto,
-                                    bottom: Val::Auto,
-                                },
-                                font,
-                                MenuButton::Quit,
-                                20.,
-                            );
-                        });
-                });
-            })
-            .with(ScreenTag);
 
         screen.loaded = true;
         screen.first_load = false;

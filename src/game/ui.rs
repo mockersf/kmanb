@@ -35,12 +35,12 @@ pub fn ui_event_update(
     mut commands: Commands,
     screen: Res<crate::GameScreen>,
     mut game: ResMut<Game>,
-    mut state: ResMut<GameEventsListenerState>,
-    events: Res<Events<GameEvents>>,
+    (mut state, events): (ResMut<GameEventsListenerState>, ResMut<Events<GameEvents>>),
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut textures: ResMut<Assets<Texture>>,
+    mut nine_patches: ResMut<Assets<bevy_ninepatch::NinePatchBuilder>>,
     mut game_events: ResMut<Events<GameEvents>>,
     mut buttons: ResMut<Assets<crate::ui::button::Button>>,
     mut round_text: Query<(&mut Text, &UiComponent, &Parent)>,
@@ -109,9 +109,29 @@ pub fn ui_event_update(
                     &asset_server,
                     &mut textures,
                     &mut materials,
+                    &mut nine_patches,
                     &mut buttons,
                 );
                 let button = buttons.get(&button_handle).unwrap();
+
+                let button_menu = button.add(
+                    &mut commands,
+                    300.,
+                    75.,
+                    Rect::all(Val::Px(50.)),
+                    font_sub,
+                    PauseButton::ToMenu,
+                    50.,
+                );
+                let button_continue = button.add(
+                    &mut commands,
+                    300.,
+                    75.,
+                    Rect::all(Val::Px(50.)),
+                    font_sub,
+                    PauseButton::Continue,
+                    50.,
+                );
 
                 // number of NodeComponents to trick around z-system for UI nodes, that increase with the length of
                 // the hierarchy to the root node
@@ -173,31 +193,17 @@ pub fn ui_event_update(
                                             },
                                             ..Default::default()
                                         });
-                                        pause_parent
+                                        let button_parent = pause_parent
                                             .spawn(NodeComponents {
                                                 material: dim_background,
                                                 ..Default::default()
                                             })
-                                            .with_children(|buttons_parent| {
-                                                button.add(
-                                                    buttons_parent,
-                                                    300.,
-                                                    75.,
-                                                    Rect::all(Val::Px(50.)),
-                                                    font_sub,
-                                                    PauseButton::ToMenu,
-                                                    50.,
-                                                );
-                                                button.add(
-                                                    buttons_parent,
-                                                    300.,
-                                                    75.,
-                                                    Rect::all(Val::Px(50.)),
-                                                    font_sub,
-                                                    PauseButton::Continue,
-                                                    50.,
-                                                );
-                                            });
+                                            .current_entity()
+                                            .unwrap();
+                                        pause_parent.push_children(
+                                            button_parent,
+                                            &[button_menu, button_continue],
+                                        );
                                     });
                             });
                     });

@@ -31,7 +31,10 @@ macro_rules! colormaterial {
 
 #[derive(Default, Clone)]
 pub struct AssetHandles {
-    panel_handle: Option<Handle<bevy_ninepatch::NinePatch<()>>>,
+    panel_handle: Option<(
+        Handle<bevy_ninepatch::NinePatchBuilder<()>>,
+        Handle<Texture>,
+    )>,
     button_handle: Option<Handle<crate::ui::button::Button>>,
     character_handle: Option<Handle<TextureAtlas>>,
     font_main_handle: Option<Handle<Font>>,
@@ -93,22 +96,17 @@ impl AssetHandles {
     pub fn get_panel_handle(
         &mut self,
         assets: &AssetServer,
-        mut textures: &mut ResMut<Assets<Texture>>,
-        nine_patches: &mut Assets<bevy_ninepatch::NinePatch<()>>,
-        mut mats: &mut ResMut<Assets<ColorMaterial>>,
-    ) -> Handle<bevy_ninepatch::NinePatch<()>> {
+        nine_patches: &mut Assets<bevy_ninepatch::NinePatchBuilder<()>>,
+    ) -> (
+        Handle<bevy_ninepatch::NinePatchBuilder<()>>,
+        Handle<Texture>,
+    ) {
         if self.panel_handle.is_none() {
             let panel = include_bytes!("../assets/ui/panel_blue.png");
 
-            let panel_texture_handle = assets
-                .load_sync_from(&mut textures, &mut panel.as_ref())
-                .unwrap();
-            let np = bevy_ninepatch::NinePatchBuilder::by_margins(10., 10., 10., 10., ()).apply(
-                panel_texture_handle,
-                &mut textures,
-                &mut mats,
-            );
-            self.panel_handle = Some(nine_patches.add(np));
+            let panel_texture_handle = assets.load_from(Box::new(panel.as_ref())).unwrap();
+            let np = bevy_ninepatch::NinePatchBuilder::by_margins(10, 30, 10, 10);
+            self.panel_handle = Some((nine_patches.add(np), panel_texture_handle));
         };
         self.panel_handle.unwrap()
     }
@@ -118,6 +116,8 @@ impl AssetHandles {
         assets: &AssetServer,
         mut textures: &mut ResMut<Assets<Texture>>,
         mut mats: &mut ResMut<Assets<ColorMaterial>>,
+        mut nine_patches: &mut Assets<bevy_ninepatch::NinePatchBuilder<()>>,
+
         buttons: &mut Assets<crate::ui::button::Button>,
     ) -> Handle<crate::ui::button::Button> {
         if self.button_handle.is_none() {
@@ -126,8 +126,11 @@ impl AssetHandles {
             let button_texture_handle = assets
                 .load_sync_from(&mut textures, &mut button.as_ref())
                 .unwrap();
-            let button =
-                crate::ui::button::Button::setup(&mut mats, &mut textures, button_texture_handle);
+            let button = crate::ui::button::Button::setup(
+                &mut mats,
+                &mut nine_patches,
+                button_texture_handle,
+            );
             self.button_handle = Some(buttons.add(button));
         };
         self.button_handle.unwrap()
