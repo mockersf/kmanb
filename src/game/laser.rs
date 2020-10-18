@@ -21,7 +21,7 @@ pub fn move_laser(
             laser.0.tick(time.delta_seconds);
             if laser.0.just_finished {
                 let ratio =
-                    wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
+                    wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
                 if 0 <= game.laser.x as i32 - 1 && game.laser.x as i32 - 1 < BOARD_X as i32 {
                     for y in 0..BOARD_Y {
@@ -126,7 +126,7 @@ pub fn spawn_obstacles(
     if game.state == GameState::Play {
         if game_screen.current_screen == CURRENT_SCREEN {
             let ratio =
-                wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
+                wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
             let crate_handle = asset_handles.get_board_handles_unsafe().obstacle;
             for mut spawner in &mut spawner_query.iter() {

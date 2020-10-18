@@ -47,7 +47,7 @@ pub fn event_system(
             }
             if game.state == GameState::Play && event.state == ElementState::Pressed {
                 let ratio =
-                    wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
+                    wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
                 if event.key_code == Some(KeyCode::Space)
                     && game.player.nb_bombs > used_bomb.iter().iter().count()
                 {

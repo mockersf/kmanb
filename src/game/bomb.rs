@@ -13,7 +13,7 @@ pub fn flash_bombs(
 ) {
     if game.state == GameState::Play {
         let fire_handle = asset_handles.get_board_handles_unsafe().fire;
-        let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
+        let ratio = wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
         for (entity, mut bomb, mut children) in &mut bombs_query.iter() {
             bomb.timer.tick(time.delta_seconds);
@@ -167,7 +167,7 @@ pub fn destroyed_obstacles(
 ) {
     let mut rng = rand::thread_rng();
     let assets = asset_handles.get_board_handles_unsafe();
-    let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
+    let ratio = wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
     for (entity, obstacle, mut children) in &mut obstacle_query.iter() {
         if obstacle.0 == 0 {

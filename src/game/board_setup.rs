@@ -41,7 +41,7 @@ pub fn setup(
         info!("Loading screen (board)");
         *game = Game::default();
 
-        let ratio = wnds.get_primary().unwrap().width as f32 / BOARD_X as f32 / TILE_SIZE as f32;
+        let ratio = wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
         let board_handles = asset_handles.get_board_handles(&asset_server, &mut materials);
 

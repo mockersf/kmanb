@@ -145,9 +145,8 @@ impl AssetHandles {
                 .load_sync_from(&mut textures, &mut character.as_ref())
                 .unwrap();
 
-            let texture = textures.get(&character_texture_handle).unwrap();
             let texture_atlas =
-                TextureAtlas::from_grid(character_texture_handle, texture.size, 9, 5);
+                TextureAtlas::from_grid(character_texture_handle, Vec2::new(192., 256.), 9, 5);
             let texture_atlas_handle = texture_atlases.add(texture_atlas);
             self.character_handle = Some(texture_atlas_handle);
         };

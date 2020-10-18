@@ -17,8 +17,9 @@ pub fn emote_setter(
     _emote_holder: &super::EmoteHolder,
     entity: Entity,
 ) {
-    let ratio =
-        wnds.get_primary().unwrap().width as f32 / super::BOARD_X as f32 / super::TILE_SIZE as f32;
+    let ratio = wnds.get_primary().unwrap().width() as f32
+        / super::BOARD_X as f32
+        / super::TILE_SIZE as f32;
     let emotes = asset_handles.get_emote_handles_unsafe();
 
     if game.laser.x == game.player.x || game.laser.x == game.player.x + 1 {
