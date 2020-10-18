@@ -82,7 +82,7 @@ fn setup(
                 parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(150. / 2.),
+                            height: Val::Px(75.),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -92,7 +92,7 @@ fn setup(
                         font,
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
-                            font_size: 150.0 / 2.,
+                            font_size: 75.,
                         },
                     },
                     ..Default::default()
@@ -100,7 +100,7 @@ fn setup(
                 parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(200. / 2.),
+                            height: Val::Px(100.),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -114,7 +114,7 @@ fn setup(
                             } else {
                                 crate::ui::ColorScheme::TEXT
                             },
-                            font_size: 200.0 / 2.,
+                            font_size: 100.0,
                         },
                     },
                     ..Default::default()
@@ -122,7 +122,7 @@ fn setup(
                 parent.spawn(TextComponents {
                     style: Style {
                         size: Size {
-                            height: Val::Px(100. / 2.),
+                            height: Val::Px(50.),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -136,11 +136,30 @@ fn setup(
                             } else {
                                 crate::ui::ColorScheme::TEXT
                             },
-                            font_size: 100.0 / 2.,
+                            font_size: 50.,
                         },
                     },
                     ..Default::default()
                 });
+                let medals = asset_handles.get_medal_handles(&asset_server, &mut materials);
+                if let Some(medal) = match game.score {
+                    x if x < 7500 => None,
+                    x if x < 12500 => Some(medals.bronze),
+                    x if x < 17500 => Some(medals.silver),
+                    _ => Some(medals.gold),
+                } {
+                    parent.spawn(ImageComponents {
+                        style: Style {
+                            size: Size {
+                                height: Val::Px(50.),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        },
+                        material: medal,
+                        ..Default::default()
+                    });
+                }
             });
 
         if game.score > game_screen.highscore {

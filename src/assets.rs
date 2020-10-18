@@ -41,6 +41,7 @@ pub struct AssetHandles {
     font_sub_handle: Option<Handle<Font>>,
     board: Option<GameBoardHandles>,
     emotes: Option<EmoteHandles>,
+    medals: Option<MedalHandles>,
 }
 
 #[derive(Clone)]
@@ -90,6 +91,13 @@ pub struct EmoteHandles {
     pub sleep: Handle<ColorMaterial>,
     pub sleeps: Handle<ColorMaterial>,
     pub star: Handle<ColorMaterial>,
+}
+
+#[derive(Clone)]
+pub struct MedalHandles {
+    pub bronze: Handle<ColorMaterial>,
+    pub silver: Handle<ColorMaterial>,
+    pub gold: Handle<ColorMaterial>,
 }
 
 impl AssetHandles {
@@ -242,5 +250,20 @@ impl AssetHandles {
 
     pub fn get_emote_handles_unsafe(&self) -> EmoteHandles {
         self.emotes.as_ref().unwrap().clone()
+    }
+
+    pub fn get_medal_handles(
+        &mut self,
+        assets: &AssetServer,
+        mats: &mut Assets<ColorMaterial>,
+    ) -> MedalHandles {
+        if self.medals.is_none() {
+            self.medals = Some(MedalHandles {
+                bronze: colormaterial!(mats, assets, "../assets/medals/flat_medal2.png"),
+                silver: colormaterial!(mats, assets, "../assets/medals/flat_medal3.png"),
+                gold: colormaterial!(mats, assets, "../assets/medals/flat_medal3.png"),
+            });
+        }
+        self.medals.as_ref().unwrap().clone()
     }
 }
