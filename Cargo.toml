@@ -13,10 +13,12 @@ tracing = "0.1"
 tracing-subscriber = "0.2"
 rand = "0.7"
 enum-utils = "0.1"
-bevy_easings = { version = "0.1.1", default-features = false }
+# bevy_easings = { version = "0.1.1", default-features = false }
+bevy_easings = { git = "https://github.com/mockersf/bevy_extra", default-features = false }
 bevy_log_diagnostic = "0.1"
 bevy_diagnostic_entity_count = { git = "https://github.com/mockersf/bevy_extra" }
-bevy_ninepatch = "0.1.2"
+# bevy_ninepatch = "0.1.2"
+bevy_ninepatch = { git = "https://github.com/mockersf/bevy_extra" }
 
 config = { path = "crates/config" }
 
