@@ -85,6 +85,16 @@ pub fn event_system(
                 let mut teleport_border = false;
                 let mut bump = None;
                 for (entity, _player, transform) in &mut player_query.iter() {
+                    let base_transform =
+                        Transform::from_non_uniform_scale(match game.player.direction {
+                            FacingDirection::Right => Vec3::new(1., 1., 1.),
+                            FacingDirection::Left => Vec3::new(-1., 1., 1.),
+                        })
+                        .with_translation(Vec3::new(
+                            x_to(game.player.x as i32, ratio),
+                            y_to(game.player.y as i32, ratio),
+                            Z_PLAYER,
+                        ));
                     match event.key_code {
                         Some(KeyCode::Right) => {
                             game.player.direction = FacingDirection::Right;
@@ -220,55 +230,24 @@ pub fn event_system(
                                 ),
                             },
                         );
-                    }
-                    if teleport_border {
+                    } else if teleport_border {
                         commands.insert_one(
                             entity,
-                            transform
-                                .ease_to(
-                                    transform.with_scale(0.),
-                                    bevy_easings::EaseFunction::QuadraticInOut,
-                                    bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(move_delay / 5),
-                                    },
-                                )
-                                .ease_to(
-                                    Transform::from_non_uniform_scale(
-                                        match game.player.direction {
-                                            FacingDirection::Right => Vec3::new(1., 1., 1.),
-                                            FacingDirection::Left => Vec3::new(-1., 1., 1.),
-                                        },
-                                    )
-                                    .with_translation(Vec3::new(
-                                        x_to(game.player.x as i32, ratio),
-                                        y_to(game.player.y as i32, ratio),
-                                        Z_PLAYER,
-                                    ))
-                                    .with_scale(0.),
-                                    bevy_easings::EaseFunction::QuadraticInOut,
-                                    bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(move_delay / 10),
-                                    },
-                                )
-                                .ease_to(
-                                    Transform::from_non_uniform_scale(
-                                        match game.player.direction {
-                                            FacingDirection::Right => Vec3::new(1., 1., 1.),
-                                            FacingDirection::Left => Vec3::new(-1., 1., 1.),
-                                        },
-                                    )
-                                    .with_translation(
-                                        Vec3::new(
-                                            x_to(game.player.x as i32, ratio),
-                                            y_to(game.player.y as i32, ratio),
-                                            Z_PLAYER,
-                                        ),
-                                    ),
-                                    bevy_easings::EaseFunction::QuadraticInOut,
-                                    bevy_easings::EasingType::Once {
-                                        duration: std::time::Duration::from_millis(move_delay / 5),
-                                    },
-                                ),
+                            transform.ease_to(
+                                Transform::from_non_uniform_scale(match game.player.direction {
+                                    FacingDirection::Right => Vec3::new(1., 1., 1.),
+                                    FacingDirection::Left => Vec3::new(-1., 1., 1.),
+                                })
+                                .with_translation(Vec3::new(
+                                    x_to(game.player.x as i32, ratio),
+                                    y_to(game.player.y as i32, ratio),
+                                    Z_PLAYER,
+                                )),
+                                bevy_easings::EaseMethod::Discrete,
+                                bevy_easings::EasingType::Once {
+                                    duration: std::time::Duration::from_millis(move_delay),
+                                },
+                            ),
                         );
                         commands.insert_one(
                             entity,
@@ -279,8 +258,7 @@ pub fn event_system(
                                 ),
                             },
                         );
-                    }
-                    if let Some(bump_direction) = bump.as_ref() {
+                    } else if let Some(bump_direction) = bump.as_ref() {
                         let (x_factor, y_factor) = match bump_direction {
                             BumpDirection::Top => (0., -1.),
                             BumpDirection::Bottom => (0., 1.),
@@ -312,7 +290,7 @@ pub fn event_system(
                                     },
                                 )
                                 .ease_to(
-                                    *transform,
+                                    base_transform,
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
                                         duration: std::time::Duration::from_millis(move_delay / 4),
