@@ -62,7 +62,7 @@ pub fn emote_setter(
                     return;
                 }
             }
-            GameEvents::Lost => {
+            GameEvents::Lost(_) => {
                 commands
                     .spawn(SpriteComponents {
                         transform: Transform::from_scale(ratio * 0.7),

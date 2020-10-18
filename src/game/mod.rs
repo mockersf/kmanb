@@ -200,6 +200,7 @@ pub struct FireComponent {
     x: usize,
     y: usize,
     timer: Timer,
+    from_player: bool,
 }
 
 pub struct BombSprite;
@@ -375,10 +376,27 @@ fn clear_moving_marker(
     }
 }
 
+#[derive(PartialEq, Clone, Copy)]
+pub enum CauseOfDeath {
+    Laser,
+    LaserFire,
+    BombFire,
+}
+
+impl std::fmt::Display for CauseOfDeath {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            CauseOfDeath::Laser => write!(f, "laser"),
+            CauseOfDeath::LaserFire => write!(f, "laser trail"),
+            CauseOfDeath::BombFire => write!(f, "your own bomb"),
+        }
+    }
+}
+
 #[derive(PartialEq)]
 pub enum GameEvents {
     NewRound,
-    Lost,
+    Lost(CauseOfDeath),
     Pause,
     NewHighscore,
     NewHighround,

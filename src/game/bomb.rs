@@ -82,6 +82,7 @@ pub fn flash_bombs(
                                 x: x as usize,
                                 y: bomb.y,
                                 timer: Timer::from_seconds(250. / 1000., false),
+                                from_player: true,
                             },),
                         );
                     }
@@ -109,6 +110,7 @@ pub fn flash_bombs(
                                     x: bomb.x,
                                     y: y as usize,
                                     timer: Timer::from_seconds(250. / 1000., false),
+                                    from_player: true,
                                 },),
                             );
                         }
@@ -132,7 +134,11 @@ pub fn fire(
         for (entity, mut fire, mut children) in &mut fire_query.iter() {
             fire.timer.tick(time.delta_seconds);
             if game.player.x == fire.x && game.player.y == fire.y {
-                game_events.send(GameEvents::Lost)
+                game_events.send(GameEvents::Lost(if fire.from_player {
+                    CauseOfDeath::BombFire
+                } else {
+                    CauseOfDeath::LaserFire
+                }));
             }
             if fire.timer.just_finished {
                 commands.remove_one::<FireComponent>(entity);

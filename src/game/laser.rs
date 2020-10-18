@@ -14,7 +14,7 @@ pub fn move_laser(
 ) {
     if game_screen.current_screen == CURRENT_SCREEN && game.state == GameState::Play {
         if game.laser.x == game.player.x + 2 {
-            game_events.send(GameEvents::Lost)
+            game_events.send(GameEvents::Lost(CauseOfDeath::Laser))
         }
         let fire_handle = asset_handles.get_board_handles_unsafe().fire;
         for (entity, mut transform, mut laser) in &mut laser_query.iter() {
@@ -47,6 +47,7 @@ pub fn move_laser(
                                     x: game.laser.x - 1,
                                     y: y as usize,
                                     timer: Timer::from_seconds(1500. / 1000., false),
+                                    from_player: false,
                                 },),
                             );
                         }

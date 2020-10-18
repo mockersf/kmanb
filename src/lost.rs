@@ -7,10 +7,14 @@ struct ScreenTag;
 
 struct Screen {
     loaded: bool,
+    last_seen_cause_of_death: Option<crate::game::CauseOfDeath>,
 }
 impl Default for Screen {
     fn default() -> Self {
-        Screen { loaded: false }
+        Screen {
+            loaded: false,
+            last_seen_cause_of_death: None,
+        }
     }
 }
 
@@ -18,12 +22,18 @@ pub struct Plugin;
 impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_resource(Screen::default())
+            .init_resource::<GameEventsListenerState>()
             .add_system(mouse_input_system.system())
             .add_system(setup.system())
             .add_system(keyboard_input_system.system())
             .add_system(hurt_animate_sprite_system.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
     }
+}
+
+#[derive(Default)]
+pub struct GameEventsListenerState {
+    event_reader: EventReader<crate::game::GameEvents>,
 }
 
 fn setup(
@@ -35,7 +45,19 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut asset_handles: ResMut<crate::AssetHandles>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    (mut state, events): (
+        ResMut<GameEventsListenerState>,
+        ResMut<Events<crate::game::GameEvents>>,
+    ),
 ) {
+    state
+        .event_reader
+        .iter(&events)
+        .filter_map(|event| match event {
+            crate::game::GameEvents::Lost(c) => Some(c),
+            _ => None,
+        })
+        .for_each(|cause| screen.last_seen_cause_of_death = Some(*cause));
     if game_screen.current_screen == CURRENT_SCREEN && !screen.loaded {
         info!("Loading screen");
 
@@ -154,9 +176,37 @@ fn setup(
                                 height: Val::Px(50.),
                                 ..Default::default()
                             },
+                            margin: Rect {
+                                top: Val::Px(30.),
+                                ..Default::default()
+                            },
                             ..Default::default()
                         },
                         material: medal,
+                        ..Default::default()
+                    });
+                }
+                if let Some(cause_of_death) = screen.last_seen_cause_of_death.as_ref() {
+                    parent.spawn(TextComponents {
+                        style: Style {
+                            size: Size {
+                                height: Val::Px(50.),
+                                ..Default::default()
+                            },
+                            margin: Rect {
+                                top: Val::Px(30.),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        },
+                        text: Text {
+                            value: format!("death by {}", cause_of_death),
+                            font: font_sub,
+                            style: TextStyle {
+                                color: crate::ui::ColorScheme::TEXT,
+                                font_size: 50.,
+                            },
+                        },
                         ..Default::default()
                     });
                 }

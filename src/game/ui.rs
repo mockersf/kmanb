@@ -95,7 +95,7 @@ pub fn ui_event_update(
                     LaserPowerUp::ObstacleStrengh => game.laser.obstacle_strength += 2,
                 }
             }
-            GameEvents::Lost => {
+            GameEvents::Lost(_) => {
                 commands.spawn((DeathAnimation(Timer::from_seconds(2., false)), ScreenTag));
                 game.state = GameState::Death;
             }
