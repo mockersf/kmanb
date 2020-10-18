@@ -114,7 +114,54 @@ pub fn setup(
 }
 
 pub struct ObstacleSprite;
-pub struct ObstacleComponent(pub usize);
+pub struct ObstacleComponent {
+    pub original_life: usize,
+    pub remaining_life: usize,
+}
+
+impl ObstacleComponent {
+    fn new(life: usize) -> Self {
+        ObstacleComponent {
+            original_life: life,
+            remaining_life: life,
+        }
+    }
+}
+
+pub fn update_obstacle_sprite(
+    game_screen: Res<crate::GameScreen>,
+    asset_handles: Res<crate::AssetHandles>,
+    sprite_query: Query<(&mut Handle<ColorMaterial>, &ObstacleSprite)>,
+    mut obstacle_query: Query<(&ObstacleComponent, &Children)>,
+) {
+    if game_screen.current_screen == CURRENT_SCREEN {
+        let board_assets = asset_handles.get_board_handles_unsafe();
+        let obstacle_100 = board_assets.obstacle_100;
+        let obstacle_75 = board_assets.obstacle_75;
+        let obstacle_50 = board_assets.obstacle_50;
+        let obstacle_25 = board_assets.obstacle_25;
+
+        for (obstacle, children) in &mut obstacle_query.iter() {
+            let state = obstacle.remaining_life as f32 / obstacle.original_life as f32;
+            let obstacle_handle = if state > 0.75 {
+                obstacle_100
+            } else if state > 0.5 {
+                obstacle_75
+            } else if state > 0.25 {
+                obstacle_50
+            } else {
+                obstacle_25
+            };
+            for child in children.iter() {
+                if let Ok(mut sprite) = sprite_query.get_mut::<Handle<ColorMaterial>>(*child) {
+                    if *sprite != obstacle_handle {
+                        *sprite = obstacle_handle;
+                    }
+                }
+            }
+        }
+    }
+}
 
 pub fn spawn_obstacles(
     mut commands: Commands,
@@ -129,7 +176,7 @@ pub fn spawn_obstacles(
             let ratio =
                 wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
-            let crate_handle = asset_handles.get_board_handles_unsafe().obstacle;
+            let crate_handle = asset_handles.get_board_handles_unsafe().obstacle_100;
             for mut spawner in &mut spawner_query.iter() {
                 spawner.0.tick(time.delta_seconds);
                 if spawner.0.just_finished {
@@ -149,8 +196,12 @@ pub fn spawn_obstacles(
                         commands
                             .spawn(SpriteComponents {
                                 material: crate_handle,
-                                transform: Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
-                                    .with_scale(ratio * 1.),
+                                transform: Transform::from_translation(Vec3::new(
+                                    0.,
+                                    0.,
+                                    Z_PLAYER - 0.01,
+                                ))
+                                .with_scale(ratio * 1.),
                                 ..Default::default()
                             })
                             .with(ObstacleSprite);
@@ -158,7 +209,10 @@ pub fn spawn_obstacles(
                         commands.push_children(entity, &[obstacle]);
                         commands.insert(
                             entity,
-                            (Occupied, ObstacleComponent(game.laser.obstacle_strength)),
+                            (
+                                Occupied,
+                                ObstacleComponent::new(game.laser.obstacle_strength),
+                            ),
                         );
                     });
                     spawner.0.duration = game.laser.spawn_obstacles_delay as f32 / 1000.;

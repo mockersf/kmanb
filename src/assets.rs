@@ -60,7 +60,10 @@ pub struct GameBoardHandles {
     pub water: Handle<ColorMaterial>,
     pub grass: Handle<ColorMaterial>,
     pub laser: Handle<ColorMaterial>,
-    pub obstacle: Handle<ColorMaterial>,
+    pub obstacle_100: Handle<ColorMaterial>,
+    pub obstacle_75: Handle<ColorMaterial>,
+    pub obstacle_50: Handle<ColorMaterial>,
+    pub obstacle_25: Handle<ColorMaterial>,
     pub bomb: Handle<ColorMaterial>,
     pub bomb_icon: Handle<ColorMaterial>,
     pub fire: Handle<ColorMaterial>,
@@ -179,6 +182,10 @@ impl AssetHandles {
     ) -> GameBoardHandles {
         if self.board.is_none() {
             let red_fire = Color::rgb(0.9, 0.3, 0.3);
+            let red_0 = Color::rgb(1., 0.6, 0.6);
+            let red_1 = Color::rgb(1., 0.4, 0.4);
+            let red_2 = Color::rgb(1., 0.2, 0.2);
+            let red_3 = Color::rgb(1., 0., 0.);
             let yellow = crate::ui::ColorScheme::TEXT_HIGHLIGHT;
 
             self.board = Some(GameBoardHandles {
@@ -196,7 +203,10 @@ impl AssetHandles {
                 water: colormaterial!(mats, assets, "../assets/game/rpgTile029.png"),
                 grass: colormaterial!(mats, assets, "../assets/game/rpgTile019.png"),
                 laser: colormaterial!(mats, assets, "../assets/game/spark_06.png", red_fire),
-                obstacle: colormaterial!(mats, assets, "../assets/game/rpgTile163.png", red_fire),
+                obstacle_100: colormaterial!(mats, assets, "../assets/game/rpgTile163.png", red_0),
+                obstacle_75: colormaterial!(mats, assets, "../assets/game/rpgTile163.png", red_1),
+                obstacle_50: colormaterial!(mats, assets, "../assets/game/rpgTile163.png", red_2),
+                obstacle_25: colormaterial!(mats, assets, "../assets/game/rpgTile163.png", red_3),
                 bomb: colormaterial!(mats, assets, "../assets/game/bomb.png"),
                 bomb_icon: colormaterial!(mats, assets, "../assets/game/bomb.png", red_fire),
                 fire: colormaterial!(mats, assets, "../assets/game/fire_01.png", red_fire),

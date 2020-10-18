@@ -51,6 +51,7 @@ impl bevy::app::Plugin for Plugin {
             .add_system(laser::jitter_laser.system())
             .add_system(laser::move_laser.system())
             .add_system(laser::spawn_obstacles.system())
+            .add_system(laser::update_obstacle_sprite.system())
             .add_system(ui::ui_event_update.system())
             .add_system(ui::score.system())
             .add_system(ui::display_bombs_available.system())
