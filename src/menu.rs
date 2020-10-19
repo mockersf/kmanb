@@ -26,7 +26,7 @@ pub struct Plugin;
 impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_resource(Screen::default())
-            .init_resource::<Assets<bevy_ninepatch::NinePatch<()>>>()
+            // .init_resource::<Assets<bevy_ninepatch::NinePatch<()>>>()
             .add_system(setup.system())
             .add_system(button_system.system())
             .add_system(keyboard_input_system.system())
@@ -129,7 +129,7 @@ fn setup(
                     },
                     text: Text {
                         value: "Keep moving".to_string(),
-                        font,
+                        font: font.clone(),
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
                             font_size: 75.,
@@ -152,7 +152,7 @@ fn setup(
                     },
                     text: Text {
                         value: "and nobody burns".to_string(),
-                        font,
+                        font: font.clone(),
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT_DIM,
                             font_size: 20.,
@@ -195,7 +195,7 @@ fn setup(
                         top: Val::Auto,
                         bottom: Val::Auto,
                     },
-                    font,
+                    font.clone(),
                     *button_item,
                     25.,
                 );
@@ -348,12 +348,11 @@ fn walk_animate_sprite_system(
                             .choose(&mut rng)
                             .unwrap()
                             .clone(),
-                            transform: Transform::from_translation(Vec3::new(
-                                -200.,
-                                -75. + 192. / 2.,
-                                0.,
-                            ))
-                            .with_scale(1.2),
+                            transform: Transform {
+                                translation: Vec3::new(-200., -75. + 192. / 2., 0.),
+                                scale: Vec3::splat(1.2),
+                                ..Default::default()
+                            },
                             ..Default::default()
                         })
                         .with(Emote(Timer::from_seconds(2., false)))

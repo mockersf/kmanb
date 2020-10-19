@@ -13,7 +13,7 @@ pub fn flash_bombs(
     bomb_and_fire_sprites_query: Query<&FireSprite>,
 ) {
     if game.state == GameState::Play {
-        let fire_handle = asset_handles.get_board_handles_unsafe().fire;
+        let fire_handle = asset_handles.get_board_handles_unsafe().fire.clone();
         let ratio = wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
         for (entity, mut bomb, mut children) in &mut bombs_query.iter() {
@@ -34,12 +34,16 @@ pub fn flash_bombs(
                         commands.insert_one(
                             *child,
                             bevy_easings::Ease::ease(
-                                Some(
-                                    Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
-                                        .with_scale(ratio * 0.6),
-                                ),
-                                Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
-                                    .with_scale(ratio * 0.7),
+                                Some(Transform {
+                                    translation: Vec3::new(0., 0., Z_PLAYER),
+                                    scale: Vec3::splat(ratio * 0.6),
+                                    ..Default::default()
+                                }),
+                                Transform {
+                                    translation: Vec3::new(0., 0., Z_PLAYER),
+                                    scale: Vec3::splat(ratio * 0.7),
+                                    ..Default::default()
+                                },
                                 bevy_easings::EaseFunction::QuarticInOut,
                                 bevy_easings::EasingType::PingPong {
                                     duration: std::time::Duration::from_millis(100),
@@ -69,9 +73,12 @@ pub fn flash_bombs(
                         let entity = game.board.as_ref().unwrap()[bomb.y][x as usize].entity;
                         commands
                             .spawn(SpriteComponents {
-                                material: fire_handle,
-                                transform: Transform::from_translation(Vec3::new(0., 0., Z_FIRE))
-                                    .with_scale(ratio * 1.3),
+                                material: fire_handle.clone(),
+                                transform: Transform {
+                                    translation: Vec3::new(0., 0., Z_FIRE),
+                                    scale: Vec3::splat(ratio * 1.3),
+                                    ..Default::default()
+                                },
                                 ..Default::default()
                             })
                             .with(FireSprite);
@@ -98,11 +105,12 @@ pub fn flash_bombs(
                             let entity = game.board.as_ref().unwrap()[y as usize][bomb.x].entity;
                             commands
                                 .spawn(SpriteComponents {
-                                    material: fire_handle,
-                                    transform: Transform::from_translation(Vec3::new(
-                                        0., 0., Z_FIRE,
-                                    ))
-                                    .with_scale(ratio * 1.3),
+                                    material: fire_handle.clone(),
+                                    transform: Transform {
+                                        translation: Vec3::new(0., 0., Z_FIRE),
+                                        scale: Vec3::splat(ratio * 1.3),
+                                        ..Default::default()
+                                    },
                                     ..Default::default()
                                 })
                                 .with(FireSprite);
@@ -223,14 +231,17 @@ pub fn destroyed_obstacles(
                 commands
                     .spawn(SpriteComponents {
                         material: match powerup {
-                            PlayerPowerUp::Score => assets.powerup_score,
-                            PlayerPowerUp::BombCount => assets.powerup_bomb_count,
-                            PlayerPowerUp::BombDamage => assets.powerup_bomb_damage,
-                            PlayerPowerUp::BombRange => assets.powerup_bomb_range,
-                            PlayerPowerUp::BombSpeed => assets.powerup_bomb_speed,
+                            PlayerPowerUp::Score => assets.powerup_score.clone(),
+                            PlayerPowerUp::BombCount => assets.powerup_bomb_count.clone(),
+                            PlayerPowerUp::BombDamage => assets.powerup_bomb_damage.clone(),
+                            PlayerPowerUp::BombRange => assets.powerup_bomb_range.clone(),
+                            PlayerPowerUp::BombSpeed => assets.powerup_bomb_speed.clone(),
                         },
-                        transform: Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
-                            .with_scale(ratio * 0.5),
+                        transform: Transform {
+                            translation: Vec3::new(0., 0., Z_PLAYER),
+                            scale: Vec3::splat(ratio * 0.5),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     })
                     .with(PowerUpSprite);

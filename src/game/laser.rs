@@ -30,11 +30,12 @@ pub fn move_laser(
                         if fire_query.get::<FireComponent>(entity).is_err() {
                             commands
                                 .spawn(SpriteComponents {
-                                    material: fire_handle,
-                                    transform: Transform::from_translation(Vec3::new(
-                                        0., 0., Z_FIRE,
-                                    ))
-                                    .with_scale(ratio * 1.3),
+                                    material: fire_handle.clone(),
+                                    transform: Transform {
+                                        translation: Vec3::new(0., 0., Z_FIRE),
+                                        scale: Vec3::splat(ratio * 1.3),
+                                        ..Default::default()
+                                    },
                                     ..Default::default()
                                 })
                                 .with(FireSprite);
@@ -93,7 +94,11 @@ pub fn move_laser(
 
 pub fn jitter_laser(mut transform: Mut<Transform>, _: &LaserComponent) {
     let mut rng = rand::thread_rng();
-    transform.translate(Vec3::new(0., rng.gen_range(-5., 5.), 0.));
+    *transform = transform.mul_transform(Transform::from_translation(Vec3::new(
+        0.,
+        rng.gen_range(-5., 5.),
+        0.,
+    )));
 }
 
 pub struct ObstacleSpawner(Timer);
@@ -147,18 +152,18 @@ pub fn update_obstacle_sprite(
         for (obstacle, children) in &mut obstacle_query.iter() {
             let state = obstacle.remaining_life as f32 / obstacle.original_life as f32;
             let obstacle_handle = if state > 0.75 {
-                obstacle_100
+                obstacle_100.clone()
             } else if state > 0.5 {
-                obstacle_75
+                obstacle_75.clone()
             } else if state > 0.25 {
-                obstacle_50
+                obstacle_50.clone()
             } else {
-                obstacle_25
+                obstacle_25.clone()
             };
             for child in children.iter() {
                 if let Ok(mut sprite) = sprite_query.get_mut::<Handle<ColorMaterial>>(*child) {
-                    if *sprite != obstacle_handle {
-                        *sprite = obstacle_handle;
+                    if *sprite != obstacle_handle.clone() {
+                        *sprite = obstacle_handle.clone();
                     }
                 }
             }
@@ -198,13 +203,12 @@ pub fn spawn_obstacles(
                     .for_each(|entity| {
                         commands
                             .spawn(SpriteComponents {
-                                material: crate_handle,
-                                transform: Transform::from_translation(Vec3::new(
-                                    0.,
-                                    0.,
-                                    Z_PLAYER - 0.01,
-                                ))
-                                .with_scale(ratio * 1.),
+                                material: crate_handle.clone(),
+                                transform: Transform {
+                                    translation: Vec3::new(0., 0., Z_PLAYER - 0.01),
+                                    scale: Vec3::splat(ratio * 1.),
+                                    ..Default::default()
+                                },
                                 ..Default::default()
                             })
                             .with(ObstacleSprite);

@@ -124,7 +124,7 @@ pub fn ui_event_update(
                     300.,
                     75.,
                     Rect::all(Val::Px(50.)),
-                    font_sub,
+                    font_sub.clone(),
                     PauseButton::ToMenu,
                     50.,
                 );
@@ -133,7 +133,7 @@ pub fn ui_event_update(
                     300.,
                     75.,
                     Rect::all(Val::Px(50.)),
-                    font_sub,
+                    font_sub.clone(),
                     PauseButton::Continue,
                     50.,
                 );
@@ -176,7 +176,7 @@ pub fn ui_event_update(
                                             flex_direction: FlexDirection::ColumnReverse,
                                             ..Default::default()
                                         },
-                                        material: dim_background,
+                                        material: dim_background.clone(),
                                         ..Default::default()
                                     })
                                     .with_children(|pause_parent| {
@@ -190,7 +190,7 @@ pub fn ui_event_update(
                                             },
                                             text: Text {
                                                 value: "Paused".to_string(),
-                                                font,
+                                                font: font.clone(),
                                                 style: TextStyle {
                                                     color: crate::ui::ColorScheme::TEXT,
                                                     font_size: 100.,
@@ -200,7 +200,7 @@ pub fn ui_event_update(
                                         });
                                         let button_parent = pause_parent
                                             .spawn(NodeComponents {
-                                                material: dim_background,
+                                                material: dim_background.clone(),
                                                 ..Default::default()
                                             })
                                             .current_entity()
@@ -319,7 +319,7 @@ pub fn setup(
                     },
                     ..Default::default()
                 },
-                material: transparent_background,
+                material: transparent_background.clone(),
                 ..Default::default()
             })
             .with(ScreenTag)
@@ -335,7 +335,7 @@ pub fn setup(
                         },
                         text: Text {
                             value: "Prepare yourself!".to_string(),
-                            font,
+                            font: font.clone(),
                             style: TextStyle {
                                 color: crate::ui::ColorScheme::TEXT,
                                 font_size: 50.,
@@ -362,7 +362,7 @@ pub fn setup(
                     flex_direction: FlexDirection::RowReverse,
                     ..Default::default()
                 },
-                material: transparent_background,
+                material: transparent_background.clone(),
                 ..Default::default()
             })
             .with(ScreenTag)
@@ -378,7 +378,7 @@ pub fn setup(
                         },
                         text: Text {
                             value: "0".to_string(),
-                            font,
+                            font: font.clone(),
                             style: TextStyle {
                                 color: crate::ui::ColorScheme::TEXT,
                                 font_size: 30.,
@@ -406,7 +406,7 @@ pub fn setup(
                     flex_direction: FlexDirection::RowReverse,
                     ..Default::default()
                 },
-                material: transparent_background,
+                material: transparent_background.clone(),
                 ..Default::default()
             })
             .with(UiComponent::BombsAvailable)
@@ -466,7 +466,7 @@ pub fn display_bombs_available(
                             },
                             ..Default::default()
                         },
-                        material: bomb_icon_handle,
+                        material: bomb_icon_handle.clone(),
                         ..Default::default()
                     });
                     let bomb_entity = commands.current_entity().unwrap();

@@ -45,8 +45,9 @@ fn setup(
         info!("Loading screen");
         screen.loaded = true;
 
-        let logo = include_bytes!("../assets/logo.png");
-        let texture_handle = asset_server.load_from(Box::new(logo.as_ref())).unwrap();
+        // let logo = include_bytes!("../assets/logo.png");
+        // let texture_handle = asset_server.load_from(Box::new(logo.as_ref())).unwrap();
+        let texture_handle = asset_server.load("logo.png");
 
         commands
             .spawn(SpriteComponents {
@@ -89,13 +90,13 @@ fn done(time: Res<Time>, mut screen: ResMut<Screen>, mut state: ResMut<crate::Ga
 fn animate_logo(mut query: Query<(&Timer, &mut Transform, &ScreenTag)>) {
     for (timer, mut transform, _tag) in &mut query.iter() {
         if timer.finished {
-            let translation = transform.translation();
+            let translation = transform.translation;
             if translation.x() != 0. || translation.y() != 0. {
                 *transform = Transform::identity();
                 continue;
             }
 
-            let scale = transform.scale();
+            let scale = transform.scale;
             // `scale.0 != 1.` for floating numbers
             if (scale.x() - 1.) > 0.01 {
                 *transform = Transform::identity();
@@ -114,7 +115,7 @@ fn animate_logo(mut query: Query<(&Timer, &mut Transform, &ScreenTag)>) {
             if act > 80 {
                 let scale_diff = 0.02;
                 let new_scale: f32 = rng.gen_range(1. - scale_diff, 1. + scale_diff);
-                *transform = Transform::from_scale(new_scale);
+                *transform = Transform::from_scale(Vec3::splat(new_scale));
             }
         }
     }

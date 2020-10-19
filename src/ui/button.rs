@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+#[derive(bevy::type_registry::TypeUuid)]
+#[uuid = "5114f317-f6a6-4436-bd2a-cb380f5eb551"]
 pub struct Button {
     background: Handle<ColorMaterial>,
     nine_patch: Handle<bevy_ninepatch::NinePatchBuilder<()>>,
@@ -48,7 +50,7 @@ impl Button {
                     is_transparent: true,
                     ..Default::default()
                 },
-                material: self.background,
+                material: self.background.clone(),
                 ..Default::default()
             })
             .with(ButtonId(button))
@@ -92,8 +94,8 @@ impl Button {
                     ..Default::default()
                 },
                 nine_patch_data: bevy_ninepatch::NinePatchData::with_single_content(
-                    self.texture,
-                    self.nine_patch,
+                    self.texture.clone(),
+                    self.nine_patch.clone(),
                     button_content,
                 ),
                 ..Default::default()
@@ -115,7 +117,7 @@ impl Button {
                     is_transparent: true,
                     ..Default::default()
                 },
-                material: self.background,
+                material: self.background.clone(),
                 ..Default::default()
             })
             .with(bevy::ui::FocusPolicy::Pass)
@@ -156,13 +158,13 @@ fn button_effect(
             .unwrap();
         match *interaction {
             Interaction::Clicked => {
-                *material = button_materials.pressed;
+                *material = button_materials.pressed.clone();
             }
             Interaction::Hovered => {
-                *material = button_materials.hovered;
+                *material = button_materials.hovered.clone();
             }
             Interaction::None => {
-                *material = button_materials.normal;
+                *material = button_materials.normal.clone();
             }
         }
     }
@@ -172,7 +174,7 @@ pub struct Plugin;
 impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut AppBuilder) {
         app.init_resource::<ButtonMaterials>()
-            .init_resource::<Assets<Button>>()
+            .add_asset::<Button>()
             .add_system(button_effect.system());
     }
 }

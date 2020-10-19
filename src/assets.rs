@@ -1,33 +1,50 @@
 use bevy::prelude::*;
 
+// macro_rules! load {
+//     ($assets:ident, $path:expr) => {
+//         $assets
+//             .load_from(Box::new(include_bytes!($path).as_ref()))
+//             .expect("was able to load font");
+//     };
+// }
+
 macro_rules! load {
     ($assets:ident, $path:expr) => {
-        $assets
-            .load_from(Box::new(include_bytes!($path).as_ref()))
-            .expect("was able to load font");
+        $assets.load($path);
     };
 }
 
 macro_rules! colormaterial {
     ($mats:ident, $assets:ident, $path:expr) => {
-        $mats.add(
-            $assets
-                .load_from(Box::new(include_bytes!($path).as_ref()))
-                .expect("was able to load texture")
-                .into(),
-        )
+        $mats.add($assets.load($path).into())
     };
     ($mats:ident, $assets:ident, $path:expr, $color:ident) => {
         $mats.add(ColorMaterial {
-            texture: Some(
-                $assets
-                    .load_from(Box::new(include_bytes!($path).as_ref()))
-                    .expect("was able to load texture"),
-            ),
+            texture: Some($assets.load($path)),
             color: $color,
         });
     };
 }
+// macro_rules! colormaterial {
+//     ($mats:ident, $assets:ident, $path:expr) => {
+//         $mats.add(
+//             $assets
+//                 .load_from(Box::new(include_bytes!($path).as_ref()))
+//                 .expect("was able to load texture")
+//                 .into(),
+//         )
+//     };
+//     ($mats:ident, $assets:ident, $path:expr, $color:ident) => {
+//         $mats.add(ColorMaterial {
+//             texture: Some(
+//                 $assets
+//                     .load_from(Box::new(include_bytes!($path).as_ref()))
+//                     .expect("was able to load texture"),
+//             ),
+//             color: $color,
+//         });
+//     };
+// }
 
 #[derive(Default, Clone)]
 pub struct AssetHandles {
@@ -113,13 +130,14 @@ impl AssetHandles {
         Handle<Texture>,
     ) {
         if self.panel_handle.is_none() {
-            let panel = include_bytes!("../assets/ui/panel_blue.png");
+            // let panel = include_bytes!("../assets/ui/panel_blue.png");
 
-            let panel_texture_handle = assets.load_from(Box::new(panel.as_ref())).unwrap();
+            // let panel_texture_handle = assets.load_from(Box::new(panel.as_ref())).unwrap();
+            let panel_texture_handle = assets.load("ui/panel_blue.png");
             let np = bevy_ninepatch::NinePatchBuilder::by_margins(10, 30, 10, 10);
             self.panel_handle = Some((nine_patches.add(np), panel_texture_handle));
         };
-        self.panel_handle.unwrap()
+        self.panel_handle.as_ref().unwrap().clone()
     }
 
     pub fn get_button_handle(
@@ -131,9 +149,10 @@ impl AssetHandles {
         buttons: &mut Assets<crate::ui::button::Button>,
     ) -> Handle<crate::ui::button::Button> {
         if self.button_handle.is_none() {
-            let button = include_bytes!("../assets/ui/buttonLong_beige.png");
+            // let button = include_bytes!("../assets/ui/buttonLong_beige.png");
 
-            let button_texture_handle = assets.load_from(Box::new(button.as_ref())).unwrap();
+            // let button_texture_handle = assets.load_from(Box::new(button.as_ref())).unwrap();
+            let button_texture_handle = assets.load("ui/buttonLong_beige.png");
             let button = crate::ui::button::Button::setup(
                 &mut mats,
                 &mut nine_patches,
@@ -141,7 +160,7 @@ impl AssetHandles {
             );
             self.button_handle = Some(buttons.add(button));
         };
-        self.button_handle.unwrap()
+        self.button_handle.as_ref().unwrap().clone()
     }
 
     pub fn get_character_handle(
@@ -150,29 +169,30 @@ impl AssetHandles {
         texture_atlases: &mut Assets<TextureAtlas>,
     ) -> Handle<TextureAtlas> {
         if self.character_handle.is_none() {
-            let character = include_bytes!("../assets/game/character_femalePerson_sheetHD.png");
-            let character_texture_handle = assets.load_from(Box::new(character.as_ref())).unwrap();
+            // let character = include_bytes!("../assets/game/character_femalePerson_sheetHD.png");
+            // let character_texture_handle = assets.load_from(Box::new(character.as_ref())).unwrap();
+            let character_texture_handle = assets.load("game/character_femalePerson_sheetHD.png");
 
             let texture_atlas =
                 TextureAtlas::from_grid(character_texture_handle, Vec2::new(192., 256.), 9, 5);
             let texture_atlas_handle = texture_atlases.add(texture_atlas);
             self.character_handle = Some(texture_atlas_handle);
         };
-        self.character_handle.unwrap()
+        self.character_handle.as_ref().unwrap().clone()
     }
 
     pub fn get_font_main_handle(&mut self, assets: &AssetServer) -> Handle<Font> {
         if self.font_main_handle.is_none() {
             self.font_main_handle = Some(load!(assets, "../assets/fonts/kenvector_future.ttf"));
         }
-        self.font_main_handle.unwrap()
+        self.font_main_handle.as_ref().unwrap().clone()
     }
 
     pub fn get_font_sub_handle(&mut self, assets: &AssetServer) -> Handle<Font> {
         if self.font_sub_handle.is_none() {
             self.font_sub_handle = Some(load!(assets, "../assets/fonts/mandrill.ttf"));
         }
-        self.font_sub_handle.unwrap()
+        self.font_sub_handle.as_ref().unwrap().clone()
     }
 
     pub fn get_board_handles(

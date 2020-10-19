@@ -177,7 +177,7 @@ fn setup(
                     },
                     text: Text {
                         value: format!("{} points", game.score),
-                        font: font_sub,
+                        font: font_sub.clone(),
                         style: TextStyle {
                             color: if game_screen.is_new_highscore(game.score) {
                                 crate::ui::ColorScheme::TEXT_HIGHLIGHT
@@ -199,7 +199,7 @@ fn setup(
                     },
                     text: Text {
                         value: format!("at round {}", game.round),
-                        font: font_sub,
+                        font: font_sub.clone(),
                         style: TextStyle {
                             color: if game_screen.is_new_highround(game.round) {
                                 crate::ui::ColorScheme::TEXT_HIGHLIGHT
@@ -249,7 +249,7 @@ fn setup(
                         },
                         text: Text {
                             value: format!("death by {}", cause_of_death),
-                            font: font_sub,
+                            font: font_sub.clone(),
                             style: TextStyle {
                                 color: crate::ui::ColorScheme::TEXT,
                                 font_size: 50.,
@@ -275,7 +275,7 @@ fn setup(
                             "placed {} bombs, {} chain explosion",
                             stats.bomb_placed, stats.bomb_chained
                         ),
-                        font: font_sub,
+                        font: font_sub.clone(),
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
                             font_size: 30.,
@@ -296,7 +296,7 @@ fn setup(
                             "destroyed {} obstacles by bombs, {} by the laser",
                             stats.obstacle_destroyed_by_player, stats.obstacle_destroyed_by_lazer
                         ),
-                        font: font_sub,
+                        font: font_sub.clone(),
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
                             font_size: 30.,

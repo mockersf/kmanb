@@ -54,9 +54,12 @@ pub fn event_system(
                 {
                     commands
                         .spawn(SpriteComponents {
-                            material: bomb_handle,
-                            transform: Transform::from_translation(Vec3::new(0., 0., Z_PLAYER))
-                                .with_scale(ratio * 0.6),
+                            material: bomb_handle.clone(),
+                            transform: Transform {
+                                translation: Vec3::new(0., 0., Z_PLAYER),
+                                scale: Vec3::splat(ratio * 0.6),
+                                ..Default::default()
+                            },
                             ..Default::default()
                         })
                         .with(BombSprite);
@@ -87,16 +90,18 @@ pub fn event_system(
                 let mut teleport_border = false;
                 let mut bump = None;
                 for (entity, _player, transform) in &mut player_query.iter() {
-                    let base_transform =
-                        Transform::from_non_uniform_scale(match game.player.direction {
-                            FacingDirection::Right => Vec3::new(1., 1., 1.),
-                            FacingDirection::Left => Vec3::new(-1., 1., 1.),
-                        })
-                        .with_translation(Vec3::new(
+                    let base_transform = Transform {
+                        translation: Vec3::new(
                             x_to(game.player.x as i32, ratio),
                             y_to(game.player.y as i32, ratio),
                             Z_PLAYER,
-                        ));
+                        ),
+                        scale: match game.player.direction {
+                            FacingDirection::Right => Vec3::new(1., 1., 1.),
+                            FacingDirection::Left => Vec3::new(-1., 1., 1.),
+                        },
+                        ..Default::default()
+                    };
                     match event.key_code {
                         Some(KeyCode::Right) => {
                             game.player.direction = FacingDirection::Right;
@@ -208,15 +213,18 @@ pub fn event_system(
                         commands.insert_one(
                             entity,
                             transform.ease_to(
-                                Transform::from_non_uniform_scale(match game.player.direction {
-                                    FacingDirection::Right => Vec3::new(1., 1., 1.),
-                                    FacingDirection::Left => Vec3::new(-1., 1., 1.),
-                                })
-                                .with_translation(Vec3::new(
-                                    x_to(game.player.x as i32, ratio),
-                                    y_to(game.player.y as i32, ratio),
-                                    Z_PLAYER,
-                                )),
+                                Transform {
+                                    translation: Vec3::new(
+                                        x_to(game.player.x as i32, ratio),
+                                        y_to(game.player.y as i32, ratio),
+                                        Z_PLAYER,
+                                    ),
+                                    scale: match game.player.direction {
+                                        FacingDirection::Right => Vec3::new(1., 1., 1.),
+                                        FacingDirection::Left => Vec3::new(-1., 1., 1.),
+                                    },
+                                    ..Default::default()
+                                },
                                 bevy_easings::EaseFunction::QuadraticIn,
                                 bevy_easings::EasingType::Once {
                                     duration: std::time::Duration::from_millis(move_delay),
@@ -236,15 +244,18 @@ pub fn event_system(
                         commands.insert_one(
                             entity,
                             transform.ease_to(
-                                Transform::from_non_uniform_scale(match game.player.direction {
-                                    FacingDirection::Right => Vec3::new(1., 1., 1.),
-                                    FacingDirection::Left => Vec3::new(-1., 1., 1.),
-                                })
-                                .with_translation(Vec3::new(
-                                    x_to(game.player.x as i32, ratio),
-                                    y_to(game.player.y as i32, ratio),
-                                    Z_PLAYER,
-                                )),
+                                Transform {
+                                    translation: Vec3::new(
+                                        x_to(game.player.x as i32, ratio),
+                                        y_to(game.player.y as i32, ratio),
+                                        Z_PLAYER,
+                                    ),
+                                    scale: match game.player.direction {
+                                        FacingDirection::Right => Vec3::new(1., 1., 1.),
+                                        FacingDirection::Left => Vec3::new(-1., 1., 1.),
+                                    },
+                                    ..Default::default()
+                                },
                                 bevy_easings::EaseMethod::Discrete,
                                 bevy_easings::EasingType::Once {
                                     duration: std::time::Duration::from_millis(move_delay),
@@ -271,21 +282,21 @@ pub fn event_system(
                             entity,
                             transform
                                 .ease_to(
-                                    Transform::from_non_uniform_scale(
-                                        match game.player.direction {
-                                            FacingDirection::Right => Vec3::new(1., 1., 1.),
-                                            FacingDirection::Left => Vec3::new(-1., 1., 1.),
-                                        },
-                                    )
-                                    .with_translation(
-                                        Vec3::new(
+                                    Transform {
+                                        translation: Vec3::new(
                                             x_to(game.player.x as i32, ratio)
                                                 + x_factor * 0.65 * ratio * TILE_SIZE as f32 / 2.,
                                             y_to(game.player.y as i32, ratio)
                                                 + y_factor * 0.65 * ratio * TILE_SIZE as f32 / 2.,
                                             Z_PLAYER,
                                         ),
-                                    ),
+
+                                        scale: match game.player.direction {
+                                            FacingDirection::Right => Vec3::new(1., 1., 1.),
+                                            FacingDirection::Left => Vec3::new(-1., 1., 1.),
+                                        },
+                                        ..Default::default()
+                                    },
                                     bevy_easings::EaseFunction::QuadraticInOut,
                                     bevy_easings::EasingType::Once {
                                         duration: std::time::Duration::from_millis(move_delay / 4),

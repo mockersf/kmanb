@@ -61,7 +61,7 @@ fn setup(
                     flex_direction: FlexDirection::ColumnReverse,
                     ..Default::default()
                 },
-                material: color_none,
+                material: color_none.clone(),
                 ..Default::default()
             })
             .with_children(|title_parent| {
@@ -98,7 +98,7 @@ fn setup(
                     },
                     text: Text {
                         value: format!("v{}", env!("CARGO_PKG_VERSION")),
-                        font: font_sub,
+                        font: font_sub.clone(),
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT_DIM,
                             font_size: 40.0 / 2.,
@@ -122,7 +122,7 @@ fn setup(
                     flex_direction: FlexDirection::ColumnReverse,
                     ..Default::default()
                 },
-                material: color_none,
+                material: color_none.clone(),
                 ..Default::default()
             })
             .with(ScreenTag)
@@ -137,7 +137,7 @@ fn setup(
                     },
                     text: Text {
                         value: "Instructions:".to_string(),
-                        font: font_sub,
+                        font: font_sub.clone(),
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
                             font_size: 70.0 / 2.,
@@ -157,7 +157,7 @@ fn setup(
                             flex_direction: FlexDirection::ColumnReverse,
                             ..Default::default()
                         },
-                        material: color_none,
+                        material: color_none.clone(),
                         ..Default::default()
                     })
                     .with_children(|controls_parent| {
@@ -171,7 +171,7 @@ fn setup(
                             },
                             text: Text {
                                 value: "Use arrows for direction".to_string(),
-                                font: font_sub,
+                                font: font_sub.clone(),
                                 style: TextStyle {
                                     color: crate::ui::ColorScheme::TEXT,
                                     font_size: 60.0 / 2.,
@@ -189,7 +189,7 @@ fn setup(
                             },
                             text: Text {
                                 value: "Avoid the wall of fire".to_string(),
-                                font: font_sub,
+                                font: font_sub.clone(),
                                 style: TextStyle {
                                     color: crate::ui::ColorScheme::TEXT,
                                     font_size: 60.0 / 2.,
@@ -207,7 +207,7 @@ fn setup(
                             },
                             text: Text {
                                 value: "Use spacebar to place a bomb".to_string(),
-                                font: font_sub,
+                                font: font_sub.clone(),
                                 style: TextStyle {
                                     color: crate::ui::ColorScheme::TEXT,
                                     font_size: 60.0 / 2.,
@@ -225,7 +225,7 @@ fn setup(
                             },
                             text: Text {
                                 value: "Blow away obstacles or avoid them".to_string(),
-                                font: font_sub,
+                                font: font_sub.clone(),
                                 style: TextStyle {
                                     color: crate::ui::ColorScheme::TEXT,
                                     font_size: 60.0 / 2.,
@@ -243,7 +243,7 @@ fn setup(
                             },
                             text: Text {
                                 value: "Survive for as long as you can".to_string(),
-                                font: font_sub,
+                                font: font_sub.clone(),
                                 style: TextStyle {
                                     color: crate::ui::ColorScheme::TEXT,
                                     font_size: 60.0 / 2.,
@@ -261,7 +261,7 @@ fn setup(
                             },
                             text: Text {
                                 value: "Game difficulty will increase each round".to_string(),
-                                font: font_sub,
+                                font: font_sub.clone(),
                                 style: TextStyle {
                                     color: crate::ui::ColorScheme::TEXT,
                                     font_size: 60.0 / 2.,
@@ -285,7 +285,7 @@ fn setup(
                     flex_direction: FlexDirection::ColumnReverse,
                     ..Default::default()
                 },
-                material: color_none,
+                material: color_none.clone(),
                 ..Default::default()
             })
             .with(ScreenTag)
@@ -300,7 +300,7 @@ fn setup(
                     },
                     text: Text {
                         value: "Bonus:".to_string(),
-                        font: font_sub,
+                        font: font_sub.clone(),
                         style: TextStyle {
                             color: crate::ui::ColorScheme::TEXT,
                             font_size: 70.0 / 2.,
@@ -320,7 +320,7 @@ fn setup(
                             flex_direction: FlexDirection::ColumnReverse,
                             ..Default::default()
                         },
-                        material: color_none,
+                        material: color_none.clone(),
                         ..Default::default()
                     })
                     .with_children(|controls_parent| {
@@ -330,7 +330,7 @@ fn setup(
                                     flex_direction: FlexDirection::Row,
                                     ..Default::default()
                                 },
-                                material: color_none,
+                                material: color_none.clone(),
                                 ..Default::default()
                             })
                             .with_children(|this_bonus_parent| {
@@ -342,7 +342,7 @@ fn setup(
                                         },
                                         ..Default::default()
                                     },
-                                    material: board_assets.powerup_score,
+                                    material: board_assets.clone().powerup_score,
                                     ..Default::default()
                                 });
                                 this_bonus_parent.spawn(TextComponents {
@@ -355,7 +355,7 @@ fn setup(
                                     },
                                     text: Text {
                                         value: "Score bonus".to_string(),
-                                        font: font_sub,
+                                        font: font_sub.clone(),
                                         style: TextStyle {
                                             color: crate::ui::ColorScheme::TEXT,
                                             font_size: 60.0 / 2.,
@@ -370,7 +370,7 @@ fn setup(
                                     flex_direction: FlexDirection::Row,
                                     ..Default::default()
                                 },
-                                material: color_none,
+                                material: color_none.clone(),
                                 ..Default::default()
                             })
                             .with_children(|this_bonus_parent| {
@@ -382,7 +382,7 @@ fn setup(
                                         },
                                         ..Default::default()
                                     },
-                                    material: board_assets.powerup_bomb_damage,
+                                    material: board_assets.clone().powerup_bomb_damage,
                                     ..Default::default()
                                 });
                                 this_bonus_parent.spawn(TextComponents {
@@ -395,7 +395,7 @@ fn setup(
                                     },
                                     text: Text {
                                         value: "Increase bomb damage".to_string(),
-                                        font: font_sub,
+                                        font: font_sub.clone(),
                                         style: TextStyle {
                                             color: crate::ui::ColorScheme::TEXT,
                                             font_size: 60.0 / 2.,
@@ -410,7 +410,7 @@ fn setup(
                                     flex_direction: FlexDirection::Row,
                                     ..Default::default()
                                 },
-                                material: color_none,
+                                material: color_none.clone(),
                                 ..Default::default()
                             })
                             .with_children(|this_bonus_parent| {
@@ -422,7 +422,7 @@ fn setup(
                                         },
                                         ..Default::default()
                                     },
-                                    material: board_assets.powerup_bomb_range,
+                                    material: board_assets.clone().powerup_bomb_range,
                                     ..Default::default()
                                 });
                                 this_bonus_parent.spawn(TextComponents {
@@ -435,7 +435,7 @@ fn setup(
                                     },
                                     text: Text {
                                         value: "Increase bomb range".to_string(),
-                                        font: font_sub,
+                                        font: font_sub.clone(),
                                         style: TextStyle {
                                             color: crate::ui::ColorScheme::TEXT,
                                             font_size: 60.0 / 2.,
@@ -450,7 +450,7 @@ fn setup(
                                     flex_direction: FlexDirection::Row,
                                     ..Default::default()
                                 },
-                                material: color_none,
+                                material: color_none.clone(),
                                 ..Default::default()
                             })
                             .with_children(|this_bonus_parent| {
@@ -462,7 +462,7 @@ fn setup(
                                         },
                                         ..Default::default()
                                     },
-                                    material: board_assets.powerup_bomb_count,
+                                    material: board_assets.clone().powerup_bomb_count,
                                     ..Default::default()
                                 });
                                 this_bonus_parent.spawn(TextComponents {
@@ -475,7 +475,7 @@ fn setup(
                                     },
                                     text: Text {
                                         value: "Increase number of bombs".to_string(),
-                                        font: font_sub,
+                                        font: font_sub.clone(),
                                         style: TextStyle {
                                             color: crate::ui::ColorScheme::TEXT,
                                             font_size: 60.0 / 2.,
@@ -490,7 +490,7 @@ fn setup(
                                     flex_direction: FlexDirection::Row,
                                     ..Default::default()
                                 },
-                                material: color_none,
+                                material: color_none.clone(),
                                 ..Default::default()
                             })
                             .with_children(|this_bonus_parent| {
@@ -502,7 +502,7 @@ fn setup(
                                         },
                                         ..Default::default()
                                     },
-                                    material: board_assets.powerup_bomb_speed,
+                                    material: board_assets.clone().powerup_bomb_speed,
                                     ..Default::default()
                                 });
                                 this_bonus_parent.spawn(TextComponents {
@@ -515,7 +515,7 @@ fn setup(
                                     },
                                     text: Text {
                                         value: "Decrease delay before bomb explosion".to_string(),
-                                        font: font_sub,
+                                        font: font_sub.clone(),
                                         style: TextStyle {
                                             color: crate::ui::ColorScheme::TEXT,
                                             font_size: 60.0 / 2.,

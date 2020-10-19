@@ -55,7 +55,7 @@ pub fn setup(
             for x in 0..BOARD_X {
                 commands
                     .spawn(SpriteComponents {
-                        material: board_handles.border_bottom.clone(),
+                        material: board_handles.border_bottom,
                         transform: Transform {
                             translation: Vec3::new(
                                 x_to(x as i32, ratio),
@@ -76,20 +76,18 @@ pub fn setup(
                     commands
                         .spawn(SpriteComponents {
                             material: match (x, y) {
-                                (0, _) => board_handles.grass.clone(),
-                                (x, 0) if x == BOARD_X - 1 => {
-                                    board_handles.corner_bottom_right.clone()
-                                }
-                                (1, 0) => board_handles.corner_bottom_left.clone(),
-                                (1, y) if y == BOARD_Y - 1 => board_handles.corner_top_left.clone(),
+                                (0, _) => board_handles.grass,
+                                (x, 0) if x == BOARD_X - 1 => board_handles.corner_bottom_right,
+                                (1, 0) => board_handles.corner_bottom_left,
+                                (1, y) if y == BOARD_Y - 1 => board_handles.corner_top_left,
                                 (x, y) if x == BOARD_X - 1 && y == BOARD_Y - 1 => {
-                                    board_handles.corner_top_right.clone()
+                                    board_handles.corner_top_right
                                 }
-                                (1, _) => board_handles.ground_left.clone(),
-                                (x, _) if x == BOARD_X - 1 => board_handles.ground_right.clone(),
-                                (_, 0) => board_handles.ground_bottom.clone(),
-                                (_, y) if y == BOARD_Y - 1 => board_handles.ground_top.clone(),
-                                _ => board_handles.ground.clone(),
+                                (1, _) => board_handles.ground_left,
+                                (x, _) if x == BOARD_X - 1 => board_handles.ground_right,
+                                (_, 0) => board_handles.ground_bottom,
+                                (_, y) if y == BOARD_Y - 1 => board_handles.ground_top,
+                                _ => board_handles.ground,
                             },
                             transform: Transform {
                                 translation: Vec3::new(
@@ -112,9 +110,9 @@ pub fn setup(
                         commands.with_children(|cell| {
                             cell.spawn(SpriteComponents {
                                 material: if x == 0 {
-                                    board_handles.arrow_left.clone()
+                                    board_handles.arrow_left
                                 } else {
-                                    board_handles.arrow_right.clone()
+                                    board_handles.arrow_right
                                 },
                                 transform: Transform {
                                     translation: Vec3::new(0., 0., Z_FIRE),
@@ -152,7 +150,7 @@ pub fn setup(
             for x in 0..BOARD_X {
                 commands
                     .spawn(SpriteComponents {
-                        material: board_handles.border_top.clone(),
+                        material: board_handles.border_top,
                         transform: Transform {
                             translation: Vec3::new(
                                 x_to(x as i32, ratio),
@@ -170,7 +168,7 @@ pub fn setup(
                 for x in 0..BOARD_X {
                     commands
                         .spawn(SpriteComponents {
-                            material: board_handles.water.clone(),
+                            material: board_handles.water,
                             transform: Transform {
                                 translation: Vec3::new(
                                     x_to(x as i32, ratio),

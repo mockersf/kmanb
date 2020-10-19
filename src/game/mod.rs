@@ -100,7 +100,9 @@ fn setup(
                 placed_player
                     .spawn(SpriteSheetComponents {
                         texture_atlas: character_handle,
-                        transform: Transform::from_scale(ratio * TILE_SIZE / PLAYER_SIZE),
+                        transform: Transform::from_scale(Vec3::splat(
+                            ratio * TILE_SIZE / PLAYER_SIZE,
+                        )),
                         sprite: TextureAtlasSprite {
                             index: 36,
                             ..Default::default()
@@ -121,7 +123,7 @@ fn setup(
                     .with_children(|emote| {
                         emote
                             .spawn(SpriteComponents {
-                                transform: Transform::from_scale(ratio * 0.7),
+                                transform: Transform::from_scale(Vec3::splat(ratio * 0.7)),
                                 material: emotes.exclamations,
                                 ..Default::default()
                             })
@@ -147,17 +149,12 @@ fn setup(
             commands
                 .with_children(|laser_parent| {
                     laser_parent.spawn(SpriteComponents {
-                        material: board_handles.laser,
-                        transform: Transform::from_translation(Vec3::new(
-                            1.,
-                            y_to(y as i32 - 2, ratio),
-                            1.,
-                        ))
-                        .with_non_uniform_scale(Vec3::new(
-                            3. * ratio,
-                            ratio,
-                            1.,
-                        )),
+                        material: board_handles.laser.clone(),
+                        transform: Transform {
+                            translation: Vec3::new(1., y_to(y as i32 - 2, ratio), 1.),
+                            scale: Vec3::new(3. * ratio, ratio, 1.),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     });
                 })

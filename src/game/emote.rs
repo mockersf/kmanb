@@ -25,7 +25,7 @@ pub fn emote_setter(
     if game.laser.x == game.player.x || game.laser.x == game.player.x + 1 {
         commands
             .spawn(SpriteComponents {
-                transform: Transform::from_scale(ratio * 0.7),
+                transform: Transform::from_scale(Vec3::splat(ratio * 0.7)),
                 material: emotes.exclamation,
                 ..Default::default()
             })
@@ -37,7 +37,7 @@ pub fn emote_setter(
     if game.time_last_move > 0. && time.seconds_since_startup - game.time_last_move > 3. {
         commands
             .spawn(SpriteComponents {
-                transform: Transform::from_scale(ratio * 0.7),
+                transform: Transform::from_scale(Vec3::splat(ratio * 0.7)),
                 material: emotes.sleep,
                 ..Default::default()
             })
@@ -52,7 +52,7 @@ pub fn emote_setter(
                 if game.round % 2 == 0 {
                     commands
                         .spawn(SpriteComponents {
-                            transform: Transform::from_scale(ratio * 0.7),
+                            transform: Transform::from_scale(Vec3::splat(ratio * 0.7)),
                             material: emotes.face_angry,
                             ..Default::default()
                         })
@@ -65,7 +65,7 @@ pub fn emote_setter(
             GameEvents::Lost(_) => {
                 commands
                     .spawn(SpriteComponents {
-                        transform: Transform::from_scale(ratio * 0.7),
+                        transform: Transform::from_scale(Vec3::splat(ratio * 0.7)),
                         material: emotes.heart_broken,
                         ..Default::default()
                     })
@@ -77,7 +77,7 @@ pub fn emote_setter(
             GameEvents::NewHighround | GameEvents::NewHighscore => {
                 commands
                     .spawn(SpriteComponents {
-                        transform: Transform::from_scale(ratio * 0.7),
+                        transform: Transform::from_scale(Vec3::splat(ratio * 0.7)),
                         material: emotes.star,
                         ..Default::default()
                     })
@@ -90,7 +90,7 @@ pub fn emote_setter(
                 if rand::thread_rng().gen_bool(0.25) {
                     commands
                         .spawn(SpriteComponents {
-                            transform: Transform::from_scale(ratio * 0.7),
+                            transform: Transform::from_scale(Vec3::splat(ratio * 0.7)),
                             material: emotes.face_happy,
                             ..Default::default()
                         })
