@@ -136,8 +136,8 @@ fn setup(
                     position: Rect::<Val> {
                         left: Val::Percent(50.),
                         right: Val::Undefined,
-                        bottom: Val::Percent(30.),
-                        top: Val::Undefined,
+                        top: Val::Percent(25.),
+                        bottom: Val::Undefined,
                     },
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
@@ -272,7 +272,7 @@ fn setup(
                     },
                     text: Text {
                         value: format!(
-                            "placed {} bombs, {} chained exploded",
+                            "placed {} bombs, {} chain explosion",
                             stats.bomb_placed, stats.bomb_chained
                         ),
                         font: font_sub,
@@ -293,7 +293,7 @@ fn setup(
                     },
                     text: Text {
                         value: format!(
-                            "destroyed {} obstacles, {} by the laser",
+                            "destroyed {} obstacles by bombs, {} by the laser",
                             stats.obstacle_destroyed_by_player, stats.obstacle_destroyed_by_lazer
                         ),
                         font: font_sub,
