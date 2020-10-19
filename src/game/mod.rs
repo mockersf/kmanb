@@ -34,7 +34,7 @@ pub struct Plugin;
 impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_resource(Screen::default())
-            .add_resource(Game::default())
+            .init_resource::<Game>()
             .init_resource::<keyboard_systems::KeyboardState>()
             .init_resource::<ui::GameEventsListenerState>()
             .init_resource::<emote::GameEventsListenerState>()

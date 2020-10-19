@@ -15,7 +15,7 @@ impl Default for Screen {
 }
 
 #[derive(Default)]
-struct GameStats {
+pub struct GameStats {
     last_seen_cause_of_death: Option<crate::game::CauseOfDeath>,
     bomb_placed: u16,
     obstacle_destroyed_by_player: u16,
