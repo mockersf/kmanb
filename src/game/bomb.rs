@@ -83,7 +83,10 @@ pub fn flash_bombs(
                                 damage: bomb.damage,
                                 x: x as usize,
                                 y: bomb.y,
-                                timer: Timer::from_seconds(250. / 1000., false),
+                                timer: Timer::from_seconds(
+                                    crate::CONFIG.player_bomb_fire_timer,
+                                    false,
+                                ),
                                 from_player: true,
                             },),
                         );
@@ -111,7 +114,10 @@ pub fn flash_bombs(
                                     damage: bomb.damage,
                                     x: bomb.x,
                                     y: y as usize,
-                                    timer: Timer::from_seconds(250. / 1000., false),
+                                    timer: Timer::from_seconds(
+                                        crate::CONFIG.player_bomb_fire_timer,
+                                        false,
+                                    ),
                                     from_player: true,
                                 },),
                             );
@@ -201,14 +207,14 @@ pub fn destroyed_obstacles(
             }
             children.retain(|i| !targets.contains(i));
 
-            if rng.gen_bool(0.2) {
+            if rng.gen_bool(crate::CONFIG.player_powerup_chance) {
                 let powerup = PlayerPowerUp::iter().choose(&mut rng).unwrap();
                 commands.insert(
                     entity,
                     (
                         PowerUpComponent {
                             powerup,
-                            timer: Timer::from_seconds(20., false),
+                            timer: Timer::from_seconds(crate::CONFIG.powerup_timer, false),
                             used: false,
                         },
                         Occupied,
@@ -251,12 +257,22 @@ pub fn player_powerups(
                 let cell = game.board.as_ref().unwrap()[game.player.y][game.player.x].entity;
                 if entity == cell {
                     match powerup.powerup {
-                        PlayerPowerUp::Score => game.score += game.round as u32 * 200,
-                        PlayerPowerUp::BombCount => game.player.nb_bombs += 1,
-                        PlayerPowerUp::BombDamage => game.player.bomb_damage += 2,
-                        PlayerPowerUp::BombRange => game.player.bomb_range += 1,
+                        PlayerPowerUp::Score => {
+                            game.score += game.round as u32 * crate::CONFIG.player_powerup_score
+                        }
+                        PlayerPowerUp::BombCount => {
+                            game.player.nb_bombs += crate::CONFIG.player_powerup_bomb_count
+                        }
+                        PlayerPowerUp::BombDamage => {
+                            game.player.bomb_damage += crate::CONFIG.player_powerup_bomb_damage
+                        }
+                        PlayerPowerUp::BombRange => {
+                            game.player.bomb_range += crate::CONFIG.player_powerup_bomb_range
+                        }
                         PlayerPowerUp::BombSpeed => {
-                            game.player.bomb_speed = (game.player.bomb_speed as f64 * 0.9) as u64
+                            game.player.bomb_speed = (game.player.bomb_speed as f64
+                                * crate::CONFIG.player_powerup_bomb_speed)
+                                as u64
                         }
                     }
                     powerup.timer.duration = (game.player.speed as f32 / 1000.) * 3. / 4.;

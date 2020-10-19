@@ -213,9 +213,9 @@ fn setup(
                 });
                 let medals = asset_handles.get_medal_handles(&asset_server, &mut materials);
                 if let Some(medal) = match game.score {
-                    x if x < 7500 => None,
-                    x if x < 12500 => Some(medals.bronze),
-                    x if x < 17500 => Some(medals.silver),
+                    x if x < crate::CONFIG.score_bronze_medal => None,
+                    x if x < crate::CONFIG.score_silver_medal => Some(medals.bronze),
+                    x if x < crate::CONFIG.score_gold_medal => Some(medals.silver),
                     _ => Some(medals.gold),
                 } {
                     parent.spawn(ImageComponents {

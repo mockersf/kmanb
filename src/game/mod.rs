@@ -275,11 +275,11 @@ impl Default for Player {
             x: BOARD_X / 4,
             y: BOARD_Y / 2,
             direction: FacingDirection::Right,
-            nb_bombs: 2,
-            bomb_range: 1,
-            bomb_damage: 2,
-            bomb_speed: 2000,
-            speed: 200,
+            nb_bombs: crate::CONFIG.player_nb_bombs,
+            bomb_range: crate::CONFIG.player_bomb_range,
+            bomb_damage: crate::CONFIG.player_bomb_damage,
+            bomb_speed: crate::CONFIG.player_bomb_speed,
+            speed: crate::CONFIG.player_speed,
         }
     }
 }
@@ -297,10 +297,10 @@ impl Default for Laser {
     fn default() -> Self {
         Laser {
             x: 1,
-            speed: 1000,
-            spawn_obstacles_delay: 10000,
-            nb_obstacles: 5,
-            obstacle_strength: 2,
+            speed: crate::CONFIG.laser_speed,
+            spawn_obstacles_delay: crate::CONFIG.laser_spawn_obstacles_delay,
+            nb_obstacles: crate::CONFIG.laser_nb_obstacles,
+            obstacle_strength: crate::CONFIG.laser_obstacle_strength,
         }
     }
 }

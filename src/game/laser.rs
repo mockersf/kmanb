@@ -43,10 +43,13 @@ pub fn move_laser(
                             commands.insert(
                                 entity,
                                 (FireComponent {
-                                    damage: 1,
+                                    damage: crate::CONFIG.laser_fire_damage,
                                     x: game.laser.x - 1,
                                     y: y as usize,
-                                    timer: Timer::from_seconds(1500. / 1000., false),
+                                    timer: Timer::from_seconds(
+                                        crate::CONFIG.laser_fire_timer,
+                                        false,
+                                    ),
                                     from_player: false,
                                 },),
                             );

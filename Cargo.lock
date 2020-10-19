@@ -2094,6 +2094,7 @@ dependencies = [
  "bevy_ninepatch",
  "config",
  "enum-utils",
+ "lazy_static",
  "rand",
  "serde",
  "tracing",

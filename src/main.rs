@@ -28,6 +28,74 @@ impl Default for Settings {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+struct Config {
+    score_bronze_medal: u32,
+    score_silver_medal: u32,
+    score_gold_medal: u32,
+    player_nb_bombs: usize,
+    player_bomb_range: usize,
+    player_bomb_damage: usize,
+    player_bomb_speed: u64,
+    player_speed: u64,
+    player_powerup_chance: f64,
+    player_powerup_bomb_damage: usize,
+    player_powerup_bomb_range: usize,
+    player_powerup_bomb_count: usize,
+    player_powerup_bomb_speed: f64,
+    player_powerup_score: u32,
+    player_bomb_fire_timer: f32,
+    powerup_timer: f32,
+    laser_fire_timer: f32,
+    laser_fire_damage: usize,
+    laser_speed: u64,
+    laser_spawn_obstacles_delay: u16,
+    laser_nb_obstacles: usize,
+    laser_obstacle_strength: usize,
+    laser_powerup_speed: f64,
+    laser_powerup_obstacle_delay: f32,
+    laser_powerup_obstacle_strength: usize,
+    laser_powerup_nb_obstacles: usize,
+}
+
+impl Default for Config {
+    fn default() -> Config {
+        Config {
+            score_bronze_medal: 7500,
+            score_silver_medal: 12500,
+            score_gold_medal: 17500,
+            player_nb_bombs: 2,
+            player_bomb_range: 1,
+            player_bomb_damage: 2,
+            player_bomb_speed: 2000,
+            player_speed: 200,
+            player_powerup_chance: 0.2,
+            player_powerup_bomb_damage: 2,
+            player_powerup_bomb_range: 1,
+            player_powerup_bomb_count: 1,
+            player_powerup_bomb_speed: 0.9,
+            player_powerup_score: 200,
+            player_bomb_fire_timer: 0.25,
+            powerup_timer: 20.,
+            laser_fire_timer: 1.5,
+            laser_fire_damage: 1,
+            laser_speed: 1000,
+            laser_spawn_obstacles_delay: 10000,
+            laser_nb_obstacles: 5,
+            laser_obstacle_strength: 2,
+            laser_powerup_speed: 0.9,
+            laser_powerup_obstacle_delay: 0.8,
+            laser_powerup_obstacle_strength: 2,
+            laser_powerup_nb_obstacles: 2,
+        }
+    }
+}
+
+use lazy_static::lazy_static;
+lazy_static! {
+    static ref CONFIG: Config = config::read_from("config.conf").unwrap();
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let settings: Settings = config::read_from("settings.conf")?;
 

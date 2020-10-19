@@ -85,14 +85,21 @@ pub fn ui_event_update(
                     LaserPowerUp::iter().choose(&mut rng).unwrap()
                 } {
                     LaserPowerUp::Speed => {
-                        game.laser.speed = (game.laser.speed as f64 * 0.9) as u64
+                        game.laser.speed =
+                            (game.laser.speed as f64 * crate::CONFIG.laser_powerup_speed) as u64
                     }
                     LaserPowerUp::ObstacleSpawnDelay => {
-                        game.laser.spawn_obstacles_delay =
-                            (game.laser.spawn_obstacles_delay as f32 * 0.8) as u16
+                        game.laser.spawn_obstacles_delay = (game.laser.spawn_obstacles_delay as f32
+                            * crate::CONFIG.laser_powerup_obstacle_delay)
+                            as u16
                     }
-                    LaserPowerUp::ObstacleSpawnCount => game.laser.nb_obstacles += 2,
-                    LaserPowerUp::ObstacleStrengh => game.laser.obstacle_strength += 2,
+                    LaserPowerUp::ObstacleSpawnCount => {
+                        game.laser.nb_obstacles += crate::CONFIG.laser_powerup_nb_obstacles
+                    }
+                    LaserPowerUp::ObstacleStrengh => {
+                        game.laser.obstacle_strength +=
+                            crate::CONFIG.laser_powerup_obstacle_strength
+                    }
                 }
             }
             GameEvents::Lost(_) => {
