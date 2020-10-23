@@ -1,13 +1,5 @@
 use bevy::prelude::*;
 
-// macro_rules! load {
-//     ($assets:ident, $path:expr) => {
-//         $assets
-//             .load_from(Box::new(include_bytes!($path).as_ref()))
-//             .expect("was able to load font");
-//     };
-// }
-
 macro_rules! load {
     ($assets:ident, $path:expr) => {
         $assets.load($path);
@@ -25,26 +17,6 @@ macro_rules! colormaterial {
         });
     };
 }
-// macro_rules! colormaterial {
-//     ($mats:ident, $assets:ident, $path:expr) => {
-//         $mats.add(
-//             $assets
-//                 .load_from(Box::new(include_bytes!($path).as_ref()))
-//                 .expect("was able to load texture")
-//                 .into(),
-//         )
-//     };
-//     ($mats:ident, $assets:ident, $path:expr, $color:ident) => {
-//         $mats.add(ColorMaterial {
-//             texture: Some(
-//                 $assets
-//                     .load_from(Box::new(include_bytes!($path).as_ref()))
-//                     .expect("was able to load texture"),
-//             ),
-//             color: $color,
-//         });
-//     };
-// }
 
 #[derive(Default, Clone)]
 pub struct AssetHandles {
@@ -130,9 +102,6 @@ impl AssetHandles {
         Handle<Texture>,
     ) {
         if self.panel_handle.is_none() {
-            // let panel = include_bytes!("../assets/ui/panel_blue.png");
-
-            // let panel_texture_handle = assets.load_from(Box::new(panel.as_ref())).unwrap();
             let panel_texture_handle = assets.load("ui/panel_blue.png");
             let np = bevy_ninepatch::NinePatchBuilder::by_margins(10, 30, 10, 10);
             self.panel_handle = Some((nine_patches.add(np), panel_texture_handle));
@@ -149,9 +118,6 @@ impl AssetHandles {
         buttons: &mut Assets<crate::ui::button::Button>,
     ) -> Handle<crate::ui::button::Button> {
         if self.button_handle.is_none() {
-            // let button = include_bytes!("../assets/ui/buttonLong_beige.png");
-
-            // let button_texture_handle = assets.load_from(Box::new(button.as_ref())).unwrap();
             let button_texture_handle = assets.load("ui/buttonLong_beige.png");
             let button = crate::ui::button::Button::setup(
                 &mut mats,
@@ -169,8 +135,6 @@ impl AssetHandles {
         texture_atlases: &mut Assets<TextureAtlas>,
     ) -> Handle<TextureAtlas> {
         if self.character_handle.is_none() {
-            // let character = include_bytes!("../assets/game/character_femalePerson_sheetHD.png");
-            // let character_texture_handle = assets.load_from(Box::new(character.as_ref())).unwrap();
             let character_texture_handle = assets.load("game/character_femalePerson_sheetHD.png");
 
             let texture_atlas =
@@ -183,14 +147,14 @@ impl AssetHandles {
 
     pub fn get_font_main_handle(&mut self, assets: &AssetServer) -> Handle<Font> {
         if self.font_main_handle.is_none() {
-            self.font_main_handle = Some(load!(assets, "../assets/fonts/kenvector_future.ttf"));
+            self.font_main_handle = Some(load!(assets, "fonts/kenvector_future.ttf"));
         }
         self.font_main_handle.as_ref().unwrap().clone()
     }
 
     pub fn get_font_sub_handle(&mut self, assets: &AssetServer) -> Handle<Font> {
         if self.font_sub_handle.is_none() {
-            self.font_sub_handle = Some(load!(assets, "../assets/fonts/mandrill.ttf"));
+            self.font_sub_handle = Some(load!(assets, "fonts/mandrill.ttf"));
         }
         self.font_sub_handle.as_ref().unwrap().clone()
     }
@@ -209,35 +173,35 @@ impl AssetHandles {
             let yellow = crate::ui::ColorScheme::TEXT_HIGHLIGHT;
 
             self.board = Some(GameBoardHandles {
-                ground: colormaterial!(mats, assets, "../assets/game/rpgTile024.png"),
-                ground_bottom: colormaterial!(mats, assets, "../assets/game/rpgTile042.png"),
-                border_bottom: colormaterial!(mats, assets, "../assets/game/rpgTile011.png"),
-                ground_top: colormaterial!(mats, assets, "../assets/game/rpgTile006.png"),
-                border_top: colormaterial!(mats, assets, "../assets/game/rpgTile045.png"),
-                ground_left: colormaterial!(mats, assets, "../assets/game/rpgTile023.png"),
-                ground_right: colormaterial!(mats, assets, "../assets/game/rpgTile025.png"),
-                corner_bottom_left: colormaterial!(mats, assets, "../assets/game/rpgTile041.png"),
-                corner_bottom_right: colormaterial!(mats, assets, "../assets/game/rpgTile043.png"),
-                corner_top_left: colormaterial!(mats, assets, "../assets/game/rpgTile005.png"),
-                corner_top_right: colormaterial!(mats, assets, "../assets/game/rpgTile007.png"),
-                water: colormaterial!(mats, assets, "../assets/game/rpgTile029.png"),
-                grass: colormaterial!(mats, assets, "../assets/game/rpgTile019.png"),
-                laser: colormaterial!(mats, assets, "../assets/game/spark_06.png", red_fire),
-                obstacle_100: colormaterial!(mats, assets, "../assets/game/rpgTile163.png", red_0),
-                obstacle_75: colormaterial!(mats, assets, "../assets/game/rpgTile163.png", red_1),
-                obstacle_50: colormaterial!(mats, assets, "../assets/game/rpgTile163.png", red_2),
-                obstacle_25: colormaterial!(mats, assets, "../assets/game/rpgTile163.png", red_3),
-                bomb: colormaterial!(mats, assets, "../assets/game/bomb.png"),
-                bomb_icon: colormaterial!(mats, assets, "../assets/game/bomb.png", red_fire),
-                fire: colormaterial!(mats, assets, "../assets/game/fire_01.png", red_fire),
-                powerup_score: colormaterial!(mats, assets, "../assets/game/coinGold.png"),
-                powerup_bomb_count: colormaterial!(mats, assets, "../assets/game/gemBlue.png"),
-                powerup_bomb_damage: colormaterial!(mats, assets, "../assets/game/gemRed.png"),
-                powerup_bomb_range: colormaterial!(mats, assets, "../assets/game/gemGreen.png"),
-                powerup_bomb_speed: colormaterial!(mats, assets, "../assets/game/gemYellow.png"),
-                arrow_left: colormaterial!(mats, assets, "../assets/game/arrowLeft.png"),
-                arrow_right: colormaterial!(mats, assets, "../assets/game/arrowRight.png"),
-                star: colormaterial!(mats, assets, "../assets/game/star.png", yellow),
+                ground: colormaterial!(mats, assets, "game/rpgTile024.png"),
+                ground_bottom: colormaterial!(mats, assets, "game/rpgTile042.png"),
+                border_bottom: colormaterial!(mats, assets, "game/rpgTile011.png"),
+                ground_top: colormaterial!(mats, assets, "game/rpgTile006.png"),
+                border_top: colormaterial!(mats, assets, "game/rpgTile045.png"),
+                ground_left: colormaterial!(mats, assets, "game/rpgTile023.png"),
+                ground_right: colormaterial!(mats, assets, "game/rpgTile025.png"),
+                corner_bottom_left: colormaterial!(mats, assets, "game/rpgTile041.png"),
+                corner_bottom_right: colormaterial!(mats, assets, "game/rpgTile043.png"),
+                corner_top_left: colormaterial!(mats, assets, "game/rpgTile005.png"),
+                corner_top_right: colormaterial!(mats, assets, "game/rpgTile007.png"),
+                water: colormaterial!(mats, assets, "game/rpgTile029.png"),
+                grass: colormaterial!(mats, assets, "game/rpgTile019.png"),
+                laser: colormaterial!(mats, assets, "game/spark_06.png", red_fire),
+                obstacle_100: colormaterial!(mats, assets, "game/rpgTile163.png", red_0),
+                obstacle_75: colormaterial!(mats, assets, "game/rpgTile163.png", red_1),
+                obstacle_50: colormaterial!(mats, assets, "game/rpgTile163.png", red_2),
+                obstacle_25: colormaterial!(mats, assets, "game/rpgTile163.png", red_3),
+                bomb: colormaterial!(mats, assets, "game/bomb.png"),
+                bomb_icon: colormaterial!(mats, assets, "game/bomb.png", red_fire),
+                fire: colormaterial!(mats, assets, "game/fire_01.png", red_fire),
+                powerup_score: colormaterial!(mats, assets, "game/coinGold.png"),
+                powerup_bomb_count: colormaterial!(mats, assets, "game/gemBlue.png"),
+                powerup_bomb_damage: colormaterial!(mats, assets, "game/gemRed.png"),
+                powerup_bomb_range: colormaterial!(mats, assets, "game/gemGreen.png"),
+                powerup_bomb_speed: colormaterial!(mats, assets, "game/gemYellow.png"),
+                arrow_left: colormaterial!(mats, assets, "game/arrowLeft.png"),
+                arrow_right: colormaterial!(mats, assets, "game/arrowRight.png"),
+                star: colormaterial!(mats, assets, "game/star.png", yellow),
             })
         }
         self.board.as_ref().unwrap().clone()
@@ -254,25 +218,21 @@ impl AssetHandles {
     ) -> EmoteHandles {
         if self.emotes.is_none() {
             self.emotes = Some(EmoteHandles {
-                alert: colormaterial!(mats, assets, "../assets/emote/emote_alert.png"),
-                anger: colormaterial!(mats, assets, "../assets/emote/emote_anger.png"),
-                exclamation: colormaterial!(mats, assets, "../assets/emote/emote_exclamation.png"),
-                exclamations: colormaterial!(
-                    mats,
-                    assets,
-                    "../assets/emote/emote_exclamations.png"
-                ),
-                face_angry: colormaterial!(mats, assets, "../assets/emote/emote_faceAngry.png"),
-                face_happy: colormaterial!(mats, assets, "../assets/emote/emote_faceHappy.png"),
-                face_sad: colormaterial!(mats, assets, "../assets/emote/emote_faceSad.png"),
-                heart: colormaterial!(mats, assets, "../assets/emote/emote_heart.png"),
-                heart_broken: colormaterial!(mats, assets, "../assets/emote/emote_heartBroken.png"),
-                hearts: colormaterial!(mats, assets, "../assets/emote/emote_hearts.png"),
-                idea: colormaterial!(mats, assets, "../assets/emote/emote_idea.png"),
-                laugh: colormaterial!(mats, assets, "../assets/emote/emote_laugh.png"),
-                sleep: colormaterial!(mats, assets, "../assets/emote/emote_sleep.png"),
-                sleeps: colormaterial!(mats, assets, "../assets/emote/emote_sleeps.png"),
-                star: colormaterial!(mats, assets, "../assets/emote/emote_star.png"),
+                alert: colormaterial!(mats, assets, "emote/emote_alert.png"),
+                anger: colormaterial!(mats, assets, "emote/emote_anger.png"),
+                exclamation: colormaterial!(mats, assets, "emote/emote_exclamation.png"),
+                exclamations: colormaterial!(mats, assets, "emote/emote_exclamations.png"),
+                face_angry: colormaterial!(mats, assets, "emote/emote_faceAngry.png"),
+                face_happy: colormaterial!(mats, assets, "emote/emote_faceHappy.png"),
+                face_sad: colormaterial!(mats, assets, "emote/emote_faceSad.png"),
+                heart: colormaterial!(mats, assets, "emote/emote_heart.png"),
+                heart_broken: colormaterial!(mats, assets, "emote/emote_heartBroken.png"),
+                hearts: colormaterial!(mats, assets, "emote/emote_hearts.png"),
+                idea: colormaterial!(mats, assets, "emote/emote_idea.png"),
+                laugh: colormaterial!(mats, assets, "emote/emote_laugh.png"),
+                sleep: colormaterial!(mats, assets, "emote/emote_sleep.png"),
+                sleeps: colormaterial!(mats, assets, "emote/emote_sleeps.png"),
+                star: colormaterial!(mats, assets, "emote/emote_star.png"),
             });
         }
         self.emotes.as_ref().unwrap().clone()
@@ -289,9 +249,9 @@ impl AssetHandles {
     ) -> MedalHandles {
         if self.medals.is_none() {
             self.medals = Some(MedalHandles {
-                bronze: colormaterial!(mats, assets, "../assets/medals/flat_medal2.png"),
-                silver: colormaterial!(mats, assets, "../assets/medals/flat_medal3.png"),
-                gold: colormaterial!(mats, assets, "../assets/medals/flat_medal3.png"),
+                bronze: colormaterial!(mats, assets, "medals/flat_medal2.png"),
+                silver: colormaterial!(mats, assets, "medals/flat_medal3.png"),
+                gold: colormaterial!(mats, assets, "medals/flat_medal3.png"),
             });
         }
         self.medals.as_ref().unwrap().clone()
