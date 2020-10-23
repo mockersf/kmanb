@@ -22,6 +22,12 @@ bevy_diagnostic_entity_count = { git = "https://github.com/mockersf/bevy_extra" 
 bevy_ninepatch = { git = "https://github.com/mockersf/bevy_extra" }
 
 config = { path = "crates/config" }
+asset_io = { path = "crates/asset_io", optional = true }
+
+
+[features]
+default = ["bundled" ]
+bundled = ["asset_io"]
 
 
 [workspace]

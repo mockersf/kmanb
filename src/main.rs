@@ -129,9 +129,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             ..Default::default()
         })
         .add_resource(settings)
-        .add_resource(ClearColor(Color::rgb(0., 0., 0.01)))
-        // default plugins
-        .add_default_plugins();
+        .add_resource(ClearColor(Color::rgb(0., 0., 0.01)));
+
+    #[cfg(feature = "bundled")]
+    {
+        let mut default_plugins = bevy::DefaultPluginBuilder::default();
+        default_plugins.with_custom::<bevy::asset::AssetPlugin>(|builder| {
+            let task_pool = builder
+                .resources()
+                .get::<bevy::tasks::IoTaskPool>()
+                .expect("IoTaskPool resource not found")
+                .0
+                .clone();
+
+            let in_memory = asset_io::InMemoryAssetIo::preloaded();
+            let asset_server = bevy::asset::AssetServer::new(in_memory, task_pool);
+
+            builder
+                .add_stage_before(
+                    bevy::app::stage::PRE_UPDATE,
+                    bevy::asset::stage::LOAD_ASSETS,
+                )
+                .add_stage_after(
+                    bevy::app::stage::POST_UPDATE,
+                    bevy::asset::stage::ASSET_EVENTS,
+                )
+                .add_resource(asset_server)
+                .register_property::<bevy::asset::HandleId>()
+                .add_system_to_stage(
+                    bevy::app::stage::PRE_UPDATE,
+                    bevy::asset::free_unused_assets_system.system(),
+                );
+        });
+        builder.add_default_plugins_with_builder(default_plugins);
+    }
+    #[cfg(not(feature = "bundled"))]
+    builder.add_default_plugins();
 
     builder
         .add_plugin(::bevy_easings::EasingsPlugin)
