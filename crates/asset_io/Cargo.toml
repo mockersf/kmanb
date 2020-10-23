@@ -1,0 +1,15 @@
+[package]
+name = "asset_io"
+version = "0.1.0"
+authors = ["François Mockers <mockersf@gmail.com>"]
+edition = "2018"
+license = "MIT"
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# bevy = "0.2"
+# bevy = { git = "https://github.com/bevyengine/bevy" }
+# bevy = { git = "https://github.com/mockersf/bevy", branch = "asset-server-no-fs", default-features = false  }
+bevy = { path = "../../../spaceward-ho/bevy", default-features = false  }
