@@ -35,12 +35,12 @@ pub fn flash_bombs(
                             *child,
                             bevy_easings::Ease::ease(
                                 Some(Transform {
-                                    translation: Vec3::new(0., 0., Z_PLAYER),
+                                    translation: Vec3::new(0., 0., Z_BOMB),
                                     scale: Vec3::splat(ratio * 0.6),
                                     ..Default::default()
                                 }),
                                 Transform {
-                                    translation: Vec3::new(0., 0., Z_PLAYER),
+                                    translation: Vec3::new(0., 0., Z_BOMB),
                                     scale: Vec3::splat(ratio * 0.7),
                                     ..Default::default()
                                 },
@@ -238,7 +238,7 @@ pub fn destroyed_obstacles(
                             PlayerPowerUp::BombSpeed => assets.powerup_bomb_speed.clone(),
                         },
                         transform: Transform {
-                            translation: Vec3::new(0., 0., Z_PLAYER),
+                            translation: Vec3::new(0., 0., Z_POWERUP),
                             scale: Vec3::splat(ratio * 0.5),
                             ..Default::default()
                         },

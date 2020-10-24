@@ -56,7 +56,7 @@ pub fn event_system(
                         .spawn(SpriteComponents {
                             material: bomb_handle.clone(),
                             transform: Transform {
-                                translation: Vec3::new(0., 0., Z_PLAYER),
+                                translation: Vec3::new(0., 0., Z_BOMB),
                                 scale: Vec3::splat(ratio * 0.6),
                                 ..Default::default()
                             },

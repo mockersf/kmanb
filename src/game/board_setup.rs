@@ -117,7 +117,7 @@ pub fn setup(
                                     board_handles.arrow_right.clone()
                                 },
                                 transform: Transform {
-                                    translation: Vec3::new(0., 0., Z_FIRE),
+                                    translation: Vec3::new(0., 0., Z_INDICATION),
                                     scale: Vec3::splat(ratio * 0.6),
                                     ..Default::default()
                                 },
@@ -125,13 +125,13 @@ pub fn setup(
                             })
                             .with(
                                 Transform {
-                                    translation: Vec3::new(0., 0., Z_FIRE),
+                                    translation: Vec3::new(0., 0., Z_INDICATION),
                                     scale: Vec3::splat(ratio * 0.6),
                                     ..Default::default()
                                 }
                                 .ease_to(
                                     Transform {
-                                        translation: Vec3::new(0., 0., Z_FIRE),
+                                        translation: Vec3::new(0., 0., Z_INDICATION),
                                         scale: Vec3::splat(0.),
                                         ..Default::default()
                                     },

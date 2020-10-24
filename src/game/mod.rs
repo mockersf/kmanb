@@ -137,7 +137,7 @@ fn setup(
             Transform::from_translation(Vec3::new(
                 x_to(game.laser.x as i32 - 1, ratio),
                 1.,
-                Z_FIRE,
+                Z_LASER,
             )),
             GlobalTransform::identity(),
             LaserComponent(Timer::new(
@@ -222,8 +222,13 @@ const BOARD_X: usize = 21;
 const BOARD_Y: usize = 10;
 
 const Z_BACKGROUND: f32 = 0.0;
-const Z_PLAYER: f32 = 0.1;
-const Z_FIRE: f32 = 0.5;
+const Z_OBSTACLE: f32 = 0.1;
+const Z_BOMB: f32 = 0.2;
+const Z_POWERUP: f32 = 0.2;
+const Z_PLAYER: f32 = 0.3;
+const Z_FIRE: f32 = 0.4;
+const Z_INDICATION: f32 = 0.5;
+const Z_LASER: f32 = 0.5;
 
 const TILE_SIZE: f32 = 64.;
 const PLAYER_SIZE: f32 = 256.;

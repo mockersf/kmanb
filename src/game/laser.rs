@@ -64,7 +64,7 @@ pub fn move_laser(
                     *transform = Transform::from_translation(Vec3::new(
                         x_to(game.laser.x as i32 - 1, ratio),
                         0.,
-                        Z_FIRE,
+                        Z_LASER,
                     ));
                     commands.remove_one::<bevy_easings::EasingComponent<Transform>>(entity);
                 } else {
@@ -74,7 +74,7 @@ pub fn move_laser(
                             Transform::from_translation(Vec3::new(
                                 x_to(game.laser.x as i32 - 1, ratio),
                                 1.,
-                                Z_FIRE,
+                                Z_LASER,
                             )),
                             bevy_easings::EaseFunction::BounceInOut,
                             bevy_easings::EasingType::Once {
@@ -205,7 +205,7 @@ pub fn spawn_obstacles(
                             .spawn(SpriteComponents {
                                 material: crate_handle.clone(),
                                 transform: Transform {
-                                    translation: Vec3::new(0., 0., Z_PLAYER - 0.01),
+                                    translation: Vec3::new(0., 0., Z_OBSTACLE),
                                     scale: Vec3::splat(ratio * 1.),
                                     ..Default::default()
                                 },
