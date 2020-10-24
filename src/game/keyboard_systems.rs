@@ -225,20 +225,11 @@ pub fn event_system(
                                     },
                                     ..Default::default()
                                 },
-                                bevy_easings::EaseFunction::QuadraticIn,
+                                bevy_easings::EaseMethod::Linear,
                                 bevy_easings::EasingType::Once {
                                     duration: std::time::Duration::from_millis(move_delay),
                                 },
                             ),
-                        );
-                        commands.insert_one(
-                            entity,
-                            PlayerMoving {
-                                timer: Timer::new(
-                                    std::time::Duration::from_millis(buffer_delay),
-                                    false,
-                                ),
-                            },
                         );
                     } else if teleport_border {
                         commands.insert_one(
@@ -261,15 +252,6 @@ pub fn event_system(
                                     duration: std::time::Duration::from_millis(move_delay),
                                 },
                             ),
-                        );
-                        commands.insert_one(
-                            entity,
-                            PlayerMoving {
-                                timer: Timer::new(
-                                    std::time::Duration::from_millis(buffer_delay / 2),
-                                    false,
-                                ),
-                            },
                         );
                     } else if let Some(bump_direction) = bump.as_ref() {
                         let (x_factor, y_factor) = match bump_direction {
@@ -310,18 +292,18 @@ pub fn event_system(
                                     },
                                 ),
                         );
+                    }
+                    if moved || teleport_border || bump.is_some() {
+                        game.time_last_move = time.seconds_since_startup;
                         commands.insert_one(
                             entity,
                             PlayerMoving {
                                 timer: Timer::new(
-                                    std::time::Duration::from_millis(buffer_delay / 2),
+                                    std::time::Duration::from_millis(buffer_delay),
                                     false,
                                 ),
                             },
                         );
-                    }
-                    if moved || teleport_border || bump.is_some() {
-                        game.time_last_move = time.seconds_since_startup;
                     }
                 }
             }
