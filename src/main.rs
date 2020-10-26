@@ -61,9 +61,9 @@ struct Config {
 impl Default for Config {
     fn default() -> Config {
         Config {
-            score_bronze_medal: 7500,
-            score_silver_medal: 12500,
-            score_gold_medal: 17500,
+            score_bronze_medal: 10000,
+            score_silver_medal: 20000,
+            score_gold_medal: 35000,
             player_nb_bombs: 2,
             player_bomb_range: 1,
             player_bomb_damage: 2,
