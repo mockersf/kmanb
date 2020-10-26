@@ -251,7 +251,7 @@ impl AssetHandles {
             self.medals = Some(MedalHandles {
                 bronze: colormaterial!(mats, assets, "medals/flat_medal2.png"),
                 silver: colormaterial!(mats, assets, "medals/flat_medal3.png"),
-                gold: colormaterial!(mats, assets, "medals/flat_medal3.png"),
+                gold: colormaterial!(mats, assets, "medals/flat_medal4.png"),
             });
         }
         self.medals.as_ref().unwrap().clone()
