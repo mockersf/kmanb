@@ -11,6 +11,7 @@ pub fn flash_bombs(
     mut bombs_query: Query<(Entity, &mut BombComponent, &mut Children)>,
     bombs_sprite_query: Query<&BombSprite>,
     bomb_and_fire_sprites_query: Query<&FireSprite>,
+    obstacle_query: Query<&super::laser::ObstacleComponent>,
 ) {
     if game.state == GameState::Play {
         let fire_handle = asset_handles.get_board_handles_unsafe().fire.clone();
@@ -68,68 +69,67 @@ pub fn flash_bombs(
                 }
                 children.retain(|i| !targets.contains(i));
 
-                for x in (bomb.x as i32 - bomb.range as i32)..=(bomb.x as i32 + bomb.range as i32) {
-                    if x >= 0 && x < BOARD_X as i32 {
-                        let entity = game.board.as_ref().unwrap()[bomb.y][x as usize].entity;
-                        commands
-                            .spawn(SpriteComponents {
-                                material: fire_handle.clone(),
-                                transform: Transform {
-                                    translation: Vec3::new(0., 0., Z_FIRE),
-                                    scale: Vec3::splat(ratio * 1.3),
-                                    ..Default::default()
-                                },
+                let mut set_on_fire = |entity, x, y| {
+                    commands
+                        .spawn(SpriteComponents {
+                            material: fire_handle.clone(),
+                            transform: Transform {
+                                translation: Vec3::new(0., 0., Z_FIRE),
+                                scale: Vec3::splat(ratio * 1.3),
                                 ..Default::default()
-                            })
-                            .with(FireSprite);
-                        let fire = commands.current_entity().unwrap();
-                        commands.push_children(entity, &[fire]);
-                        commands.insert(
-                            entity,
-                            (FireComponent {
-                                damage: bomb.damage,
-                                x: x as usize,
-                                y: bomb.y,
-                                timer: Timer::from_seconds(
-                                    crate::CONFIG.player_bomb_fire_timer,
-                                    false,
-                                ),
-                                from_player: true,
-                            },),
-                        );
+                            },
+                            ..Default::default()
+                        })
+                        .with(FireSprite);
+                    let fire = commands.current_entity().unwrap();
+                    commands.push_children(entity, &[fire]);
+                    commands.insert(
+                        entity,
+                        (FireComponent {
+                            damage: bomb.damage,
+                            x: x,
+                            y: y,
+                            timer: Timer::from_seconds(crate::CONFIG.player_bomb_fire_timer, false),
+                            from_player: true,
+                        },),
+                    );
+                };
+
+                let mut stop_top = false;
+                let mut stop_bottom = false;
+                for i in 0..=bomb.range as usize {
+                    if !stop_top && bomb.x + i < BOARD_X {
+                        let entity = game.board.as_ref().unwrap()[bomb.y][bomb.x + i].entity;
+                        stop_top = obstacle_query
+                            .get::<super::laser::ObstacleComponent>(entity)
+                            .is_ok();
+                        set_on_fire(entity, bomb.x + i, bomb.y);
+                    }
+                    if !stop_bottom && bomb.x as i32 - i as i32 > 0 {
+                        let entity = game.board.as_ref().unwrap()[bomb.y][bomb.x - i].entity;
+                        stop_bottom = obstacle_query
+                            .get::<super::laser::ObstacleComponent>(entity)
+                            .is_ok();
+                        set_on_fire(entity, bomb.x - i, bomb.y);
                     }
                 }
-                for y in (bomb.y as i32 - bomb.range as i32)..=(bomb.y as i32 + bomb.range as i32) {
-                    if y >= 0 && y < BOARD_Y as i32 {
-                        if y as usize != bomb.y {
-                            let entity = game.board.as_ref().unwrap()[y as usize][bomb.x].entity;
-                            commands
-                                .spawn(SpriteComponents {
-                                    material: fire_handle.clone(),
-                                    transform: Transform {
-                                        translation: Vec3::new(0., 0., Z_FIRE),
-                                        scale: Vec3::splat(ratio * 1.3),
-                                        ..Default::default()
-                                    },
-                                    ..Default::default()
-                                })
-                                .with(FireSprite);
-                            let fire = commands.current_entity().unwrap();
-                            commands.push_children(entity, &[fire]);
-                            commands.insert(
-                                entity,
-                                (FireComponent {
-                                    damage: bomb.damage,
-                                    x: bomb.x,
-                                    y: y as usize,
-                                    timer: Timer::from_seconds(
-                                        crate::CONFIG.player_bomb_fire_timer,
-                                        false,
-                                    ),
-                                    from_player: true,
-                                },),
-                            );
-                        }
+
+                let mut stop_right = false;
+                let mut stop_left = false;
+                for j in 0..=bomb.range as usize {
+                    if !stop_right && bomb.y + j < BOARD_Y {
+                        let entity = game.board.as_ref().unwrap()[bomb.y + j][bomb.x].entity;
+                        stop_right = obstacle_query
+                            .get::<super::laser::ObstacleComponent>(entity)
+                            .is_ok();
+                        set_on_fire(entity, bomb.x, bomb.y + j);
+                    }
+                    if !stop_left && bomb.y as i32 - j as i32 > 0 {
+                        let entity = game.board.as_ref().unwrap()[bomb.y - j][bomb.x].entity;
+                        stop_left = obstacle_query
+                            .get::<super::laser::ObstacleComponent>(entity)
+                            .is_ok();
+                        set_on_fire(entity, bomb.x, bomb.y - j);
                     }
                 }
             }
