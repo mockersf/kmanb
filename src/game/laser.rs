@@ -206,7 +206,7 @@ pub fn spawn_obstacles(
                                 material: crate_handle.clone(),
                                 transform: Transform {
                                     translation: Vec3::new(0., 0., Z_OBSTACLE),
-                                    scale: Vec3::splat(ratio * 1.),
+                                    scale: Vec3::splat(ratio * 0.5),
                                     ..Default::default()
                                 },
                                 ..Default::default()
