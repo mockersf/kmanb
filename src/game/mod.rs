@@ -36,11 +36,16 @@ impl bevy::app::Plugin for Plugin {
         app.add_resource(Screen::default())
             .init_resource::<Game>()
             .init_resource::<keyboard_systems::KeyboardState>()
+            .init_resource::<keyboard_systems::PlayerActionListenerState>()
             .init_resource::<ui::GameEventsListenerState>()
             .init_resource::<emote::GameEventsListenerState>()
             .add_event::<GameEvents>()
+            .add_event::<keyboard_systems::PlayerAction>()
             .add_event::<InterestingEvent>()
-            .add_system(keyboard_systems::event_system.system())
+            .add_system(keyboard_systems::keyboard_event_system.system())
+            .add_system(keyboard_systems::keyboard_input_system.system())
+            .add_system(keyboard_systems::player_command.system())
+            .add_system(keyboard_systems::player_move_timer.system())
             .add_system(board_setup::setup.system())
             .add_system(ui::setup.system())
             .add_system(laser::setup.system())
@@ -130,7 +135,7 @@ fn setup(
                             .with(crate::menu::Emote(Timer::from_seconds(1., false)));
                     });
             })
-            .with(PlayerComponent)
+            .with(PlayerComponent(None))
             .with(ScreenTag);
 
         commands.spawn((
@@ -185,7 +190,7 @@ fn tear_down(
 
 pub struct LaserComponent(Timer);
 
-pub struct PlayerComponent;
+pub struct PlayerComponent(Option<Timer>);
 
 #[derive(PartialEq)]
 pub enum BombState {
