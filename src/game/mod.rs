@@ -218,7 +218,9 @@ pub struct BombComponent {
 }
 
 pub struct PlayerMoving {
-    timer: Timer,
+    timer_before_allow_new_move: Timer,
+    timer_before_update_position: Timer,
+    to: (usize, usize),
 }
 
 pub struct Occupied;
@@ -376,12 +378,18 @@ fn walk_animate_sprite_system(
 fn clear_moving_marker(
     mut commands: Commands,
     time: Res<Time>,
+    mut game: ResMut<Game>,
     mut moving: Mut<PlayerMoving>,
     entity: Entity,
 ) {
-    moving.timer.tick(time.delta_seconds);
-    if moving.timer.finished {
+    moving.timer_before_allow_new_move.tick(time.delta_seconds);
+    moving.timer_before_update_position.tick(time.delta_seconds);
+    if moving.timer_before_allow_new_move.just_finished {
         commands.remove_one::<PlayerMoving>(entity);
+    }
+    if moving.timer_before_update_position.just_finished {
+        game.player.x = moving.to.0;
+        game.player.y = moving.to.1;
     }
 }
 

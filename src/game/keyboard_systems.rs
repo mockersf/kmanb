@@ -42,7 +42,11 @@ pub fn keyboard_input_system(
 
 pub fn keyboard_event_system(
     mut commands: Commands,
-    (game_screen, mut game): (Res<crate::GameScreen>, ResMut<Game>),
+    (mut game_screen, mut game, mut screen): (
+        ResMut<crate::GameScreen>,
+        ResMut<Game>,
+        ResMut<Screen>,
+    ),
     (mut state, keyboard_input_events): (ResMut<KeyboardState>, Res<Events<KeyboardInput>>),
     mut game_events: ResMut<Events<GameEvents>>,
     mut player_action: ResMut<Events<PlayerAction>>,
@@ -59,9 +63,7 @@ pub fn keyboard_event_system(
                 } else {
                     game_events.send(GameEvents::Pause);
                 };
-                continue;
-            }
-            if game.state == GameState::Play && event.state == ElementState::Pressed {
+            } else if game.state == GameState::Play && event.state == ElementState::Pressed {
                 match event.key_code {
                     Some(KeyCode::Space) => {
                         if game.player.nb_bombs > used_bomb.iter().iter().count() {
@@ -98,8 +100,7 @@ pub fn player_command(
     chained_eased_query: Query<&bevy_easings::EasingChainComponent<Transform>>,
 ) {
     let ratio = wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
-
-    if game.board.is_some() {
+    if game.board.is_some() && game.state == GameState::Play {
         let mut moved = false;
         for event in state.event_reader.iter(&events) {
             match (event, moved) {
@@ -203,7 +204,7 @@ pub fn player_command(
                             ..Default::default()
                         };
 
-                        match move_to_do {
+                        let (to_x, to_y) = match move_to_do {
                             MoveToDo::Move(direction, x, y) => {
                                 match direction {
                                     MoveDirection::Left => {
@@ -214,8 +215,6 @@ pub fn player_command(
                                     }
                                     _ => (),
                                 }
-                                game.player.x = x as usize;
-                                game.player.y = y as usize;
                                 commands.insert_one(
                                     entity,
                                     transform.ease_to(
@@ -237,10 +236,9 @@ pub fn player_command(
                                         },
                                     ),
                                 );
+                                (x as usize, y as usize)
                             }
                             MoveToDo::Teleport(x, y) => {
-                                game.player.x = x as usize;
-                                game.player.y = y as usize;
                                 commands.insert_one(
                                     entity,
                                     transform.ease_to(
@@ -258,6 +256,7 @@ pub fn player_command(
                                         },
                                     ),
                                 );
+                                (x as usize, y as usize)
                             }
                             MoveToDo::Bump(_) => {
                                 commands.insert_one(
@@ -306,16 +305,22 @@ pub fn player_command(
                                             },
                                         ),
                                 );
+                                (game.player.x, game.player.y)
                             }
-                        }
+                        };
                         game.time_last_move = time.seconds_since_startup;
                         commands.insert_one(
                             entity,
                             PlayerMoving {
-                                timer: Timer::new(
+                                timer_before_allow_new_move: Timer::new(
                                     std::time::Duration::from_millis(buffer_delay),
                                     false,
                                 ),
+                                timer_before_update_position: Timer::new(
+                                    std::time::Duration::from_millis(move_delay / 2),
+                                    false,
+                                ),
+                                to: (to_x, to_y),
                             },
                         );
                         player.0 = Some(Timer::from_seconds(move_delay as f32 / 1000., false));
