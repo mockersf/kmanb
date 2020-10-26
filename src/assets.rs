@@ -26,6 +26,7 @@ pub struct AssetHandles {
     )>,
     button_handle: Option<Handle<crate::ui::button::Button>>,
     character_handle: Option<Handle<TextureAtlas>>,
+    selection_handle: Option<Handle<ColorMaterial>>,
     font_main_handle: Option<Handle<Font>>,
     font_sub_handle: Option<Handle<Font>>,
     board: Option<GameBoardHandles>,
@@ -127,6 +128,17 @@ impl AssetHandles {
             self.button_handle = Some(buttons.add(button));
         };
         self.button_handle.as_ref().unwrap().clone()
+    }
+
+    pub fn get_ui_selection_handle(
+        &mut self,
+        assets: &AssetServer,
+        mats: &mut Assets<ColorMaterial>,
+    ) -> Handle<ColorMaterial> {
+        if self.selection_handle.is_none() {
+            self.selection_handle = Some(colormaterial!(mats, assets, "ui/arrowBeige_right.png"));
+        }
+        self.selection_handle.as_ref().unwrap().clone()
     }
 
     pub fn get_character_handle(

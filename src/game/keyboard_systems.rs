@@ -61,6 +61,7 @@ pub fn keyboard_event_system(
                     commands.despawn_recursive(entity);
                     game.state = GameState::Play
                 } else {
+                    screen.pause_menu_selector = 1;
                     game_events.send(GameEvents::Pause);
                 };
             } else if game.state == GameState::Play && event.state == ElementState::Pressed {
@@ -71,6 +72,32 @@ pub fn keyboard_event_system(
                         }
                     }
                     _ => (),
+                }
+            } else if let GameState::Pause(pause_entity) = game.state {
+                if event.state == ElementState::Pressed {
+                    match event.key_code {
+                        Some(KeyCode::Left) => {
+                            screen.pause_menu_selector = 0;
+                        }
+                        Some(KeyCode::Right) => {
+                            screen.pause_menu_selector = 1;
+                        }
+                        Some(KeyCode::Return) | Some(KeyCode::Space) => {
+                            match screen.pause_menu_selector {
+                                1 => {
+                                    commands.despawn_recursive(pause_entity);
+                                    game.state = GameState::Play
+                                }
+                                0 => {
+                                    commands.despawn_recursive(pause_entity);
+                                    game.state = GameState::Death;
+                                    game_screen.current_screen = crate::Screen::Menu;
+                                }
+                                _ => (),
+                            }
+                        }
+                        _ => (),
+                    }
                 }
             }
         }

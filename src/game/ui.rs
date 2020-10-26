@@ -31,6 +31,8 @@ pub struct GameEventsListenerState {
 
 pub struct Stared;
 
+pub struct PauseMenuItemSelector(i32);
+
 pub fn ui_event_update(
     mut commands: Commands,
     screen: Res<crate::GameScreen>,
@@ -44,7 +46,12 @@ pub fn ui_event_update(
     mut buttons: ResMut<Assets<crate::ui::button::Button>>,
     mut round_text: Query<(&mut Text, &UiComponent, &Parent)>,
     is_new_best: Query<&Stared>,
+    mut player_query: Query<With<PlayerComponent, Entity>>,
 ) {
+    let transparent_background = materials.add(Color::NONE.into());
+    let menu_indicator: Handle<ColorMaterial> =
+        asset_handles.get_ui_selection_handle(&asset_server, &mut materials);
+
     for event in state.event_reader.iter(&events) {
         match event {
             GameEvents::NewRound => {
@@ -104,6 +111,9 @@ pub fn ui_event_update(
             }
             GameEvents::Lost(_) => {
                 commands.spawn((DeathAnimation(Timer::from_seconds(2., false)), ScreenTag));
+                for player_entity in &mut player_query.iter() {
+                    commands.remove_one::<bevy_easings::EasingComponent<Transform>>(player_entity);
+                }
                 game.state = GameState::Death;
             }
             GameEvents::Pause => {
@@ -119,7 +129,22 @@ pub fn ui_event_update(
                 );
                 let button = buttons.get(&button_handle).unwrap();
 
-                let button_menu = button.add(
+                commands.spawn(NodeComponents {
+                    style: Style {
+                        margin: Rect::all(Val::Px(50.)),
+                        flex_direction: FlexDirection::RowReverse,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    draw: Draw {
+                        is_transparent: true,
+                        ..Default::default()
+                    },
+                    material: transparent_background.clone(),
+                    ..Default::default()
+                });
+                let button_menu = commands.current_entity().unwrap();
+                let button_entity = button.add(
                     &mut commands,
                     300.,
                     75.,
@@ -128,7 +153,47 @@ pub fn ui_event_update(
                     PauseButton::ToMenu,
                     50.,
                 );
-                let button_continue = button.add(
+                commands
+                    .spawn(ImageComponents {
+                        style: Style {
+                            size: Size {
+                                height: Val::Px(17.),
+                                width: Val::Px(17.),
+                            },
+                            margin: Rect {
+                                right: Val::Px(15.),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        },
+                        draw: Draw {
+                            is_transparent: true,
+                            is_visible: false,
+                            ..Default::default()
+                        },
+                        material: menu_indicator.clone(),
+                        ..Default::default()
+                    })
+                    .with(PauseMenuItemSelector(0));
+                let indicator = commands.current_entity().unwrap();
+                commands.push_children(button_menu, &[button_entity, indicator]);
+
+                commands.spawn(NodeComponents {
+                    style: Style {
+                        margin: Rect::all(Val::Px(50.)),
+                        flex_direction: FlexDirection::RowReverse,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    draw: Draw {
+                        is_transparent: true,
+                        ..Default::default()
+                    },
+                    material: transparent_background.clone(),
+                    ..Default::default()
+                });
+                let button_continue = commands.current_entity().unwrap();
+                let button_entity = button.add(
                     &mut commands,
                     300.,
                     75.,
@@ -137,6 +202,30 @@ pub fn ui_event_update(
                     PauseButton::Continue,
                     50.,
                 );
+                commands
+                    .spawn(ImageComponents {
+                        style: Style {
+                            size: Size {
+                                height: Val::Px(17.),
+                                width: Val::Px(17.),
+                            },
+                            margin: Rect {
+                                right: Val::Px(15.),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        },
+                        draw: Draw {
+                            is_transparent: true,
+                            is_visible: false,
+                            ..Default::default()
+                        },
+                        material: menu_indicator.clone(),
+                        ..Default::default()
+                    })
+                    .with(PauseMenuItemSelector(1));
+                let indicator = commands.current_entity().unwrap();
+                commands.push_children(button_continue, &[button_entity, indicator]);
 
                 // number of NodeComponents to trick around z-system for UI nodes, that increase with the length of
                 // the hierarchy to the root node
@@ -506,6 +595,19 @@ pub fn button_system(
             },
             Interaction::Hovered => (),
             Interaction::None => (),
+        }
+    }
+}
+
+pub fn display_menu_item_selector(
+    screen: Res<Screen>,
+    mut query: Query<(&PauseMenuItemSelector, &mut Draw)>,
+) {
+    for (selector, mut draw) in &mut query.iter() {
+        if selector.0 == screen.pause_menu_selector {
+            draw.is_visible = true;
+        } else {
+            draw.is_visible = false;
         }
     }
 }

@@ -12,12 +12,14 @@ struct ScreenTag;
 struct Screen {
     loaded: bool,
     first_load: bool,
+    menu_selected: Option<i32>,
 }
 impl Default for Screen {
     fn default() -> Self {
         Screen {
             loaded: false,
             first_load: true,
+            menu_selected: None,
         }
     }
 }
@@ -26,12 +28,12 @@ pub struct Plugin;
 impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_resource(Screen::default())
-            // .init_resource::<Assets<bevy_ninepatch::NinePatch<()>>>()
+            .add_system(keyboard_input_system.system())
             .add_system(setup.system())
             .add_system(button_system.system())
-            .add_system(keyboard_input_system.system())
             .add_system(walk_animate_sprite_system.system())
             .add_system(remove_emote.system())
+            .add_system(display_menu_item_selector.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
     }
 }
@@ -82,6 +84,8 @@ fn setup(
         let _ = asset_handles.get_emote_handles(&asset_server, &mut materials);
 
         let font: Handle<Font> = asset_handles.get_font_main_handle(&asset_server);
+        let menu_indicator: Handle<ColorMaterial> =
+            asset_handles.get_ui_selection_handle(&asset_server, &mut materials);
 
         let color_none = materials.add(Color::NONE.into());
 
@@ -180,26 +184,65 @@ fn setup(
             ..Default::default()
         };
 
-        let mut current_button_shift = 30.;
+        let button_shift_start = 15.;
         let button_shift = 45.;
         let buttons = &[MenuButton::NewGame, MenuButton::About, MenuButton::Quit]
             .iter()
-            .map(|button_item| {
-                let entity = button.add(
+            .enumerate()
+            .map(|(i, button_item)| {
+                commands.spawn(NodeComponents {
+                    style: Style {
+                        margin: Rect {
+                            left: Val::Px(button_shift_start + i as f32 * button_shift),
+                            right: Val::Auto,
+                            top: Val::Auto,
+                            bottom: Val::Auto,
+                        },
+                        flex_direction: FlexDirection::RowReverse,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    draw: Draw {
+                        is_transparent: true,
+                        ..Default::default()
+                    },
+                    material: color_none.clone(),
+                    ..Default::default()
+                });
+                let entity = commands.current_entity().unwrap();
+                let button = button.add(
                     &mut commands,
                     225.,
                     50.,
-                    Rect {
-                        left: Val::Px(current_button_shift),
-                        right: Val::Auto,
-                        top: Val::Auto,
-                        bottom: Val::Auto,
-                    },
+                    Rect::all(Val::Auto),
                     font.clone(),
                     *button_item,
                     25.,
                 );
-                current_button_shift += button_shift;
+                commands
+                    .spawn(ImageComponents {
+                        style: Style {
+                            size: Size {
+                                height: Val::Px(17.),
+                                width: Val::Px(17.),
+                            },
+                            margin: Rect {
+                                right: Val::Px(15.),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        },
+                        draw: Draw {
+                            is_transparent: true,
+                            is_visible: false,
+                            ..Default::default()
+                        },
+                        material: menu_indicator.clone(),
+                        ..Default::default()
+                    })
+                    .with(MenuItemSelector(i));
+                let indicator = commands.current_entity().unwrap();
+                commands.push_children(entity, &[button, indicator]);
                 entity
             })
             .collect::<Vec<_>>();
@@ -279,10 +322,11 @@ fn tear_down(
 }
 fn keyboard_input_system(
     mut game_screen: ResMut<crate::GameScreen>,
+    mut screen: ResMut<Screen>,
     keyboard_input: Res<Input<KeyCode>>,
     mut wnds: ResMut<Windows>,
 ) {
-    if game_screen.current_screen == CURRENT_SCREEN {
+    if game_screen.current_screen == CURRENT_SCREEN && screen.loaded {
         if keyboard_input.just_released(KeyCode::Escape) {
             game_screen.current_screen = crate::Screen::Exit;
         } else if keyboard_input.just_released(KeyCode::F) {
@@ -292,6 +336,29 @@ fn keyboard_input_system(
                     window.set_mode(bevy::window::WindowMode::BorderlessFullscreen)
                 }
                 _ => window.set_mode(bevy::window::WindowMode::Windowed),
+            }
+        } else if keyboard_input.just_released(KeyCode::Down) {
+            screen.menu_selected = Some(
+                screen
+                    .menu_selected
+                    .map(|i| i32::min(2, i + 1))
+                    .unwrap_or(0),
+            );
+        } else if keyboard_input.just_released(KeyCode::Up) {
+            screen.menu_selected = Some(
+                screen
+                    .menu_selected
+                    .map(|i| i32::max(0, i - 1))
+                    .unwrap_or(0),
+            );
+        } else if keyboard_input.just_released(KeyCode::Space)
+            || keyboard_input.just_released(KeyCode::Return)
+        {
+            match screen.menu_selected {
+                Some(0) => game_screen.current_screen = crate::Screen::Game,
+                Some(1) => game_screen.current_screen = crate::Screen::About,
+                Some(2) => game_screen.current_screen = crate::Screen::Exit,
+                _ => (),
             }
         }
     }
@@ -367,5 +434,22 @@ fn remove_emote(mut commands: Commands, time: Res<Time>, mut emote: Mut<Emote>, 
     emote.0.tick(time.delta_seconds);
     if emote.0.just_finished {
         commands.despawn(entity);
+    }
+}
+
+struct MenuItemSelector(usize);
+
+fn display_menu_item_selector(
+    screen: Res<Screen>,
+    mut query: Query<(&MenuItemSelector, &mut Draw)>,
+) {
+    if let Some(index_selected) = screen.menu_selected {
+        for (selector, mut draw) in &mut query.iter() {
+            if selector.0 == index_selected as usize {
+                draw.is_visible = true;
+            } else {
+                draw.is_visible = false;
+            }
+        }
     }
 }

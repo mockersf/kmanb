@@ -339,7 +339,9 @@ fn keyboard_input_system(
     mut game_screen: ResMut<crate::GameScreen>,
     keyboard_input: Res<Input<KeyCode>>,
 ) {
-    if game_screen.current_screen == CURRENT_SCREEN && keyboard_input.just_released(KeyCode::Escape)
+    if game_screen.current_screen == CURRENT_SCREEN
+        && (keyboard_input.just_released(KeyCode::Escape)
+            || keyboard_input.just_released(KeyCode::Space))
     {
         game_screen.current_screen = crate::Screen::Menu;
     }

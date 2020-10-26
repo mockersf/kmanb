@@ -20,12 +20,14 @@ struct ScreenTag;
 pub struct Screen {
     loaded: bool,
     first_load: bool,
+    pause_menu_selector: i32,
 }
 impl Default for Screen {
     fn default() -> Self {
         Screen {
             loaded: false,
             first_load: true,
+            pause_menu_selector: 1,
         }
     }
 }
@@ -62,6 +64,7 @@ impl bevy::app::Plugin for Plugin {
             .add_system(ui::display_bombs_available.system())
             .add_system(ui::death_animation.system())
             .add_system(ui::button_system.system())
+            .add_system(ui::display_menu_item_selector.system())
             .add_system(bomb::fire.system())
             .add_system(bomb::flash_bombs.system())
             .add_system(bomb::destroyed_obstacles.system())
