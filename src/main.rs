@@ -173,10 +173,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if cfg!(debug_assertions) {
         builder
             .add_plugin(::bevy::diagnostic::FrameTimeDiagnosticsPlugin)
-            .add_plugin(::bevy_diagnostic_entity_count::EntityCountDiagnosticsPlugin)
+            .add_plugin(::bevy_diagnostic_counter::EntityCountDiagnosticsPlugin)
+            .add_plugin(::bevy_diagnostic_counter::AssetCountDiagnosticsPlugin::<ColorMaterial>::default())
+            .add_plugin(::bevy_diagnostic_counter::AssetCountDiagnosticsPlugin::<Texture>::default())
             .add_plugin(::bevy_log_diagnostic::LogDiagnosticsPlugin::filtered(vec![
                 ::bevy::diagnostic::FrameTimeDiagnosticsPlugin::FPS,
-                ::bevy_diagnostic_entity_count::EntityCountDiagnosticsPlugin::ENTITY_COUNT,
+                ::bevy_diagnostic_counter::EntityCountDiagnosticsPlugin::ENTITY_COUNT,
+                ::bevy_diagnostic_counter::AssetCountDiagnosticsPlugin::<ColorMaterial>::diagnostic_id(),
+                ::bevy_diagnostic_counter::AssetCountDiagnosticsPlugin::<Texture>::diagnostic_id(),
             ]));
     }
 
