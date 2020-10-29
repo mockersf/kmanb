@@ -178,6 +178,7 @@ pub fn spawn_obstacles(
     (wnds, time): (Res<Windows>, Res<Time>),
     mut spawner_query: Query<&mut ObstacleSpawner>,
     occupied_tiles: Query<&Occupied>,
+    mut moving: Query<&PlayerMoving>,
 ) {
     if game.state == GameState::Play {
         if game_screen.current_screen == CURRENT_SCREEN {
@@ -197,6 +198,14 @@ pub fn spawn_obstacles(
                     })
                     .filter(|(x, y)| *x != game.player.x || *y != game.player.y)
                     .take(game.laser.nb_obstacles * 2)
+                    .filter(|(x, y)| {
+                        !moving
+                            .iter()
+                            .iter()
+                            .next()
+                            .map(|m| m.to == (*x, *y))
+                            .unwrap_or(false)
+                    })
                     .map(|(x, y)| game.board.as_ref().unwrap()[y][x].entity)
                     .filter(|cell| occupied_tiles.get::<Occupied>(*cell).is_err())
                     .take(game.laser.nb_obstacles)
