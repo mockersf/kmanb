@@ -91,7 +91,7 @@ fn setup(
         let ratio = wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
         let board_handles = asset_handles.get_board_handles(&asset_server, &mut materials);
-        let emotes = asset_handles.get_emote_handles_unsafe();
+        let emotes = asset_handles.get_emote_handles(&asset_server, &mut materials);
 
         let character_handle =
             asset_handles.get_character_handle(&asset_server, &mut texture_atlases);
