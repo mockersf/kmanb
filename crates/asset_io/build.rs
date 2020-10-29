@@ -23,7 +23,7 @@ fn main() {
         .for_each(|(fullpath, path)| {
             file.write_all(
                 format!(
-                    r#"in_memory.add_entity("{}", include_bytes!("{}"));
+                    r#"in_memory.add_entity(std::path::Path::new("{}"), include_bytes!("{}"));
 "#,
                     path.to_string_lossy(),
                     fullpath.to_string_lossy()

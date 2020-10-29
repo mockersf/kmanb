@@ -7,7 +7,7 @@ license = "MIT"
 publish = false
 
 [dependencies]
-bevy = { git = "https://github.com/mockersf/bevy", branch = "ld" }
+bevy = { git = "https://github.com/bevyengine/bevy" }
 serde = { version = "1.0", features = [ "derive" ] }
 tracing = "0.1"
 tracing-subscriber = "0.2"
@@ -16,17 +16,18 @@ enum-utils = "0.1"
 lazy_static = "1.4"
 # bevy_easings = { version = "0.1.1", default-features = false }
 bevy_easings = { git = "https://github.com/mockersf/bevy_extra", default-features = false }
-bevy_log_diagnostic = "0.1"
-bevy_diagnostic_entity_count = { git = "https://github.com/mockersf/bevy_extra" }
 # bevy_ninepatch = "0.1.2"
 bevy_ninepatch = { git = "https://github.com/mockersf/bevy_extra" }
+# bevy_log_diagnostic = "0.1"
+bevy_log_diagnostic = { git = "https://github.com/mockersf/bevy_extra" }
+bevy_diagnostic_counter = { git = "https://github.com/mockersf/bevy_extra" }
 
 config = { path = "crates/config" }
 asset_io = { path = "crates/asset_io", optional = true }
 
 
 [features]
-default = ["bundled" ]
+default = ["bundled", "bevy/bevy_wgpu" ]
 bundled = ["asset_io"]
 
 
@@ -47,4 +48,4 @@ codegen-units = 1
 
 
 [patch.crates-io]
-bevy = { git = "https://github.com/mockersf/bevy", branch = "ld" }
+bevy = { git = "https://github.com/bevyengine/bevy" }

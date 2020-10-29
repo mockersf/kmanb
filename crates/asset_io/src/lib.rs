@@ -1,9 +1,14 @@
+use std::path::{Path, PathBuf};
+
 use bevy::asset::AssetIo;
+
+mod plugin;
+pub use plugin::InMemoryAssetPlugin;
 
 include!(concat!(env!("OUT_DIR"), "/include_all_assets.rs"));
 
 pub struct InMemoryAssetIo {
-    loaded: std::collections::HashMap<&'static str, &'static [u8]>,
+    loaded: std::collections::HashMap<&'static Path, &'static [u8]>,
 }
 
 impl InMemoryAssetIo {
@@ -21,7 +26,7 @@ impl InMemoryAssetIo {
         new
     }
 
-    pub fn add_entity(&mut self, path: &'static str, data: &'static [u8]) {
+    pub fn add_entity(&mut self, path: &'static Path, data: &'static [u8]) {
         self.loaded.insert(path, data);
     }
 }
@@ -29,45 +34,32 @@ impl InMemoryAssetIo {
 impl AssetIo for InMemoryAssetIo {
     fn load_path<'a>(
         &'a self,
-        path: &'a str,
+        path: &'a Path,
     ) -> bevy::utils::BoxedFuture<'a, Result<Vec<u8>, bevy::asset::AssetIoError>> {
         Box::pin(async move {
-            self.loaded.get(path).map(|b| b.to_vec()).ok_or_else(|| {
-                bevy::asset::AssetIoError::NotFound(format!("asset {} was not preloaded", path))
-            })
+            self.loaded
+                .get(path)
+                .map(|b| b.to_vec())
+                .ok_or_else(|| bevy::asset::AssetIoError::NotFound(path.to_path_buf()))
         })
     }
 
     fn read_directory(
         &self,
-        _path: &str,
-    ) -> Result<Box<dyn Iterator<Item = String>>, bevy::asset::AssetIoError> {
-        Ok(Box::new(std::iter::empty::<String>()))
+        _path: &Path,
+    ) -> Result<Box<dyn Iterator<Item = PathBuf>>, bevy::asset::AssetIoError> {
+        Ok(Box::new(std::iter::empty::<PathBuf>()))
     }
 
-    fn is_directory(&self, _path: &str) -> bool {
+    fn is_directory(&self, _path: &Path) -> bool {
         false
     }
 
-    fn watch_path_for_changes(&self, _path: &str) -> Result<(), bevy::asset::AssetIoError> {
+    fn watch_path_for_changes(&self, _path: &Path) -> Result<(), bevy::asset::AssetIoError> {
         Ok(())
     }
 
     fn watch_for_changes(&self) -> Result<(), bevy::asset::AssetIoError> {
         Ok(())
-    }
-
-    fn extension<'a>(&self, path: &'a str) -> Option<&'a str> {
-        std::path::Path::new(path)
-            .extension()
-            .and_then(|e| e.to_str())
-    }
-
-    fn parent<'a>(&self, _path: &'a str) -> Option<&'a str> {
-        Some("/")
-    }
-
-    fn sibling(&self, _path: &str, sibling: &str) -> Option<String> {
-        Some(format!("/{}", sibling))
     }
 }
