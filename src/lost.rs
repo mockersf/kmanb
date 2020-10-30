@@ -322,7 +322,7 @@ fn tear_down(
     mut commands: Commands,
     game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
-    mut query: Query<(Entity, &ScreenTag)>,
+    query: Query<(Entity, &ScreenTag)>,
 ) {
     if game_screen.current_screen != CURRENT_SCREEN && screen.loaded {
         info!("tear down");
@@ -365,7 +365,7 @@ fn hurt_animate_sprite_system(
     mut query: Query<(&mut Timer, &mut TextureAtlasSprite)>,
 ) {
     if game_screen.current_screen == CURRENT_SCREEN {
-        for (timer, mut sprite) in &mut query.iter() {
+        for (timer, mut sprite) in query.iter_mut() {
             if timer.finished {
                 if sprite.index == 0 {
                     sprite.index = 4;

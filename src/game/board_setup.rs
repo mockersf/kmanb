@@ -11,7 +11,7 @@ pub fn remove_indications(
     mut indication_query: Query<(Entity, &mut TeleportIndicationComponent, &mut Children)>,
     indication_sprite_query: Query<&TeleportIndicationSprite>,
 ) {
-    for (entity, mut indication, mut children) in &mut indication_query.iter() {
+    for (entity, mut indication, mut children) in indication_query.iter_mut() {
         indication.timer.tick(time.delta_seconds);
         if indication.timer.just_finished {
             commands.remove_one::<TeleportIndicationComponent>(entity);

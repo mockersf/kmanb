@@ -17,7 +17,7 @@ pub fn flash_bombs(
         let fire_handle = asset_handles.get_board_handles_unsafe().fire.clone();
         let ratio = wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
-        for (entity, mut bomb, mut children) in &mut bombs_query.iter() {
+        for (entity, mut bomb, mut children) in bombs_query.iter_mut() {
             bomb.timer.tick(time.delta_seconds);
             let mut explode_now = false;
             for child in children.iter() {
@@ -145,10 +145,10 @@ pub fn fire(
     mut interesting_events: ResMut<Events<InterestingEvent>>,
     mut fire_query: Query<(Entity, &mut FireComponent, &mut Children)>,
     fire_sprite_query: Query<&FireSprite>,
-    obstacle_query: Query<&mut super::laser::ObstacleComponent>,
+    mut obstacle_query: Query<&mut super::laser::ObstacleComponent>,
 ) {
     if game.state == GameState::Play {
-        for (entity, mut fire, mut children) in &mut fire_query.iter() {
+        for (entity, mut fire, mut children) in fire_query.iter_mut() {
             fire.timer.tick(time.delta_seconds);
             if game.player.x == fire.x && game.player.y == fire.y {
                 game_events.send(GameEvents::Lost(if fire.from_player {
@@ -199,7 +199,7 @@ pub fn destroyed_obstacles(
     let assets = asset_handles.get_board_handles_unsafe();
     let ratio = wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
-    for (entity, obstacle, mut children) in &mut obstacle_query.iter() {
+    for (entity, obstacle, mut children) in obstacle_query.iter_mut() {
         if obstacle.remaining_life == 0 {
             commands.remove_one::<Occupied>(entity);
             commands.remove_one::<super::laser::ObstacleComponent>(entity);
@@ -261,7 +261,7 @@ pub fn player_powerups(
     powerup_sprite_query: Query<&PowerUpSprite>,
 ) {
     if game.state == GameState::Play {
-        for (entity, mut powerup, mut children) in &mut powerup_query.iter() {
+        for (entity, mut powerup, mut children) in powerup_query.iter_mut() {
             powerup.timer.tick(time.delta_seconds);
 
             if !powerup.used {

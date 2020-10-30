@@ -50,7 +50,7 @@ pub fn keyboard_event_system(
     (mut state, keyboard_input_events): (ResMut<KeyboardState>, Res<Events<KeyboardInput>>),
     mut game_events: ResMut<Events<GameEvents>>,
     mut player_action: ResMut<Events<PlayerAction>>,
-    mut used_bomb: Query<&BombComponent>,
+    used_bomb: Query<&BombComponent>,
 ) {
     if game_screen.current_screen == CURRENT_SCREEN {
         for event in state.event_reader.iter(&keyboard_input_events) {
@@ -67,7 +67,7 @@ pub fn keyboard_event_system(
             } else if game.state == GameState::Play && event.state == ElementState::Pressed {
                 match event.key_code {
                     Some(KeyCode::Space) => {
-                        if game.player.nb_bombs > used_bomb.iter().iter().count() {
+                        if game.player.nb_bombs > used_bomb.iter().count() {
                             player_action.send(PlayerAction::PoseBomb);
                         }
                     }
@@ -200,7 +200,7 @@ pub fn player_command(
                         move_to_do = MoveToDo::Bump(*direction);
                     }
 
-                    for (entity, mut player, transform) in &mut player_query.iter() {
+                    for (entity, mut player, transform) in player_query.iter_mut() {
                         if chained_eased_query
                             .get::<bevy_easings::EasingChainComponent<Transform>>(entity)
                             .is_ok()

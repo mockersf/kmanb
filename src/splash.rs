@@ -65,7 +65,7 @@ fn tear_down(
     mut commands: Commands,
     game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
-    mut query: Query<(Entity, &ScreenTag)>,
+    query: Query<(Entity, &ScreenTag)>,
 ) {
     if game_screen.current_screen != CURRENT_SCREEN && screen.loaded {
         info!("tear down");
@@ -88,7 +88,7 @@ fn done(time: Res<Time>, mut screen: ResMut<Screen>, mut state: ResMut<crate::Ga
 }
 
 fn animate_logo(mut query: Query<(&Timer, &mut Transform, &ScreenTag)>) {
-    for (timer, mut transform, _tag) in &mut query.iter() {
+    for (timer, mut transform, _tag) in query.iter_mut() {
         if timer.finished {
             let translation = transform.translation;
             if translation.x() != 0. || translation.y() != 0. {

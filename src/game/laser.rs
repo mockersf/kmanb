@@ -17,7 +17,7 @@ pub fn move_laser(
             game_events.send(GameEvents::Lost(CauseOfDeath::Laser))
         }
         let fire_handle = asset_handles.get_board_handles_unsafe().fire;
-        for (entity, mut transform, mut laser) in &mut laser_query.iter() {
+        for (entity, mut transform, mut laser) in laser_query.iter_mut() {
             laser.0.tick(time.delta_seconds);
             if laser.0.just_finished {
                 let ratio =
@@ -139,8 +139,8 @@ impl ObstacleComponent {
 pub fn update_obstacle_sprite(
     game_screen: Res<crate::GameScreen>,
     asset_handles: Res<crate::AssetHandles>,
-    sprite_query: Query<(&mut Handle<ColorMaterial>, &ObstacleSprite)>,
-    mut obstacle_query: Query<(&ObstacleComponent, &Children)>,
+    mut sprite_query: Query<(&mut Handle<ColorMaterial>, &ObstacleSprite)>,
+    obstacle_query: Query<(&ObstacleComponent, &Children)>,
 ) {
     if game_screen.current_screen == CURRENT_SCREEN {
         let board_assets = asset_handles.get_board_handles_unsafe();
@@ -178,7 +178,7 @@ pub fn spawn_obstacles(
     (wnds, time): (Res<Windows>, Res<Time>),
     mut spawner_query: Query<&mut ObstacleSpawner>,
     occupied_tiles: Query<&Occupied>,
-    mut moving: Query<&PlayerMoving>,
+    moving: Query<&PlayerMoving>,
 ) {
     if game.state == GameState::Play {
         if game_screen.current_screen == CURRENT_SCREEN {
@@ -186,7 +186,7 @@ pub fn spawn_obstacles(
                 wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
             let crate_handle = asset_handles.get_board_handles_unsafe().obstacle_100;
-            for mut spawner in &mut spawner_query.iter() {
+            for mut spawner in spawner_query.iter_mut() {
                 spawner.0.tick(time.delta_seconds);
                 if spawner.0.just_finished {
                     let mut rng = rand::thread_rng();
@@ -200,7 +200,6 @@ pub fn spawn_obstacles(
                     .take(game.laser.nb_obstacles * 2)
                     .filter(|(x, y)| {
                         !moving
-                            .iter()
                             .iter()
                             .next()
                             .map(|m| m.to == (*x, *y))

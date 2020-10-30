@@ -46,7 +46,7 @@ pub fn ui_event_update(
     mut buttons: ResMut<Assets<crate::ui::button::Button>>,
     mut round_text: Query<(&mut Text, &UiComponent, &Parent)>,
     is_new_best: Query<&Stared>,
-    mut player_query: Query<With<PlayerComponent, Entity>>,
+    player_query: Query<With<PlayerComponent, Entity>>,
 ) {
     let transparent_background = materials.add(Color::NONE.into());
     let menu_indicator: Handle<ColorMaterial> =
@@ -56,7 +56,7 @@ pub fn ui_event_update(
         match event {
             GameEvents::NewRound => {
                 game.round += 1;
-                for (mut text, component, parent) in &mut round_text.iter() {
+                for (mut text, component, parent) in round_text.iter_mut() {
                     if *component == UiComponent::Round {
                         text.value = format!("Round {}", game.round);
                         if screen.is_new_highround(game.round) {
@@ -318,12 +318,12 @@ pub fn death_animation(
     mut animation_query: Query<&mut Animation>,
     mut death_query: Query<&mut DeathAnimation>,
 ) {
-    for mut death in &mut death_query.iter() {
+    for mut death in death_query.iter_mut() {
         death.0.tick(time.delta_seconds);
         if death.0.just_finished {
             game_screen.current_screen = crate::Screen::Lost;
         } else {
-            for mut animation in &mut animation_query.iter() {
+            for mut animation in animation_query.iter_mut() {
                 if *animation != Animation::Die {
                     *animation = Animation::Die;
                 }
@@ -342,7 +342,7 @@ pub fn score(
     is_new_best: Query<&Stared>,
 ) {
     if game.state == GameState::Play {
-        for (mut score, ui, timer, parent) in &mut score_text.iter() {
+        for (mut score, ui, timer, parent) in score_text.iter_mut() {
             if *ui == UiComponent::Score && timer.just_finished {
                 score.value = format!("{}", game.score);
                 game.score += game.round as u32;
@@ -527,14 +527,14 @@ pub fn display_bombs_available(
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut used_bombs: Query<&BombComponent>,
+    used_bombs: Query<&BombComponent>,
     mut parent_component: Query<(Entity, &mut Children, &UiComponent)>,
 ) {
-    let used_bombs = used_bombs.iter().iter().count();
+    let used_bombs = used_bombs.iter().count();
     let bomb_icon_handle = asset_handles
         .get_board_handles(&asset_server, &mut materials)
         .bomb_icon;
-    for (entity, mut children, component) in &mut parent_component.iter() {
+    for (entity, mut children, component) in parent_component.iter_mut() {
         if *component == UiComponent::BombsAvailable {
             if children.0.len() != game.player.nb_bombs - used_bombs {
                 for _ in 0..children.0.len() {
@@ -576,7 +576,7 @@ pub fn button_system(
         &crate::ui::button::ButtonId<PauseButton>,
     )>,
 ) {
-    for (_button, interaction, button_id) in &mut interaction_query.iter() {
+    for (_button, interaction, button_id) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => match button_id.0 {
                 PauseButton::Continue => {
@@ -603,7 +603,7 @@ pub fn display_menu_item_selector(
     screen: Res<Screen>,
     mut query: Query<(&PauseMenuItemSelector, &mut Draw)>,
 ) {
-    for (selector, mut draw) in &mut query.iter() {
+    for (selector, mut draw) in query.iter_mut() {
         if selector.0 == screen.pause_menu_selector {
             draw.is_visible = true;
         } else {

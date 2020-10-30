@@ -308,7 +308,7 @@ fn tear_down(
     mut commands: Commands,
     game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
-    mut query: Query<(Entity, &ScreenTag)>,
+    query: Query<(Entity, &ScreenTag)>,
 ) {
     if game_screen.current_screen != CURRENT_SCREEN && screen.loaded {
         info!("tear down");
@@ -372,7 +372,7 @@ fn button_system(
         &crate::ui::button::ButtonId<MenuButton>,
     )>,
 ) {
-    for (_button, interaction, button_id) in &mut interaction_query.iter() {
+    for (_button, interaction, button_id) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => match button_id.0 {
                 MenuButton::Quit => game_screen.current_screen = crate::Screen::Exit,
@@ -394,7 +394,7 @@ fn walk_animate_sprite_system(
     mut query: Query<(&mut Timer, &mut TextureAtlasSprite)>,
 ) {
     if game_screen.current_screen == CURRENT_SCREEN {
-        for (timer, mut sprite) in &mut query.iter() {
+        for (timer, mut sprite) in query.iter_mut() {
             if timer.finished {
                 sprite.index = ((sprite.index as usize + 1) % 8 + 36) as u32;
                 let mut rng = rand::thread_rng();
@@ -444,7 +444,7 @@ fn display_menu_item_selector(
     mut query: Query<(&MenuItemSelector, &mut Draw)>,
 ) {
     if let Some(index_selected) = screen.menu_selected {
-        for (selector, mut draw) in &mut query.iter() {
+        for (selector, mut draw) in query.iter_mut() {
             if selector.0 == index_selected as usize {
                 draw.is_visible = true;
             } else {
