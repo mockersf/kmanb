@@ -170,12 +170,8 @@ pub fn fire(
                 if let Ok(mut obstacle) =
                     obstacle_query.get_mut::<super::laser::ObstacleComponent>(entity)
                 {
-                    obstacle.remaining_life = if obstacle.remaining_life < fire.damage {
-                        0
-                    } else {
-                        obstacle.remaining_life - fire.damage
-                    };
-                    if obstacle.remaining_life == 0 {
+                    obstacle.remaining_life -= fire.damage as i32;
+                    if obstacle.remaining_life <= 0 {
                         interesting_events.send(if fire.from_player {
                             InterestingEvent::ObstacleDestroyedByPlayer
                         } else {
@@ -200,7 +196,7 @@ pub fn destroyed_obstacles(
     let ratio = wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
 
     for (entity, obstacle, mut children) in obstacle_query.iter_mut() {
-        if obstacle.remaining_life == 0 {
+        if obstacle.remaining_life <= 0 {
             commands.remove_one::<Occupied>(entity);
             commands.remove_one::<super::laser::ObstacleComponent>(entity);
             let mut targets = vec![];

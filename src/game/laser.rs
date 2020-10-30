@@ -123,15 +123,15 @@ pub fn setup(
 
 pub struct ObstacleSprite;
 pub struct ObstacleComponent {
-    pub original_life: usize,
-    pub remaining_life: usize,
+    pub original_life: i32,
+    pub remaining_life: i32,
 }
 
 impl ObstacleComponent {
     fn new(life: usize) -> Self {
         ObstacleComponent {
-            original_life: life,
-            remaining_life: life,
+            original_life: life as i32,
+            remaining_life: life as i32,
         }
     }
 }
