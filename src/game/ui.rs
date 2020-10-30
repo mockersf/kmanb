@@ -46,7 +46,7 @@ pub fn ui_event_update(
     mut buttons: ResMut<Assets<crate::ui::button::Button>>,
     mut round_text: Query<(&mut Text, &UiComponent, &Parent)>,
     is_new_best: Query<&Stared>,
-    player_query: Query<With<PlayerComponent, Entity>>,
+    mut player_query: Query<With<PlayerComponent, (Entity, &mut Transform)>>,
 ) {
     let transparent_background = materials.add(Color::NONE.into());
     let menu_indicator: Handle<ColorMaterial> =
@@ -111,8 +111,9 @@ pub fn ui_event_update(
             }
             GameEvents::Lost(_) => {
                 commands.spawn((DeathAnimation(Timer::from_seconds(2., false)), ScreenTag));
-                for player_entity in &mut player_query.iter() {
+                for (player_entity, mut transform) in player_query.iter_mut() {
                     commands.remove_one::<bevy_easings::EasingComponent<Transform>>(player_entity);
+                    transform.scale = Vec3::new(1., 1., 1.);
                 }
                 game.state = GameState::Death;
             }
