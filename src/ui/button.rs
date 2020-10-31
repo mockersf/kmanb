@@ -154,7 +154,7 @@ fn button_effect(
 ) {
     for (_button, interaction, children) in interaction_query.iter_mut() {
         let mut material = image_query
-            .get_mut::<Handle<ColorMaterial>>(children[children.len() - 1])
+            .get_component_mut::<Handle<ColorMaterial>>(children[children.len() - 1])
             .unwrap();
         match *interaction {
             Interaction::Clicked => {

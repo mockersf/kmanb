@@ -22,7 +22,7 @@ pub fn flash_bombs(
             let mut explode_now = false;
             for child in children.iter() {
                 if bomb_and_fire_sprites_query
-                    .get::<FireSprite>(*child)
+                    .get_component::<FireSprite>(*child)
                     .is_ok()
                 {
                     interesting_event.send(InterestingEvent::BombChainDetonated);
@@ -31,7 +31,10 @@ pub fn flash_bombs(
             }
             if bomb.timer.just_finished && bomb.state == BombState::Fuse {
                 for child in children.iter() {
-                    if bombs_sprite_query.get::<BombSprite>(*child).is_ok() {
+                    if bombs_sprite_query
+                        .get_component::<BombSprite>(*child)
+                        .is_ok()
+                    {
                         commands.insert_one(
                             *child,
                             bevy_easings::Ease::ease(
@@ -62,7 +65,10 @@ pub fn flash_bombs(
                 commands.remove_one::<BombComponent>(entity);
                 let mut targets = vec![];
                 for child in children.iter() {
-                    if bombs_sprite_query.get::<BombSprite>(*child).is_ok() {
+                    if bombs_sprite_query
+                        .get_component::<BombSprite>(*child)
+                        .is_ok()
+                    {
                         commands.despawn(*child);
                         targets.push(*child);
                     }
@@ -101,14 +107,14 @@ pub fn flash_bombs(
                     if !stop_top && bomb.x + i < BOARD_X {
                         let entity = game.board.as_ref().unwrap()[bomb.y][bomb.x + i].entity;
                         stop_top = obstacle_query
-                            .get::<super::laser::ObstacleComponent>(entity)
+                            .get_component::<super::laser::ObstacleComponent>(entity)
                             .is_ok();
                         set_on_fire(entity, bomb.x + i, bomb.y);
                     }
                     if !stop_bottom && bomb.x as i32 - i as i32 > 0 {
                         let entity = game.board.as_ref().unwrap()[bomb.y][bomb.x - i].entity;
                         stop_bottom = obstacle_query
-                            .get::<super::laser::ObstacleComponent>(entity)
+                            .get_component::<super::laser::ObstacleComponent>(entity)
                             .is_ok();
                         set_on_fire(entity, bomb.x - i, bomb.y);
                     }
@@ -120,14 +126,14 @@ pub fn flash_bombs(
                     if !stop_right && bomb.y + j < BOARD_Y {
                         let entity = game.board.as_ref().unwrap()[bomb.y + j][bomb.x].entity;
                         stop_right = obstacle_query
-                            .get::<super::laser::ObstacleComponent>(entity)
+                            .get_component::<super::laser::ObstacleComponent>(entity)
                             .is_ok();
                         set_on_fire(entity, bomb.x, bomb.y + j);
                     }
                     if !stop_left && bomb.y as i32 - j as i32 > 0 {
                         let entity = game.board.as_ref().unwrap()[bomb.y - j][bomb.x].entity;
                         stop_left = obstacle_query
-                            .get::<super::laser::ObstacleComponent>(entity)
+                            .get_component::<super::laser::ObstacleComponent>(entity)
                             .is_ok();
                         set_on_fire(entity, bomb.x, bomb.y - j);
                     }
@@ -161,14 +167,17 @@ pub fn fire(
                 commands.remove_one::<FireComponent>(entity);
                 let mut targets = vec![];
                 for child in children.iter() {
-                    if fire_sprite_query.get::<FireSprite>(*child).is_ok() {
+                    if fire_sprite_query
+                        .get_component::<FireSprite>(*child)
+                        .is_ok()
+                    {
                         commands.despawn(*child);
                         targets.push(*child);
                     }
                 }
                 children.retain(|i| !targets.contains(i));
                 if let Ok(mut obstacle) =
-                    obstacle_query.get_mut::<super::laser::ObstacleComponent>(entity)
+                    obstacle_query.get_component_mut::<super::laser::ObstacleComponent>(entity)
                 {
                     obstacle.remaining_life -= fire.damage as i32;
                     if obstacle.remaining_life <= 0 {
@@ -202,7 +211,7 @@ pub fn destroyed_obstacles(
             let mut targets = vec![];
             for child in children.iter() {
                 if obstacle_sprite_query
-                    .get::<super::laser::ObstacleSprite>(*child)
+                    .get_component::<super::laser::ObstacleSprite>(*child)
                     .is_ok()
                 {
                     commands.despawn(*child);
@@ -293,7 +302,10 @@ pub fn player_powerups(
                 commands.remove_one::<PowerUpComponent>(entity);
                 let mut targets = vec![];
                 for child in children.iter() {
-                    if powerup_sprite_query.get::<PowerUpSprite>(*child).is_ok() {
+                    if powerup_sprite_query
+                        .get_component::<PowerUpSprite>(*child)
+                        .is_ok()
+                    {
                         commands.despawn(*child);
                         targets.push(*child);
                     }

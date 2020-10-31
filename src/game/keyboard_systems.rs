@@ -180,7 +180,7 @@ pub fn player_command(
                         move_to_do = MoveToDo::Bump(*direction);
                     } else if x < 0 {
                         if occupied_tiles
-                            .get::<super::laser::ObstacleComponent>(
+                            .get_component::<super::laser::ObstacleComponent>(
                                 game.board.as_ref().unwrap()[y as usize][BOARD_X - 1].entity,
                             )
                             .is_ok()
@@ -192,7 +192,7 @@ pub fn player_command(
                     } else if x >= BOARD_X as i32 {
                         move_to_do = MoveToDo::Teleport(0, y as u32);
                     } else if occupied_tiles
-                        .get::<super::laser::ObstacleComponent>(
+                        .get_component::<super::laser::ObstacleComponent>(
                             game.board.as_ref().unwrap()[y as usize][x as usize].entity,
                         )
                         .is_ok()
@@ -202,7 +202,7 @@ pub fn player_command(
 
                     for (entity, mut player, transform) in player_query.iter_mut() {
                         if chained_eased_query
-                            .get::<bevy_easings::EasingChainComponent<Transform>>(entity)
+                            .get_component::<bevy_easings::EasingChainComponent<Transform>>(entity)
                             .is_ok()
                         {
                             commands.remove_one::<bevy_easings::EasingChainComponent<Transform>>(

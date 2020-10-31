@@ -18,7 +18,7 @@ pub fn remove_indications(
             let mut targets = vec![];
             for child in children.iter() {
                 if indication_sprite_query
-                    .get::<TeleportIndicationSprite>(*child)
+                    .get_component::<TeleportIndicationSprite>(*child)
                     .is_ok()
                 {
                     commands.despawn(*child);

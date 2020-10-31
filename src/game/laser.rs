@@ -27,7 +27,7 @@ pub fn move_laser(
                     for y in 0..BOARD_Y {
                         let entity =
                             game.board.as_ref().unwrap()[y as usize][game.laser.x - 1].entity;
-                        if fire_query.get::<FireComponent>(entity).is_err() {
+                        if fire_query.get_component::<FireComponent>(entity).is_err() {
                             commands
                                 .spawn(SpriteComponents {
                                     material: fire_handle.clone(),
@@ -161,7 +161,9 @@ pub fn update_obstacle_sprite(
                 obstacle_25.clone()
             };
             for child in children.iter() {
-                if let Ok(mut sprite) = sprite_query.get_mut::<Handle<ColorMaterial>>(*child) {
+                if let Ok(mut sprite) =
+                    sprite_query.get_component_mut::<Handle<ColorMaterial>>(*child)
+                {
                     if *sprite != obstacle_handle.clone() {
                         *sprite = obstacle_handle.clone();
                     }
@@ -206,7 +208,7 @@ pub fn spawn_obstacles(
                             .unwrap_or(false)
                     })
                     .map(|(x, y)| game.board.as_ref().unwrap()[y][x].entity)
-                    .filter(|cell| occupied_tiles.get::<Occupied>(*cell).is_err())
+                    .filter(|cell| occupied_tiles.get_component::<Occupied>(*cell).is_err())
                     .take(game.laser.nb_obstacles)
                     .for_each(|entity| {
                         commands

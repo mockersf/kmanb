@@ -60,7 +60,7 @@ pub fn ui_event_update(
                     if *component == UiComponent::Round {
                         text.value = format!("Round {}", game.round);
                         if screen.is_new_highround(game.round) {
-                            if is_new_best.get::<Stared>(parent.0).is_err() {
+                            if is_new_best.get_component::<Stared>(parent.0).is_err() {
                                 text.style.color = crate::ui::ColorScheme::TEXT_HIGHLIGHT;
                                 commands.spawn(ImageComponents {
                                     style: Style {
@@ -348,7 +348,7 @@ pub fn score(
                 score.value = format!("{}", game.score);
                 game.score += game.round as u32;
                 if screen.is_new_highscore(game.score) {
-                    if is_new_best.get::<Stared>(parent.0).is_err() {
+                    if is_new_best.get_component::<Stared>(parent.0).is_err() {
                         score.style.color = crate::ui::ColorScheme::TEXT_HIGHLIGHT;
                         commands.spawn(ImageComponents {
                             style: Style {
