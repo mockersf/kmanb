@@ -51,7 +51,7 @@ pub fn flash_bombs(
                                 bevy_easings::EaseFunction::QuarticInOut,
                                 bevy_easings::EasingType::PingPong {
                                     duration: std::time::Duration::from_millis(100),
-                                    pause: std::time::Duration::from_millis(25),
+                                    pause: Some(std::time::Duration::from_millis(25)),
                                 },
                             ),
                         );
@@ -101,38 +101,38 @@ pub fn flash_bombs(
                     );
                 };
 
-                let mut stop_top = false;
-                let mut stop_bottom = false;
+                let mut stop_right = false;
+                let mut stop_left = false;
                 for i in 0..=bomb.range as usize {
-                    if !stop_top && bomb.x + i < BOARD_X {
+                    if !stop_right && bomb.x + i < BOARD_X {
                         let entity = game.board.as_ref().unwrap()[bomb.y][bomb.x + i].entity;
-                        stop_top = obstacle_query
+                        stop_right = obstacle_query
                             .get_component::<super::laser::ObstacleComponent>(entity)
                             .is_ok();
                         set_on_fire(entity, bomb.x + i, bomb.y);
                     }
-                    if !stop_bottom && bomb.x as i32 - i as i32 > 0 {
+                    if !stop_left && bomb.x as i32 - i as i32 > 0 {
                         let entity = game.board.as_ref().unwrap()[bomb.y][bomb.x - i].entity;
-                        stop_bottom = obstacle_query
+                        stop_left = obstacle_query
                             .get_component::<super::laser::ObstacleComponent>(entity)
                             .is_ok();
                         set_on_fire(entity, bomb.x - i, bomb.y);
                     }
                 }
 
-                let mut stop_right = false;
-                let mut stop_left = false;
+                let mut stop_top = false;
+                let mut stop_bottom = false;
                 for j in 0..=bomb.range as usize {
-                    if !stop_right && bomb.y + j < BOARD_Y {
+                    if !stop_top && bomb.y + j < BOARD_Y {
                         let entity = game.board.as_ref().unwrap()[bomb.y + j][bomb.x].entity;
-                        stop_right = obstacle_query
+                        stop_top = obstacle_query
                             .get_component::<super::laser::ObstacleComponent>(entity)
                             .is_ok();
                         set_on_fire(entity, bomb.x, bomb.y + j);
                     }
-                    if !stop_left && bomb.y as i32 - j as i32 > 0 {
+                    if !stop_bottom && bomb.y as i32 - j as i32 >= 0 {
                         let entity = game.board.as_ref().unwrap()[bomb.y - j][bomb.x].entity;
-                        stop_left = obstacle_query
+                        stop_bottom = obstacle_query
                             .get_component::<super::laser::ObstacleComponent>(entity)
                             .is_ok();
                         set_on_fire(entity, bomb.x, bomb.y - j);

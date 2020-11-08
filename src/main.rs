@@ -1,3 +1,6 @@
+// disable console opening on windows
+#![windows_subsystem = "windows"]
+
 use bevy::{app::AppExit, prelude::*, window::WindowMode};
 use serde::{Deserialize, Serialize};
 
@@ -131,7 +134,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_resource(settings)
         .add_resource(ClearColor(Color::rgb(0., 0., 0.01)));
 
-    builder.add_plugin_group_with(DefaultPlugins, |group| {
+    builder.add_plugins_with(DefaultPlugins, |group| {
         #[cfg(feature = "bundled")]
         return group
             .disable::<bevy::asset::AssetPlugin>()
@@ -147,14 +150,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if cfg!(debug_assertions) {
         builder
             .add_plugin(::bevy::diagnostic::FrameTimeDiagnosticsPlugin)
-            .add_plugin(::bevy_diagnostic_counter::EntityCountDiagnosticsPlugin)
-            .add_plugin(::bevy_diagnostic_counter::AssetCountDiagnosticsPlugin::<ColorMaterial>::default())
-            .add_plugin(::bevy_diagnostic_counter::AssetCountDiagnosticsPlugin::<Texture>::default())
             .add_plugin(::bevy_log_diagnostic::LogDiagnosticsPlugin::filtered(vec![
                 ::bevy::diagnostic::FrameTimeDiagnosticsPlugin::FPS,
-                ::bevy_diagnostic_counter::EntityCountDiagnosticsPlugin::ENTITY_COUNT,
-                ::bevy_diagnostic_counter::AssetCountDiagnosticsPlugin::<ColorMaterial>::diagnostic_id(),
-                ::bevy_diagnostic_counter::AssetCountDiagnosticsPlugin::<Texture>::diagnostic_id(),
             ]));
     }
 

@@ -24,11 +24,6 @@ impl Into<String> for PauseButton {
     }
 }
 
-#[derive(Default)]
-pub struct GameEventsListenerState {
-    event_reader: EventReader<GameEvents>,
-}
-
 pub struct Stared;
 
 pub struct PauseMenuItemSelector(i32);
@@ -37,7 +32,7 @@ pub fn ui_event_update(
     mut commands: Commands,
     screen: Res<crate::GameScreen>,
     mut game: ResMut<Game>,
-    (mut state, events): (ResMut<GameEventsListenerState>, ResMut<Events<GameEvents>>),
+    (mut event_reader, events): (Local<EventReader<GameEvents>>, ResMut<Events<GameEvents>>),
     mut asset_handles: ResMut<crate::AssetHandles>,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -52,7 +47,7 @@ pub fn ui_event_update(
     let menu_indicator: Handle<ColorMaterial> =
         asset_handles.get_ui_selection_handle(&asset_server, &mut materials);
 
-    for event in state.event_reader.iter(&events) {
+    for event in event_reader.iter(&events) {
         match event {
             GameEvents::NewRound => {
                 game.round += 1;

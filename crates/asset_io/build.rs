@@ -13,7 +13,12 @@ fn main() {
     file.write_all("pub fn include_all_assets(in_memory: &mut crate::InMemoryAssetIo){\n".as_ref())
         .unwrap();
 
-    let dir = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("../../assets");
+    let dir = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap())
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .join("assets");
     visit_dirs(&dir)
         .iter()
         .filter(|path| {
@@ -23,7 +28,7 @@ fn main() {
         .for_each(|(fullpath, path)| {
             file.write_all(
                 format!(
-                    r#"in_memory.add_entity(std::path::Path::new("{}"), include_bytes!("{}"));
+                    r#"in_memory.add_entity(std::path::Path::new({:?}), include_bytes!({:?}));
 "#,
                     path.to_string_lossy(),
                     fullpath.to_string_lossy()

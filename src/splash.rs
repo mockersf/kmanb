@@ -1,7 +1,4 @@
-use bevy::prelude::{
-    AppBuilder, AssetServer, Assets, ColorMaterial, Commands, DespawnRecursiveExt, Entity,
-    IntoQuerySystem, Query, Res, ResMut, SpriteComponents, Time, Timer, Transform, Vec3,
-};
+use bevy::prelude::*;
 use rand::Rng;
 
 use tracing::info;
@@ -65,12 +62,12 @@ fn tear_down(
     mut commands: Commands,
     game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
-    query: Query<(Entity, &ScreenTag)>,
+    query: Query<With<ScreenTag, Entity>>,
 ) {
     if game_screen.current_screen != CURRENT_SCREEN && screen.loaded {
         info!("tear down");
 
-        for (entity, _tag) in &mut query.iter() {
+        for entity in query.iter() {
             commands.despawn_recursive(entity);
         }
 
@@ -87,8 +84,8 @@ fn done(time: Res<Time>, mut screen: ResMut<Screen>, mut state: ResMut<crate::Ga
     }
 }
 
-fn animate_logo(mut query: Query<(&Timer, &mut Transform, &ScreenTag)>) {
-    for (timer, mut transform, _tag) in query.iter_mut() {
+fn animate_logo(mut query: Query<With<ScreenTag, (&Timer, &mut Transform)>>) {
+    for (timer, mut transform) in query.iter_mut() {
         if timer.finished {
             let translation = transform.translation;
             if translation.x() != 0. || translation.y() != 0. {

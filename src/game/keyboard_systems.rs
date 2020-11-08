@@ -1,10 +1,5 @@
 use super::*;
 
-#[derive(Default)]
-pub struct KeyboardState {
-    event_reader: EventReader<KeyboardInput>,
-}
-
 #[derive(Debug, Clone, Copy)]
 pub enum MoveDirection {
     Up,
@@ -47,13 +42,16 @@ pub fn keyboard_event_system(
         ResMut<Game>,
         ResMut<Screen>,
     ),
-    (mut state, keyboard_input_events): (ResMut<KeyboardState>, Res<Events<KeyboardInput>>),
+    (mut event_reader, keyboard_input_events): (
+        Local<EventReader<KeyboardInput>>,
+        Res<Events<KeyboardInput>>,
+    ),
     mut game_events: ResMut<Events<GameEvents>>,
     mut player_action: ResMut<Events<PlayerAction>>,
     used_bomb: Query<&BombComponent>,
 ) {
     if game_screen.current_screen == CURRENT_SCREEN {
-        for event in state.event_reader.iter(&keyboard_input_events) {
+        for event in event_reader.iter(&keyboard_input_events) {
             if (event.key_code == Some(KeyCode::P) || event.key_code == Some(KeyCode::Escape))
                 && event.state == ElementState::Pressed
             {
@@ -104,11 +102,6 @@ pub fn keyboard_event_system(
     }
 }
 
-#[derive(Default)]
-pub struct PlayerActionListenerState {
-    event_reader: EventReader<PlayerAction>,
-}
-
 pub fn player_move_timer(time: Res<Time>, mut player: Mut<PlayerComponent>) {
     if let Some(timer) = player.0.as_mut() {
         timer.tick(time.delta_seconds);
@@ -118,7 +111,7 @@ pub fn player_move_timer(time: Res<Time>, mut player: Mut<PlayerComponent>) {
 pub fn player_command(
     mut commands: Commands,
     mut game: ResMut<Game>,
-    (mut state, events): (ResMut<PlayerActionListenerState>, Res<Events<PlayerAction>>),
+    (mut event_reader, events): (Local<EventReader<PlayerAction>>, Res<Events<PlayerAction>>),
     asset_handles: Res<crate::AssetHandles>,
     (wnds, time): (Res<Windows>, Res<Time>),
     mut interesting_events: ResMut<Events<InterestingEvent>>,
@@ -129,7 +122,7 @@ pub fn player_command(
     let ratio = wnds.get_primary().unwrap().width() as f32 / BOARD_X as f32 / TILE_SIZE as f32;
     if game.board.is_some() && game.state == GameState::Play {
         let mut moved = false;
-        for event in state.event_reader.iter(&events) {
+        for event in event_reader.iter(&events) {
             match (event, moved) {
                 (PlayerAction::PoseBomb, _) => {
                     let bomb_handle = asset_handles.get_board_handles_unsafe().bomb;

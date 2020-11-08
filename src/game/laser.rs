@@ -139,7 +139,7 @@ impl ObstacleComponent {
 pub fn update_obstacle_sprite(
     game_screen: Res<crate::GameScreen>,
     asset_handles: Res<crate::AssetHandles>,
-    mut sprite_query: Query<(&mut Handle<ColorMaterial>, &ObstacleSprite)>,
+    mut sprite_query: Query<With<ObstacleSprite, &mut Handle<ColorMaterial>>>,
     obstacle_query: Query<(&ObstacleComponent, &Children)>,
 ) {
     if game_screen.current_screen == CURRENT_SCREEN {
@@ -149,7 +149,7 @@ pub fn update_obstacle_sprite(
         let obstacle_50 = board_assets.obstacle_50;
         let obstacle_25 = board_assets.obstacle_25;
 
-        for (obstacle, children) in &mut obstacle_query.iter() {
+        for (obstacle, children) in obstacle_query.iter() {
             let state = obstacle.remaining_life as f32 / obstacle.original_life as f32;
             let obstacle_handle = if state > 0.75 {
                 obstacle_100.clone()

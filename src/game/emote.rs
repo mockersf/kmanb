@@ -3,14 +3,9 @@ use rand::Rng;
 
 use super::{Game, GameEvents};
 
-#[derive(Default)]
-pub struct GameEventsListenerState {
-    event_reader: EventReader<GameEvents>,
-}
-
 pub fn emote_setter(
     mut commands: Commands,
-    (mut state, events): (ResMut<GameEventsListenerState>, Res<Events<GameEvents>>),
+    (mut event_reader, events): (Local<EventReader<GameEvents>>, Res<Events<GameEvents>>),
     asset_handles: Res<crate::AssetHandles>,
     game: Res<Game>,
     (wnds, time): (Res<Windows>, Res<Time>),
@@ -46,7 +41,7 @@ pub fn emote_setter(
         commands.push_children(entity, &[emote]);
         return;
     }
-    for event in state.event_reader.iter(&events) {
+    for event in event_reader.iter(&events) {
         match event {
             GameEvents::NewRound => {
                 if game.round % 2 == 0 {

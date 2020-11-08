@@ -31,7 +31,7 @@ impl bevy::app::Plugin for Plugin {
             .add_system(keyboard_input_system.system())
             .add_system(setup.system())
             .add_system(button_system.system())
-            .add_system(walk_animate_sprite_system.system())
+            .add_system(animate_sprite_system.system())
             .add_system(remove_emote.system())
             .add_system(display_menu_item_selector.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
@@ -308,12 +308,12 @@ fn tear_down(
     mut commands: Commands,
     game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
-    query: Query<(Entity, &ScreenTag)>,
+    query: Query<With<ScreenTag, Entity>>,
 ) {
     if game_screen.current_screen != CURRENT_SCREEN && screen.loaded {
         info!("tear down");
 
-        for (entity, _tag) in &mut query.iter() {
+        for entity in &mut query.iter() {
             commands.despawn_recursive(entity);
         }
 
@@ -387,7 +387,7 @@ fn button_system(
 
 pub struct Emote(pub Timer);
 
-fn walk_animate_sprite_system(
+fn animate_sprite_system(
     mut commands: Commands,
     game_screen: Res<crate::GameScreen>,
     asset_handles: Res<crate::AssetHandles>,

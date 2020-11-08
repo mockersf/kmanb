@@ -1,5 +1,5 @@
 use bevy::{
-    input::keyboard::{ElementState, KeyboardInput},
+    input::{keyboard::KeyboardInput, ElementState},
     prelude::*,
 };
 use tracing::info;
@@ -37,10 +37,6 @@ impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_resource(Screen::default())
             .init_resource::<Game>()
-            .init_resource::<keyboard_systems::KeyboardState>()
-            .init_resource::<keyboard_systems::PlayerActionListenerState>()
-            .init_resource::<ui::GameEventsListenerState>()
-            .init_resource::<emote::GameEventsListenerState>()
             .add_event::<GameEvents>()
             .add_event::<keyboard_systems::PlayerAction>()
             .add_event::<InterestingEvent>()
@@ -178,12 +174,12 @@ fn tear_down(
     mut commands: Commands,
     game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
-    query: Query<(Entity, &ScreenTag)>,
+    query: Query<With<ScreenTag, Entity>>,
 ) {
     if game_screen.current_screen != CURRENT_SCREEN && screen.loaded {
         info!("tear down");
 
-        for (entity, _tag) in &mut query.iter() {
+        for entity in &mut query.iter() {
             commands.despawn_recursive(entity);
         }
 

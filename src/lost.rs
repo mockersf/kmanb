@@ -28,55 +28,28 @@ pub struct Plugin;
 impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_resource(Screen::default())
-            .init_resource::<GameEventsListenerState>()
             .init_resource::<GameStats>()
-            .init_resource::<InterestingEventsListenerState>()
-            .add_system(mouse_input_system.system())
+            .add_system(input_system.system())
             .add_system(setup.system())
-            .add_system(update_cause_of_death.system())
             .add_system(update_stats.system())
-            .add_system(keyboard_input_system.system())
             .add_system(hurt_animate_sprite_system.system())
             .add_system_to_stage(crate::custom_stage::TEAR_DOWN, tear_down.system());
     }
 }
 
-#[derive(Default)]
-pub struct GameEventsListenerState {
-    event_reader: EventReader<crate::game::GameEvents>,
-}
-
-#[derive(Default)]
-pub struct InterestingEventsListenerState {
-    event_reader: EventReader<crate::game::InterestingEvent>,
-}
-
-fn update_cause_of_death(
-    mut stats: ResMut<GameStats>,
-    (mut state, events): (
-        ResMut<GameEventsListenerState>,
-        ResMut<Events<crate::game::GameEvents>>,
-    ),
-) {
-    state
-        .event_reader
-        .iter(&events)
-        .filter_map(|event| match event {
-            crate::game::GameEvents::Lost(c) => Some(c),
-            _ => None,
-        })
-        .for_each(|cause| stats.last_seen_cause_of_death = Some(*cause));
-}
-
 fn update_stats(
     mut stats: ResMut<GameStats>,
     game: Res<crate::game::Game>,
-    (mut state, events): (
-        ResMut<InterestingEventsListenerState>,
+    (mut interesting_event_reader, interesting_events): (
+        Local<EventReader<crate::game::InterestingEvent>>,
         ResMut<Events<crate::game::InterestingEvent>>,
     ),
+    (mut game_event_reader, game_events): (
+        Local<EventReader<crate::game::GameEvents>>,
+        ResMut<Events<crate::game::GameEvents>>,
+    ),
 ) {
-    for event in state.event_reader.iter(&events) {
+    for event in interesting_event_reader.iter(&interesting_events) {
         match event {
             crate::game::InterestingEvent::BombChainDetonated => stats.bomb_chained += 1,
             crate::game::InterestingEvent::BombPlaced => {
@@ -93,6 +66,13 @@ fn update_stats(
             }
         }
     }
+    game_event_reader
+        .iter(&game_events)
+        .filter_map(|event| match event {
+            crate::game::GameEvents::Lost(c) => Some(c),
+            _ => None,
+        })
+        .for_each(|cause| stats.last_seen_cause_of_death = Some(*cause));
 }
 
 fn setup(
@@ -322,12 +302,12 @@ fn tear_down(
     mut commands: Commands,
     game_screen: Res<crate::GameScreen>,
     mut screen: ResMut<Screen>,
-    query: Query<(Entity, &ScreenTag)>,
+    query: Query<With<ScreenTag, Entity>>,
 ) {
     if game_screen.current_screen != CURRENT_SCREEN && screen.loaded {
         info!("tear down");
 
-        for (entity, _tag) in &mut query.iter() {
+        for entity in &mut query.iter() {
             commands.despawn_recursive(entity);
         }
 
@@ -335,26 +315,17 @@ fn tear_down(
     }
 }
 
-fn keyboard_input_system(
-    mut game_screen: ResMut<crate::GameScreen>,
-    keyboard_input: Res<Input<KeyCode>>,
-) {
-    if game_screen.current_screen == CURRENT_SCREEN
-        && (keyboard_input.just_released(KeyCode::Escape)
-            || keyboard_input.just_released(KeyCode::Space))
-    {
-        game_screen.current_screen = crate::Screen::Menu;
-    }
-}
-
-fn mouse_input_system(
+fn input_system(
     mut game_screen: ResMut<crate::GameScreen>,
     screen: Res<Screen>,
     mouse_button_input: Res<Input<MouseButton>>,
+    keyboard_input: Res<Input<KeyCode>>,
 ) {
     if game_screen.current_screen == CURRENT_SCREEN
         && screen.loaded
-        && mouse_button_input.just_pressed(MouseButton::Left)
+        && (mouse_button_input.just_pressed(MouseButton::Left)
+            || keyboard_input.just_released(KeyCode::Escape)
+            || keyboard_input.just_released(KeyCode::Space))
     {
         game_screen.current_screen = crate::Screen::Menu;
     }
