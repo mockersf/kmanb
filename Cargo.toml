@@ -16,7 +16,7 @@ enum-utils = "0.1"
 lazy_static = "1.4"
 bevy_easings = { version = "0.2", default-features = false }
 bevy_ninepatch = "0.3"
-bevy_log_diagnostic = "0.2"
+bevy_log_diagnostic = "0.3"
 # bevy_diagnostic_counter = { git = "https://github.com/mockersf/bevy_extra" }
 
 config = { path = "crates/config" }
